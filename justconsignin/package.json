@@ -2,7 +2,6 @@
   "name": "jatb-consignment",
   "private": true,
   "scripts": {
-    "postinstall": "node scripts/apply-tier1-layout.mjs",
     "build": "react-router build",
     "dev": "shopify app dev",
     "config:link": "shopify app config link",
