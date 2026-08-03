@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, ShoppingBag } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import ConsignmentIntakeApp from './consignment_intake';
+import { getConsignmentData } from './consignmentApi';
 
 const TIER_ONE_CATEGORIES = [
   'Clothing',
@@ -45,8 +46,45 @@ function ShopifySaveButton({ target }) {
   );
 }
 
+function productChannel(item) {
+  if (!item?.shopifyProductId) {
+    return { label: 'Manual', className: 'manual' };
+  }
+
+  if (String(item.shopifyProductStatus || '').toUpperCase() !== 'ACTIVE') {
+    return { label: 'Shopify Draft', className: 'shopify-draft' };
+  }
+
+  if (item.publishOnline || item.salesChannel === 'pos_online' || item.onlineStorePublished) {
+    return { label: 'POS + Online', className: 'online' };
+  }
+
+  return { label: 'POS', className: 'pos' };
+}
+
 export default function TierOneConsignmentApp() {
   const [shopifyTarget, setShopifyTarget] = useState(null);
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadItems() {
+      try {
+        const data = await getConsignmentData();
+        if (active) setItems(Array.isArray(data?.items) ? data.items : []);
+      } catch {
+        if (active) setItems([]);
+      }
+    }
+
+    loadItems();
+    const refreshTimer = window.setInterval(loadItems, 5000);
+    return () => {
+      active = false;
+      window.clearInterval(refreshTimer);
+    };
+  }, []);
 
   useEffect(() => {
     function replaceCategoryOptions(select) {
@@ -61,8 +99,6 @@ export default function TierOneConsignmentApp() {
       }));
       select.value = currentValue;
       select.dataset.tierOneCategories = 'true';
-
-      if (currentValue !== select.value) select.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     function configureIntake() {
@@ -118,16 +154,44 @@ export default function TierOneConsignmentApp() {
       if (typeField) typeField.classList.add('tier1-unused-subcategory');
     }
 
+    function configureItemList() {
+      const header = document.querySelector('.cm-list-row.cm-list-head');
+      if (header && !header.querySelector('.tier1-product-column-heading')) {
+        const heading = document.createElement('span');
+        heading.className = 'tier1-product-column-heading';
+        heading.textContent = 'Product';
+        header.insertBefore(heading, header.lastElementChild);
+      }
+
+      document.querySelectorAll('button.cm-list-row:not(.cm-list-head)').forEach((row) => {
+        const itemDetails = row.querySelector('.cm-item-primary > span:last-child > span');
+        const itemNumber = String(itemDetails?.textContent || '').split('·')[0].trim();
+        const item = items.find((entry) => String(entry.itemNumber || '').trim() === itemNumber);
+        if (!item) return;
+
+        const channel = productChannel(item);
+        let badge = row.querySelector('.tier1-product-channel');
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.className = 'tier1-product-channel';
+          row.insertBefore(badge, row.lastElementChild);
+        }
+        badge.className = `tier1-product-channel ${channel.className}`;
+        badge.textContent = channel.label;
+      });
+    }
+
     function configure() {
       configureIntake();
       configureEdit();
+      configureItemList();
     }
 
     configure();
     const observer = new MutationObserver(configure);
     observer.observe(document.body, { childList: true, subtree: true });
     return () => observer.disconnect();
-  }, []);
+  }, [items]);
 
   function saveManualItem() {
     const createCheckbox = document.querySelector('.jatb-shopify-section .jatb-product-choice:not(.online) input[type="checkbox"]');
@@ -182,11 +246,63 @@ export default function TierOneConsignmentApp() {
           font-weight: 600;
         }
         .jatb-fab-wrap .jatb-btn svg { width: 18px; height: 18px; }
+
+        .cm-list-row {
+          grid-template-columns: minmax(220px, 2fr) minmax(130px, 1fr) 110px 110px 125px 105px !important;
+        }
+        .tier1-product-channel {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: fit-content;
+          min-width: 74px;
+          padding: 5px 9px;
+          border-radius: 999px;
+          font-size: 10px;
+          font-weight: 750;
+          line-height: 1;
+          text-transform: uppercase;
+          white-space: nowrap;
+        }
+        .tier1-product-channel.manual {
+          background: #F1F2F3;
+          color: #5C5F62;
+        }
+        .tier1-product-channel.shopify-draft {
+          background: var(--gold-soft);
+          color: #8A5D14;
+        }
+        .tier1-product-channel.pos {
+          background: var(--green-soft);
+          color: var(--green-dark);
+        }
+        .tier1-product-channel.online {
+          background: #DFF5E7;
+          color: #17663A;
+        }
+
+        @media (max-width: 900px) {
+          .cm-list-row {
+            grid-template-columns: minmax(180px, 2fr) minmax(110px, 1fr) 90px 110px 92px !important;
+          }
+          .cm-list-row > :nth-child(4) { display: none; }
+        }
         @media (max-width: 700px) {
           .tier1-manual-primary .jatb-intake-primary-fields {
             grid-template-columns: minmax(0, 1fr) !important;
           }
           .tier1-shopify-photo-area { flex-direction: column; }
+        }
+        @media (max-width: 640px) {
+          .cm-list-row {
+            grid-template-columns: minmax(0, 1fr) auto !important;
+          }
+          .cm-list-row > :not(.cm-item-primary):not(.tier1-product-channel):last-child {
+            display: none;
+          }
+          .tier1-product-channel {
+            justify-self: end;
+          }
         }
       `}</style>
 
