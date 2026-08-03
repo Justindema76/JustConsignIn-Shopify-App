@@ -86,16 +86,39 @@ async function prepareItemPhoto(item) {
   };
 }
 
+function applyTierOneCategory(item, index = 0) {
+  if (typeof window === 'undefined') return item;
+
+  const queued = Array.isArray(window.__tierOneBatchCategories)
+    ? window.__tierOneBatchCategories
+    : [];
+  const selected = queued[index] || window.__tierOneSelectedCategory;
+
+  if (!selected) return item;
+  return {
+    ...item,
+    category: selected,
+    type: item.type || '',
+  };
+}
+
 export async function createConsignmentItems(consignorId, items) {
   const preparedItems = [];
-  for (const item of items) {
-    preparedItems.push(await prepareItemPhoto(item));
+  for (let index = 0; index < items.length; index += 1) {
+    const categorized = applyTierOneCategory(items[index], index);
+    preparedItems.push(await prepareItemPhoto(categorized));
   }
+
+  if (typeof window !== 'undefined') {
+    window.__tierOneBatchCategories = [];
+  }
+
   return request('POST', { operation: 'createItems', consignorId, items: preparedItems });
 }
 
 export async function updateConsignmentItem(itemId, item) {
-  const preparedItem = await prepareItemPhoto(item);
+  const categorized = applyTierOneCategory(item);
+  const preparedItem = await prepareItemPhoto(categorized);
   return request('PATCH', { operation: 'updateItem', itemId, item: preparedItem });
 }
 
