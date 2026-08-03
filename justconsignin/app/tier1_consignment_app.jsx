@@ -3,150 +3,200 @@ import { createPortal } from 'react-dom';
 import { Check, ShoppingBag } from 'lucide-react';
 import ConsignmentIntakeApp from './consignment_intake';
 
-function UpgradePanel({ compact = false }) {
+const TIER_ONE_CATEGORIES = [
+  'Clothing',
+  'Shoes',
+  'Jewellery',
+  'Handbags',
+  'Home Décor',
+  'Furniture',
+  'Electronics',
+  'Appliances',
+  'Books',
+  'Movies & Music',
+  'Video Games',
+  'Collectibles',
+  'Sporting Goods',
+  'Tools',
+  'Toys',
+  'Baby Gear',
+  'Pet Supplies',
+  'Outdoor & Garden',
+  'Art',
+  'Automotive',
+  'Other',
+];
+
+function ShopifySaveButton({ target }) {
+  function saveToShopify() {
+    const createCheckbox = target.querySelector('.jatb-product-choice:not(.online) input[type="checkbox"]');
+    if (createCheckbox && !createCheckbox.checked) createCheckbox.click();
+
+    window.setTimeout(() => {
+      const saveButton = document.querySelector('.jatb-fab-wrap .jatb-btn');
+      saveButton?.click();
+    }, 0);
+  }
+
   return (
-    <div className={`tier1-upgrade-card ${compact ? 'compact' : ''}`}>
-      <div className="tier1-upgrade-heading">
-        <div>
-          <span className="tier1-upgrade-kicker">Shopify Connected</span>
-          <h3>{compact ? 'Connect this store to Shopify' : 'Connect your consignment items directly to Shopify'}</h3>
-          <p>
-            The Manual plan keeps consignors, items, sales, payouts, store credit, and history.
-            Upgrade when you need Shopify products and automatic sales syncing.
-          </p>
-        </div>
-        <span className="tier1-paid-badge">Paid feature</span>
-      </div>
-
-      <div className="tier1-feature-grid">
-        <span><Check size={16} /> Product images</span>
-        <span><Check size={16} /> Shopify products</span>
-        <span><Check size={16} /> Shopify POS</span>
-        <span><Check size={16} /> Inventory tracking</span>
-        <span><Check size={16} /> Automatic sales detection</span>
-      </div>
-
-      <button type="button" className="tier1-upgrade-button">
-        <ShoppingBag size={17} /> Upgrade to Shopify Connected
-      </button>
-    </div>
+    <button type="button" className="tier1-shopify-save" onClick={saveToShopify}>
+      <ShoppingBag size={17} /> Save item and create Shopify product
+    </button>
   );
 }
 
 export default function TierOneConsignmentApp() {
-  const [intakeTarget, setIntakeTarget] = useState(null);
-  const [editTarget, setEditTarget] = useState(null);
+  const [shopifyTarget, setShopifyTarget] = useState(null);
 
   useEffect(() => {
-    function locateTargets() {
-      const intake = document.querySelector('.jatb-shopify-section .jatb-shopify-content');
-      const edit = document.querySelector('.jatb-product-card');
+    function replaceCategoryOptions(select) {
+      if (!select || select.dataset.tierOneCategories === 'true') return;
 
-      if (intake) intake.classList.add('tier1-upgrade-target');
-      if (edit) edit.classList.add('tier1-edit-upgrade-target');
+      const currentValue = TIER_ONE_CATEGORIES.includes(select.value) ? select.value : 'Other';
+      select.replaceChildren(...TIER_ONE_CATEGORIES.map((category) => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        return option;
+      }));
+      select.value = currentValue;
+      select.dataset.tierOneCategories = 'true';
 
-      setIntakeTarget(intake || null);
-      setEditTarget(edit || null);
+      if (currentValue !== select.value) select.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    locateTargets();
-    const observer = new MutationObserver(locateTargets);
+    function configureIntake() {
+      const intakePrimary = document.querySelector('.jatb-intake-primary');
+      const shopifyContent = document.querySelector('.jatb-shopify-section .jatb-shopify-content');
+      const photo = intakePrimary?.querySelector(':scope > .jatb-photo-wrap');
+
+      if (intakePrimary) intakePrimary.classList.add('tier1-manual-primary');
+      if (shopifyContent) {
+        shopifyContent.classList.add('tier1-shopify-content');
+        if (photo && !shopifyContent.contains(photo)) {
+          const photoArea = document.createElement('div');
+          photoArea.className = 'tier1-shopify-photo-area';
+          const label = document.createElement('div');
+          label.className = 'jatb-label';
+          label.textContent = 'Product image';
+          photoArea.append(label, photo);
+          shopifyContent.prepend(photoArea);
+        }
+        setShopifyTarget(shopifyContent);
+      } else {
+        setShopifyTarget(null);
+      }
+
+      const detailGrid = document.querySelector('.jatb-detail-card .jatb-detail-grid');
+      const categoryField = detailGrid?.querySelector(':scope > .jatb-field:first-child');
+      const typeField = detailGrid?.querySelector(':scope > .jatb-field:nth-child(2)');
+      replaceCategoryOptions(categoryField?.querySelector('select'));
+      if (typeField) typeField.classList.add('tier1-unused-subcategory');
+
+      const createChoice = shopifyContent?.querySelector('.jatb-product-choice:not(.online)');
+      if (createChoice) createChoice.classList.add('tier1-hidden-create-choice');
+    }
+
+    function configureEdit() {
+      const editCard = document.querySelector('.jatb-body > .jatb-card');
+      const editShopifyContent = document.querySelector('.jatb-product-card .jatb-shopify-content');
+      const photo = editCard?.querySelector('.jatb-photo-wrap');
+      if (editShopifyContent && photo && !editShopifyContent.contains(photo)) {
+        const photoArea = document.createElement('div');
+        photoArea.className = 'tier1-shopify-photo-area';
+        const label = document.createElement('div');
+        label.className = 'jatb-label';
+        label.textContent = 'Product image';
+        photoArea.append(label, photo);
+        editShopifyContent.prepend(photoArea);
+      }
+
+      const detailGrid = editCard?.querySelector('.jatb-detail-card .jatb-detail-grid');
+      const categoryField = detailGrid?.querySelector(':scope > .jatb-field:first-child');
+      const typeField = detailGrid?.querySelector(':scope > .jatb-field:nth-child(2)');
+      replaceCategoryOptions(categoryField?.querySelector('select'));
+      if (typeField) typeField.classList.add('tier1-unused-subcategory');
+    }
+
+    function configure() {
+      configureIntake();
+      configureEdit();
+    }
+
+    configure();
+    const observer = new MutationObserver(configure);
     observer.observe(document.body, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, []);
 
+  function saveManualItem() {
+    const createCheckbox = document.querySelector('.jatb-shopify-section .jatb-product-choice:not(.online) input[type="checkbox"]');
+    if (createCheckbox?.checked) createCheckbox.click();
+  }
+
   return (
     <>
       <style>{`
-        /* Tier 1 is a normal branch-level app mode. No install scripts or source patching. */
-        .jatb-intake-primary > .jatb-photo-wrap { display: none !important; }
-        .jatb-intake-primary {
+        .tier1-manual-primary {
           grid-template-columns: minmax(0, 1fr) !important;
         }
-        .jatb-intake-primary-fields {
+        .tier1-manual-primary .jatb-intake-primary-fields {
           width: 100% !important;
           grid-template-columns: minmax(0, 1fr) minmax(150px, 240px) !important;
         }
-
-        .jatb-shopify-section .jatb-shopify-summary .jatb-row-sub {
-          color: var(--green-dark);
+        .tier1-shopify-photo-area {
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+          margin: 14px 0 16px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid var(--line);
+        }
+        .tier1-shopify-photo-area > .jatb-label {
+          min-width: 110px;
+          padding-top: 6px;
+        }
+        .tier1-unused-subcategory { display: none !important; }
+        .tier1-hidden-create-choice { display: none !important; }
+        .tier1-shopify-save {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          margin-top: 14px;
+          border: 0;
+          border-radius: 10px;
+          padding: 13px 18px;
+          background: var(--green);
+          color: #fff;
+          font: inherit;
+          font-size: 14px;
           font-weight: 700;
+          cursor: pointer;
         }
-        .jatb-shopify-section .jatb-shopify-summary .jatb-row-sub::before {
-          content: 'Upgrade to Shopify Connected';
-          font-size: 12px;
-        }
-        .jatb-shopify-section .jatb-shopify-summary .jatb-row-sub {
-          font-size: 0;
-        }
-
-        .tier1-upgrade-target > *:not(.tier1-upgrade-card),
-        .tier1-edit-upgrade-target > *:not(.tier1-upgrade-card) {
-          display: none !important;
-        }
-        .tier1-edit-upgrade-target {
-          pointer-events: auto !important;
-          opacity: 1 !important;
-          background: var(--surface) !important;
-          border-color: var(--line) !important;
-        }
-
-        .tier1-upgrade-card { padding: 18px 0 2px; }
-        .tier1-edit-upgrade-target .tier1-upgrade-card { padding: 4px; }
-        .tier1-upgrade-heading {
-          display: flex; align-items: flex-start; justify-content: space-between;
-          gap: 18px;
-        }
-        .tier1-upgrade-heading h3 {
-          margin: 4px 0 7px !important; font-family: inherit !important;
-          font-size: 18px; line-height: 1.25;
-        }
-        .tier1-upgrade-heading p {
-          margin: 0; max-width: 720px; color: var(--muted);
-          font-size: 13px; line-height: 1.55;
-        }
-        .tier1-upgrade-kicker {
-          color: var(--green); font-size: 11px; font-weight: 700;
-          letter-spacing: .08em; text-transform: uppercase;
-        }
-        .tier1-paid-badge {
-          flex: 0 0 auto; padding: 6px 10px; border-radius: 999px;
-          background: var(--gold-soft); border: 1px solid #EFD7A8;
-          color: #765600; font-size: 11px; font-weight: 700;
-        }
-        .tier1-feature-grid {
-          display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 10px 16px; margin: 18px 0;
-        }
-        .tier1-feature-grid span {
-          display: flex; align-items: center; gap: 8px;
-          color: var(--ink); font-size: 13px; font-weight: 600;
-        }
-        .tier1-feature-grid svg { color: var(--green); }
-        .tier1-upgrade-button {
-          width: 100%; display: flex; align-items: center; justify-content: center;
-          gap: 8px; border: 0; border-radius: 10px; padding: 13px 18px;
-          background: var(--green); color: #fff; font: inherit;
-          font-size: 14px; font-weight: 700;
-        }
-
-        /* The Tier 1 save action remains the existing metaobject save function. */
         .jatb-fab-wrap .jatb-btn { font-size: 0 !important; }
         .jatb-fab-wrap .jatb-btn::after {
-          content: 'Save manual item'; font-size: 14px; font-weight: 600;
+          content: 'Save manual item';
+          font-size: 14px;
+          font-weight: 600;
         }
         .jatb-fab-wrap .jatb-btn svg { width: 18px; height: 18px; }
-
         @media (max-width: 700px) {
-          .jatb-intake-primary-fields { grid-template-columns: minmax(0, 1fr) !important; }
-          .tier1-upgrade-heading { flex-direction: column; }
-          .tier1-feature-grid { grid-template-columns: 1fr; }
+          .tier1-manual-primary .jatb-intake-primary-fields {
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+          .tier1-shopify-photo-area { flex-direction: column; }
         }
       `}</style>
 
-      <ConsignmentIntakeApp />
-      {intakeTarget && createPortal(<UpgradePanel />, intakeTarget)}
-      {editTarget && createPortal(<UpgradePanel compact />, editTarget)}
+      <div onClickCapture={(event) => {
+        if (event.target.closest('.jatb-fab-wrap .jatb-btn')) saveManualItem();
+      }}>
+        <ConsignmentIntakeApp />
+      </div>
+
+      {shopifyTarget && createPortal(<ShopifySaveButton target={shopifyTarget} />, shopifyTarget)}
     </>
   );
 }
