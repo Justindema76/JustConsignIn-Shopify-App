@@ -27,25 +27,28 @@ const TIER_ONE_CATEGORIES = [
 ];
 
 function productChannel(item) {
-  if (!item?.shopifyProductId) {
-    return { label: 'Manual', className: 'manual' };
-  }
-
+  if (!item?.shopifyProductId) return { label: 'Manual', className: 'manual' };
   if (String(item.shopifyProductStatus || '').toUpperCase() !== 'ACTIVE') {
     return { label: 'Shopify Draft', className: 'shopify-draft' };
   }
-
   if (item.publishOnline || item.salesChannel === 'pos_online' || item.onlineStorePublished) {
     return { label: 'POS + Online', className: 'online' };
   }
-
   return { label: 'POS', className: 'pos' };
 }
 
-function categorySelectValue(select) {
+function selectedCategory(select) {
   return select?.value && TIER_ONE_CATEGORIES.includes(select.value)
     ? select.value
     : 'Clothing';
+}
+
+function visiblePhotoData() {
+  const image = document.querySelector(
+    '.tier1-shopify-photo-area .jatb-photo-wrap img, .jatb-photo-wrap img',
+  );
+  const source = image?.getAttribute('src') || '';
+  return source.startsWith('data:image/') ? source : '';
 }
 
 export default function TierOneConsignmentApp() {
@@ -53,7 +56,6 @@ export default function TierOneConsignmentApp() {
 
   useEffect(() => {
     let active = true;
-
     async function loadItems() {
       try {
         const data = await getConsignmentData();
@@ -62,12 +64,11 @@ export default function TierOneConsignmentApp() {
         if (active) setItems([]);
       }
     }
-
     loadItems();
-    const refreshTimer = window.setInterval(loadItems, 5000);
+    const timer = window.setInterval(loadItems, 5000);
     return () => {
       active = false;
-      window.clearInterval(refreshTimer);
+      window.clearInterval(timer);
     };
   }, []);
 
@@ -82,12 +83,14 @@ export default function TierOneConsignmentApp() {
         try {
           const payload = JSON.parse(init.body);
           const categorySelects = [...document.querySelectorAll('.tier1-category-select')];
+          const movedPhoto = visiblePhotoData();
 
           if (payload.operation === 'createItems' && Array.isArray(payload.items)) {
             payload.items = payload.items.map((item, index) => ({
               ...item,
-              category: categorySelectValue(categorySelects[index] || categorySelects[0]),
+              category: selectedCategory(categorySelects[index] || categorySelects[0]),
               type: item.type || '',
+              photo: item.photo || (index === payload.items.length - 1 ? movedPhoto : ''),
             }));
             init = { ...init, body: JSON.stringify(payload) };
           }
@@ -95,8 +98,9 @@ export default function TierOneConsignmentApp() {
           if (payload.operation === 'updateItem' && payload.item) {
             payload.item = {
               ...payload.item,
-              category: categorySelectValue(categorySelects[0]),
+              category: selectedCategory(categorySelects[0]),
               type: payload.item.type || '',
+              photo: payload.item.photo || movedPhoto,
             };
             init = { ...init, body: JSON.stringify(payload) };
           }
@@ -114,133 +118,119 @@ export default function TierOneConsignmentApp() {
   }, []);
 
   useEffect(() => {
-    function addTierOneCategory(field) {
+    function addCategorySelector(field) {
       if (!field || field.querySelector('.tier1-category-select')) return;
-
       const originalSelect = field.querySelector('select');
       if (!originalSelect) return;
 
-      const customSelect = document.createElement('select');
-      customSelect.className = 'jatb-select tier1-category-select';
-      customSelect.setAttribute('aria-label', 'Category');
-
+      const select = document.createElement('select');
+      select.className = 'jatb-select tier1-category-select';
+      select.setAttribute('aria-label', 'Category');
       TIER_ONE_CATEGORIES.forEach((category) => {
         const option = document.createElement('option');
         option.value = category;
         option.textContent = category;
-        customSelect.appendChild(option);
+        select.appendChild(option);
       });
-
-      const savedValue = TIER_ONE_CATEGORIES.includes(originalSelect.value)
+      select.value = TIER_ONE_CATEGORIES.includes(originalSelect.value)
         ? originalSelect.value
         : 'Clothing';
-      customSelect.value = savedValue;
       originalSelect.classList.add('tier1-original-category');
-      originalSelect.insertAdjacentElement('afterend', customSelect);
+      originalSelect.insertAdjacentElement('afterend', select);
     }
 
-    function movePhotoToShopify() {
-      const intakePrimary = document.querySelector('.jatb-intake-primary');
-      const shopifyContent = document.querySelector('.jatb-shopify-section .jatb-shopify-content');
-      const photo = intakePrimary?.querySelector(':scope > .jatb-photo-wrap');
+    function configureCategories() {
+      document.querySelectorAll('.jatb-detail-card .jatb-detail-grid').forEach((grid) => {
+        const fields = [...grid.querySelectorAll(':scope > .jatb-field')];
+        const categoryField = fields.find((field) => (
+          /^category$/i.test(field.querySelector('.jatb-label')?.textContent.trim())
+        ));
+        const typeField = fields.find((field) => (
+          /^(clothing type|type|subcategory)$/i.test(field.querySelector('.jatb-label')?.textContent.trim())
+        ));
+        addCategorySelector(categoryField);
+        if (typeField) typeField.classList.add('tier1-unused-subcategory');
+      });
+    }
 
-      if (intakePrimary) intakePrimary.classList.add('tier1-manual-primary');
-      if (!shopifyContent || !photo || shopifyContent.contains(photo)) return;
-
-      let photoArea = shopifyContent.querySelector('.tier1-shopify-photo-area');
-      if (!photoArea) {
-        photoArea = document.createElement('div');
-        photoArea.className = 'tier1-shopify-photo-area';
+    function createPhotoArea(shopifyContent) {
+      let area = shopifyContent.querySelector('.tier1-shopify-photo-area');
+      if (!area) {
+        area = document.createElement('div');
+        area.className = 'tier1-shopify-photo-area';
         const label = document.createElement('div');
         label.className = 'jatb-label';
         label.textContent = 'Product image';
-        photoArea.appendChild(label);
-        shopifyContent.prepend(photoArea);
+        area.appendChild(label);
+        shopifyContent.prepend(area);
       }
-      photoArea.appendChild(photo);
+      return area;
     }
 
-    function moveEditPhotoToShopify() {
+    function moveIntakePhoto() {
+      const primary = document.querySelector('.jatb-intake-primary');
+      const shopifyContent = document.querySelector('.jatb-shopify-section .jatb-shopify-content');
+      const photo = primary?.querySelector(':scope > .jatb-photo-wrap');
+      if (primary) primary.classList.add('tier1-manual-primary');
+      if (!shopifyContent || !photo || shopifyContent.contains(photo)) return;
+      createPhotoArea(shopifyContent).appendChild(photo);
+    }
+
+    function moveEditPhoto() {
       const editCard = document.querySelector('.jatb-body > .jatb-card');
       const shopifyContent = document.querySelector('.jatb-product-card .jatb-shopify-content');
       const photo = editCard?.querySelector('.jatb-photo-wrap');
       if (!shopifyContent || !photo || shopifyContent.contains(photo)) return;
-
-      let photoArea = shopifyContent.querySelector('.tier1-shopify-photo-area');
-      if (!photoArea) {
-        photoArea = document.createElement('div');
-        photoArea.className = 'tier1-shopify-photo-area';
-        const label = document.createElement('div');
-        label.className = 'jatb-label';
-        label.textContent = 'Product image';
-        photoArea.appendChild(label);
-        shopifyContent.prepend(photoArea);
-      }
-      photoArea.appendChild(photo);
+      createPhotoArea(shopifyContent).appendChild(photo);
     }
 
     function moveManualSaveButton() {
-      const floatingWrap = document.querySelector('.jatb-fab-wrap');
-      const saveButton = floatingWrap?.querySelector('.jatb-btn');
-      if (!saveButton) return;
+      const wrap = document.querySelector('.jatb-fab-wrap');
+      const button = wrap?.querySelector('.jatb-btn');
+      if (!button) return;
 
-      saveButton.classList.add('tier1-manual-save-button');
-      saveButton.childNodes.forEach((node) => {
+      button.classList.add('tier1-manual-save-button');
+      button.childNodes.forEach((node) => {
         if (node.nodeType === Node.TEXT_NODE) node.textContent = ' Save manual item';
       });
 
       const cards = [...document.querySelectorAll('.jatb-body > .jatb-card')];
-      let manualSection = cards.find((card) => /^manual sale/i.test(card.textContent.trim()));
-
-      if (!manualSection) {
+      let section = cards.find((card) => /^manual sale/i.test(card.textContent.trim()));
+      if (!section) {
         const shopifySection = document.querySelector('.jatb-shopify-section');
-        const detailCard = document.querySelector('.jatb-detail-card');
-        if (!shopifySection || !detailCard) return;
-
-        manualSection = document.createElement('section');
-        manualSection.className = 'jatb-card tier1-manual-section';
-        manualSection.innerHTML = `
+        if (!shopifySection) return;
+        section = document.createElement('section');
+        section.className = 'jatb-card tier1-manual-section';
+        section.innerHTML = `
           <div class="tier1-manual-heading">
             <strong>Manual item</strong>
             <span>Save only to the consignment records. No Shopify product will be created.</span>
           </div>
           <div class="tier1-manual-action"></div>
         `;
-        shopifySection.parentElement.insertBefore(manualSection, shopifySection);
+        shopifySection.parentElement.insertBefore(section, shopifySection);
       }
 
-      let actionArea = manualSection.querySelector('.tier1-manual-action');
-      if (!actionArea) {
-        actionArea = document.createElement('div');
-        actionArea.className = 'tier1-manual-action';
-        manualSection.appendChild(actionArea);
+      let action = section.querySelector('.tier1-manual-action');
+      if (!action) {
+        action = document.createElement('div');
+        action.className = 'tier1-manual-action';
+        section.appendChild(action);
       }
-
-      if (!actionArea.contains(saveButton)) actionArea.appendChild(saveButton);
-      floatingWrap.classList.add('tier1-empty-save-wrap');
-    }
-
-    function configureCategories() {
-      document.querySelectorAll('.jatb-detail-card .jatb-detail-grid').forEach((grid) => {
-        const fields = [...grid.querySelectorAll(':scope > .jatb-field')];
-        const categoryField = fields.find((field) => /^category$/i.test(field.querySelector('.jatb-label')?.textContent.trim()));
-        const typeField = fields.find((field) => /^(clothing type|type|subcategory)$/i.test(field.querySelector('.jatb-label')?.textContent.trim()));
-        addTierOneCategory(categoryField);
-        if (typeField) typeField.classList.add('tier1-unused-subcategory');
-      });
+      if (!action.contains(button)) action.appendChild(button);
+      wrap.classList.add('tier1-empty-save-wrap');
     }
 
     function configureConsignorSort() {
       const title = document.querySelector('.jatb-title');
       if (title?.textContent.trim() !== 'Choose consignor') return;
-
       const body = document.querySelector('.jatb-body');
       const search = body?.querySelector('.jatb-search');
       if (!body || !search || body.querySelector('.tier1-consignor-sort')) return;
 
-      const sortWrap = document.createElement('div');
-      sortWrap.className = 'tier1-consignor-sort';
-      sortWrap.innerHTML = `
+      const wrapper = document.createElement('div');
+      wrapper.className = 'tier1-consignor-sort';
+      wrapper.innerHTML = `
         <label for="tier1-consignor-sort-select">Sort consignors</label>
         <select id="tier1-consignor-sort-select" class="jatb-select">
           <option value="number">Consignor number</option>
@@ -248,13 +238,12 @@ export default function TierOneConsignmentApp() {
           <option value="name-desc">Name Z–A</option>
         </select>
       `;
-      search.insertAdjacentElement('afterend', sortWrap);
+      search.insertAdjacentElement('afterend', wrapper);
 
       const applySort = () => {
         const rows = [...body.querySelectorAll('.jatb-row-btn')]
           .filter((row) => row.querySelector('.jatb-row-name'));
-        const mode = sortWrap.querySelector('select').value;
-
+        const mode = wrapper.querySelector('select').value;
         rows.sort((a, b) => {
           const aName = a.querySelector('.jatb-row-name')?.textContent.trim() || '';
           const bName = b.querySelector('.jatb-row-name')?.textContent.trim() || '';
@@ -264,11 +253,9 @@ export default function TierOneConsignmentApp() {
           if (mode === 'name-desc') return bName.localeCompare(aName);
           return aNumber - bNumber;
         });
-
         rows.forEach((row) => body.appendChild(row));
       };
-
-      sortWrap.querySelector('select').addEventListener('change', applySort);
+      wrapper.querySelector('select').addEventListener('change', applySort);
       applySort();
     }
 
@@ -282,11 +269,9 @@ export default function TierOneConsignmentApp() {
       }
 
       document.querySelectorAll('button.cm-list-row:not(.cm-list-head)').forEach((row) => {
-        const itemDetails = row.querySelector('.cm-item-primary > span:last-child > span');
-        const itemNumber = String(itemDetails?.textContent || '').split('·')[0].trim();
-        const item = items.find((entry) => String(entry.itemNumber || '').trim() === itemNumber);
+        const detailText = row.querySelector('.cm-item-primary span span')?.textContent || row.textContent;
+        const item = items.find((entry) => detailText.includes(String(entry.itemNumber || '')));
         if (!item) return;
-
         const channel = productChannel(item);
         let badge = row.querySelector('.tier1-product-channel');
         if (!badge) {
@@ -299,8 +284,8 @@ export default function TierOneConsignmentApp() {
     }
 
     function configure() {
-      movePhotoToShopify();
-      moveEditPhotoToShopify();
+      moveIntakePhoto();
+      moveEditPhoto();
       configureCategories();
       moveManualSaveButton();
       configureConsignorSort();
@@ -316,17 +301,14 @@ export default function TierOneConsignmentApp() {
   return (
     <>
       <style>{`
-        .tier1-manual-primary {
-          grid-template-columns: minmax(0, 1fr) !important;
-        }
+        .tier1-manual-primary { grid-template-columns: minmax(0, 1fr) !important; }
         .tier1-manual-primary .jatb-intake-primary-fields {
           width: 100% !important;
           grid-template-columns: minmax(0, 1fr) minmax(150px, 240px) !important;
         }
         .tier1-original-category,
-        .tier1-unused-subcategory {
-          display: none !important;
-        }
+        .tier1-unused-subcategory,
+        .tier1-empty-save-wrap { display: none !important; }
         .tier1-shopify-photo-area {
           display: flex;
           align-items: flex-start;
@@ -335,13 +317,7 @@ export default function TierOneConsignmentApp() {
           padding-bottom: 16px;
           border-bottom: 1px solid var(--line);
         }
-        .tier1-shopify-photo-area > .jatb-label {
-          min-width: 110px;
-          padding-top: 6px;
-        }
-        .tier1-empty-save-wrap {
-          display: none !important;
-        }
+        .tier1-shopify-photo-area > .jatb-label { min-width: 110px; padding-top: 6px; }
         .tier1-manual-section,
         .tier1-manual-action {
           display: flex;
@@ -350,19 +326,9 @@ export default function TierOneConsignmentApp() {
           gap: 18px;
         }
         .tier1-manual-heading strong,
-        .tier1-manual-heading span {
-          display: block;
-        }
-        .tier1-manual-heading span {
-          margin-top: 4px;
-          color: var(--muted);
-          font-size: 12px;
-        }
-        .tier1-manual-save-button {
-          position: static !important;
-          min-width: 190px;
-          box-shadow: none !important;
-        }
+        .tier1-manual-heading span { display: block; }
+        .tier1-manual-heading span { margin-top: 4px; color: var(--muted); font-size: 12px; }
+        .tier1-manual-save-button { position: static !important; min-width: 190px; box-shadow: none !important; }
         .tier1-consignor-sort {
           display: flex;
           align-items: center;
@@ -370,17 +336,8 @@ export default function TierOneConsignmentApp() {
           gap: 10px;
           margin: 0 0 12px;
         }
-        .tier1-consignor-sort label {
-          color: var(--muted);
-          font-size: 12px;
-          font-weight: 600;
-        }
-        .tier1-consignor-sort select {
-          width: auto;
-          min-width: 190px;
-          padding: 9px 34px 9px 12px;
-          font-size: 13px;
-        }
+        .tier1-consignor-sort label { color: var(--muted); font-size: 12px; font-weight: 600; }
+        .tier1-consignor-sort select { width: auto; min-width: 190px; padding: 9px 34px 9px 12px; font-size: 13px; }
         .cm-list-row {
           grid-template-columns: minmax(220px, 2fr) minmax(130px, 1fr) 110px 110px 125px 105px !important;
         }
@@ -402,34 +359,13 @@ export default function TierOneConsignmentApp() {
         .tier1-product-channel.shopify-draft { background: var(--gold-soft); color: #8A5D14; }
         .tier1-product-channel.pos { background: var(--green-soft); color: var(--green-dark); }
         .tier1-product-channel.online { background: #DFF5E7; color: #17663A; }
-
-        @media (max-width: 900px) {
-          .cm-list-row {
-            grid-template-columns: minmax(180px, 2fr) minmax(110px, 1fr) 90px 110px 92px !important;
-          }
-          .cm-list-row > :nth-child(4) { display: none; }
-        }
         @media (max-width: 700px) {
-          .tier1-manual-primary .jatb-intake-primary-fields {
-            grid-template-columns: minmax(0, 1fr) !important;
-          }
+          .tier1-manual-primary .jatb-intake-primary-fields { grid-template-columns: minmax(0, 1fr) !important; }
           .tier1-shopify-photo-area,
-          .tier1-manual-section {
-            flex-direction: column;
-            align-items: stretch;
-          }
+          .tier1-manual-section { flex-direction: column; align-items: stretch; }
           .tier1-manual-save-button { width: 100%; }
-          .tier1-consignor-sort {
-            align-items: stretch;
-            flex-direction: column;
-          }
+          .tier1-consignor-sort { align-items: stretch; flex-direction: column; }
           .tier1-consignor-sort select { width: 100%; }
-        }
-        @media (max-width: 640px) {
-          .cm-list-row {
-            grid-template-columns: minmax(0, 1fr) auto !important;
-          }
-          .tier1-product-channel { justify-self: end; }
         }
       `}</style>
       <ConsignmentIntakeApp />
