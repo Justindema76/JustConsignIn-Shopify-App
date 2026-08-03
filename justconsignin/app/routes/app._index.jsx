@@ -1,5 +1,5 @@
-import ConsignmentIntakeApp from '../consignment_intake';
+import TierOneConsignmentApp from '../tier1_consignment_app';
 
 export default function AppIndex() {
-  return <ConsignmentIntakeApp />;
+  return <TierOneConsignmentApp />;
 }
