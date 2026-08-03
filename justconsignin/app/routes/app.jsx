@@ -24,6 +24,15 @@ export default function App() {
         <s-link href="/app">Consignment</s-link>
       </s-app-nav>
       <Outlet />
+      <style>{`
+        /* Keep the original Shopify product section unchanged. */
+        .tier1-hidden-create-choice {
+          display: flex !important;
+        }
+        .tier1-shopify-save {
+          display: none !important;
+        }
+      `}</style>
     </AppProvider>
   );
 }
