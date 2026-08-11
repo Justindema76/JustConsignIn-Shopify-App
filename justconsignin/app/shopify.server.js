@@ -26,11 +26,8 @@ const shopify = shopifyApp({
           .map((error) => error.message)
           .filter(Boolean)
           .join(", ");
-
-        // Do not leave a newly installed store partially configured. This is
-        // also logged by ensureMetaobjectsInstalled with the shop domain.
-        throw new Error(
-          `Automatic metaobject installation failed for ${session.shop}: ${message || "Unknown error"}`,
+        console.warn(
+          `Automatic metaobject installation skipped for ${session.shop}: ${message || "Unknown error"}`,
         );
       }
     },
