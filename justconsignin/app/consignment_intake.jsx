@@ -43,7 +43,8 @@ export default function ConsignmentIntakeApp(){
  function startPayout(id){setActiveConsignorId(id);navigate('createPayout')}
  async function savePayout(payload){try{await recordConsignorPayout(payload);await refresh();flash('Payout recorded');navigate('payouts')}catch(e){fail(e,'Could not record payout');throw e}}
  async function runImport(kind,rows){try{const result=await importConsignmentData(kind,rows);await refresh();flash(`Imported ${result.itemsImported ?? result.imported ?? rows.length} record(s)`)}catch(e){fail(e,'Could not import CSV');throw e}}
- const navView=['dashboard','consignors','items','sales','payouts'].includes(view)?view:view==='consignor'||view==='editConsignor'||view==='newConsignor'?'consignors':view==='item'||view==='addItem'?'items':view==='markSold'?'sales':view==='createPayout'?'payouts':'dashboard';
+ const primaryViews=['dashboard','consignors','items','sales','payouts','transactions','reports','importExport','settings'];
+ const navView=primaryViews.includes(view)?view:view==='consignor'||view==='editConsignor'||view==='newConsignor'?'consignors':view==='item'||view==='addItem'?'items':view==='markSold'?'sales':view==='createPayout'?'payouts':'dashboard';
  const nextNumber=Math.max(0,...consignors.map(c=>Number(c.number)||0))+1;
  return <div className="jci-app"><ShopifyUiStyles/>{ready&&<AppNavigation view={navView} onNavigate={navigate}/>} {toast&&<div className="jci-toast"><Check size={14}/> {toast}</div>}{error&&<div className="jci-error"><X size={14}/> {error}</div>}{!ready?<div className="jci-page jci-empty">Loading Shopify consignment data…</div>:<>
   {view==='dashboard'&&<DashboardPage consignors={consignors} items={items} onNavigate={navigate} onNewConsignor={()=>navigate('newConsignor')} onNewItem={()=>startNewItem()}/>} 
