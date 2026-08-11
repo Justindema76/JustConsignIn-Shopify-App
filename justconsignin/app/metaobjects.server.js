@@ -14,12 +14,14 @@ const DEFINITIONS = [
     ],
   },
   {
-    type: "justconsignin_item",
+    type: "consignment_item",
     name: "Consignment Item",
     fieldDefinitions: [
       { key: "item_number", name: "Item Number", type: "single_line_text_field" },
       { key: "consignor", name: "Consignor", type: "metaobject_reference", validations: [{ name: "metaobject_definition_id", value: "__CONSIGNOR_DEFINITION_ID__" }] },
       { key: "date_received", name: "Date Received", type: "date" },
+      { key: "consignment_term", name: "Consignment Term", type: "single_line_text_field" },
+      { key: "expiry_date", name: "Expiry Date", type: "date" },
       { key: "category", name: "Category", type: "single_line_text_field" },
       { key: "item_type", name: "Item Type", type: "single_line_text_field" },
       { key: "description", name: "Description", type: "multi_line_text_field" },
@@ -31,6 +33,17 @@ const DEFINITIONS = [
       { key: "brand", name: "Brand", type: "single_line_text_field" },
       { key: "photo", name: "Photo", type: "file_reference" },
       { key: "shopify_product", name: "Shopify Product", type: "product_reference" },
+      { key: "shopify_title", name: "Shopify Title", type: "single_line_text_field" },
+      { key: "shopify_price", name: "Shopify Price", type: "number_decimal" },
+      { key: "shopify_description", name: "Shopify Description", type: "multi_line_text_field" },
+      { key: "shopify_vendor", name: "Shopify Vendor", type: "single_line_text_field" },
+      { key: "shopify_tags", name: "Shopify Tags", type: "multi_line_text_field" },
+      { key: "shopify_category_id", name: "Shopify Category ID", type: "single_line_text_field" },
+      { key: "shopify_category_name", name: "Shopify Category Name", type: "single_line_text_field" },
+      { key: "seo_title", name: "SEO Title", type: "single_line_text_field" },
+      { key: "seo_description", name: "SEO Description", type: "multi_line_text_field" },
+      { key: "publish_to_pos", name: "Publish to Point of Sale", type: "boolean" },
+      { key: "publish_online", name: "Publish to Online Store", type: "boolean" },
       { key: "notes", name: "Item Details", type: "multi_line_text_field" },
       { key: "sale_price", name: "Sale Price", type: "number_decimal" },
       { key: "date_sold", name: "Date Sold", type: "date" },
@@ -101,7 +114,9 @@ async function ensureDefinition(admin, definition) {
   if (missingFields.length) {
     const updateData = await graphql(admin, UPDATE_DEFINITION, {
       id: existing.id,
-      definition: { fieldDefinitions: missingFields },
+      definition: {
+        fieldDefinitions: missingFields.map((field) => ({ create: field })),
+      },
     });
     assertNoUserErrors(updateData.metaobjectDefinitionUpdate, `Could not repair ${definition.name}`);
     return { id: existing.id, type: definition.type, action: "updated", addedFields: missingFields.map((field) => field.key) };
@@ -110,13 +125,9 @@ async function ensureDefinition(admin, definition) {
   return { id: existing.id, type: definition.type, action: "unchanged" };
 }
 
-// Safe to run after every authentication. It creates missing definitions and
-// adds any fields introduced by newer app versions.
 export async function ensureMetaobjectsInstalled(admin, shop = "unknown shop") {
   try {
     const results = [];
-    // Consignor must exist before the item definition because the item schema
-    // contains a metaobject reference to it.
     const consignorResult = await ensureDefinition(admin, DEFINITIONS[0]);
     results.push(consignorResult);
 
