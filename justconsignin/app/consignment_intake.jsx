@@ -20,14 +20,17 @@ import ImportExportPage from './ui/pages/ImportExportPage';
 import SettingsPage from './ui/pages/SettingsPage';
 import {createConsignor,createConsignmentItems,deleteConsignor,deleteConsignmentItem,getConsignmentData,importConsignmentData,recordConsignorPayout,syncShopifyProduct,updateConsignor,updateConsignmentItem,updateConsignmentItemStatus} from './consignmentApi';
 
+const primaryViews=['dashboard','consignors','items','sales','payouts','transactions','reports','importExport','settings'];
+function initialView(){try{const requested=new URLSearchParams(window.location.search).get('view');return primaryViews.includes(requested)?requested:'dashboard'}catch{return'dashboard'}}
+
 export default function ConsignmentIntakeApp(){
- const[ready,setReady]=useState(false);const[view,setView]=useState('dashboard');const[consignors,setConsignors]=useState([]);const[items,setItems]=useState([]);const[activeConsignorId,setActiveConsignorId]=useState('');const[activeItemId,setActiveItemId]=useState('');const[prefillConsignorId,setPrefillConsignorId]=useState('');const[toast,setToast]=useState('');const[error,setError]=useState('');
+ const[ready,setReady]=useState(false);const[view,setView]=useState(initialView);const[consignors,setConsignors]=useState([]);const[items,setItems]=useState([]);const[activeConsignorId,setActiveConsignorId]=useState('');const[activeItemId,setActiveItemId]=useState('');const[prefillConsignorId,setPrefillConsignorId]=useState('');const[toast,setToast]=useState('');const[error,setError]=useState('');
  const activeConsignor=useMemo(()=>consignors.find(c=>c.id===activeConsignorId),[consignors,activeConsignorId]);const activeItem=useMemo(()=>items.find(i=>i.id===activeItemId),[items,activeItemId]);
  async function refresh(){const data=await getConsignmentData();setConsignors(data.consignors||[]);setItems(data.items||[]);return data}
  useEffect(()=>{refresh().catch(e=>setError(e.message||'Could not load Shopify data')).finally(()=>setReady(true))},[]);
  function flash(message){setToast(message);setTimeout(()=>setToast(''),2200)}
  function fail(e,fallback){setError(e?.message||fallback);setTimeout(()=>setError(''),5000)}
- function navigate(next){setView(next);window.scrollTo({top:0,behavior:'auto'})}
+ function navigate(next){setView(next);if(primaryViews.includes(next)){const url=new URL(window.location.href);url.searchParams.set('view',next);window.history.replaceState({},'',url)}window.scrollTo({top:0,behavior:'auto'})}
  function openConsignor(id){setActiveConsignorId(id);navigate('consignor')}
  function openItem(id){const item=items.find(x=>x.id===id);setActiveItemId(id);if(item?.consignorId)setActiveConsignorId(item.consignorId);navigate('item')}
  function startNewItem(consignorId=''){setPrefillConsignorId(consignorId);navigate('addItem')}
@@ -43,7 +46,6 @@ export default function ConsignmentIntakeApp(){
  function startPayout(id){setActiveConsignorId(id);navigate('createPayout')}
  async function savePayout(payload){try{await recordConsignorPayout(payload);await refresh();flash('Payout recorded');navigate('payouts')}catch(e){fail(e,'Could not record payout');throw e}}
  async function runImport(kind,rows){try{const result=await importConsignmentData(kind,rows);await refresh();flash(`Imported ${result.itemsImported ?? result.imported ?? rows.length} record(s)`)}catch(e){fail(e,'Could not import CSV');throw e}}
- const primaryViews=['dashboard','consignors','items','sales','payouts','transactions','reports','importExport','settings'];
  const navView=primaryViews.includes(view)?view:view==='consignor'||view==='editConsignor'||view==='newConsignor'?'consignors':view==='item'||view==='addItem'?'items':view==='markSold'?'sales':view==='createPayout'?'payouts':'dashboard';
  const nextNumber=Math.max(0,...consignors.map(c=>Number(c.number)||0))+1;
  return <div className="jci-app"><ShopifyUiStyles/>{ready&&<AppNavigation view={navView} onNavigate={navigate}/>} {toast&&<div className="jci-toast"><Check size={14}/> {toast}</div>}{error&&<div className="jci-error"><X size={14}/> {error}</div>}{!ready?<div className="jci-page jci-empty">Loading Shopify consignment data…</div>:<>
