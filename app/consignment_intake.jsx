@@ -78,7 +78,7 @@ function GlobalStyle() {
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 
-      .consignment {
+      .jatb {
         --bg: #F6F6F7;
         --surface: #FFFFFF;
         --ink: #202223;
@@ -109,20 +109,20 @@ function GlobalStyle() {
         flex-direction: column;
         position: relative;
       }
-      .consignment * { box-sizing: border-box; }
-      .consignment h1, .consignment h2, .consignment h3 {
+      .jatb * { box-sizing: border-box; }
+      .jatb h1, .jatb h2, .jatb h3 {
         font-family: 'Fraunces', serif;
         margin: 0;
         color: var(--ink);
       }
-      .consignment button { font-family: inherit; cursor: pointer; }
-      .consignment input, .consignment select, .consignment textarea {
+      .jatb button { font-family: inherit; cursor: pointer; }
+      .jatb input, .jatb select, .jatb textarea {
         font-family: inherit;
         font-size: 16px;
       }
-      .consignment ::placeholder { color: #A6AC9B; }
+      .jatb ::placeholder { color: #A6AC9B; }
 
-      .consignment-header {
+      .jatb-header {
         position: sticky;
         top: 0;
         z-index: 10;
@@ -130,28 +130,28 @@ function GlobalStyle() {
         padding: 22px 24px 14px;
         border-bottom: 1px solid var(--line);
       }
-      .consignment-header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-      .consignment-header-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
-      .consignment-header-action { flex-shrink: 0; }
-      .consignment-header-action .consignment-btn {
+      .jatb-header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+      .jatb-header-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .jatb-header-action { flex-shrink: 0; }
+      .jatb-header-action .jatb-btn {
         min-width: 0; padding: 10px 14px; border-radius: 9px; box-shadow: none;
       }
-      .consignment-back {
+      .jatb-back {
         display: flex; align-items: center; justify-content: center;
         width: 36px; height: 36px; border-radius: 999px;
         border: 1px solid var(--line); background: var(--surface);
         color: var(--ink); flex-shrink: 0;
       }
-      .consignment-back:active { background: var(--green-soft); }
-      .consignment-eyebrow {
+      .jatb-back:active { background: var(--green-soft); }
+      .jatb-eyebrow {
         font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
         color: var(--green); font-weight: 600; margin: 0 0 2px;
       }
-      .consignment-title { font-family: 'Inter', system-ui, sans-serif !important; font-size: 24px; font-weight: 700; line-height: 1.15; }
+      .jatb-title { font-family: 'Inter', system-ui, sans-serif !important; font-size: 24px; font-weight: 700; line-height: 1.15; }
 
-      .consignment-body { flex: 1; overflow-y: auto; padding: 20px 24px 110px; }
+      .jatb-body { flex: 1; overflow-y: auto; padding: 20px 24px 110px; }
 
-      .consignment-back-to-top {
+      .jatb-back-to-top {
         position: fixed; right: max(18px, calc((100vw - 1240px) / 2 + 18px));
         bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 40;
         display: inline-flex; align-items: center; justify-content: center;
@@ -159,850 +159,851 @@ function GlobalStyle() {
         background: var(--green); color: #fff;
         box-shadow: 0 6px 18px rgba(20,63,115,.28);
       }
-      .consignment-back-to-top:hover { background: var(--green-dark); }
-      .consignment-back-to-top:focus-visible { outline: 3px solid var(--green-soft); outline-offset: 2px; }
+      .jatb-back-to-top:hover { background: var(--green-dark); }
+      .jatb-back-to-top:focus-visible { outline: 3px solid var(--green-soft); outline-offset: 2px; }
 
-      .consignment-search {
+      .jatb-search {
         display: flex; align-items: center; gap: 8px;
         background: var(--surface); border: 1px solid var(--line);
         border-radius: 14px; padding: 11px 14px; margin-bottom: 14px;
       }
-      .consignment-search input { border: none; outline: none; flex: 1; background: transparent; color: var(--ink); }
-      .consignment-search svg { color: var(--muted); flex-shrink: 0; }
+      .jatb-search input { border: none; outline: none; flex: 1; background: transparent; color: var(--ink); }
+      .jatb-search svg { color: var(--muted); flex-shrink: 0; }
 
-      .consignment-card {
+      .jatb-card {
         background: var(--surface); border: 1px solid var(--line);
         border-radius: 12px; padding: 16px; margin-bottom: 12px;
         box-shadow: 0 1px 0 rgba(0,0,0,.03);
       }
-      .consignment-row-btn {
+      .jatb-row-btn {
         width: 100%; text-align: left; display: flex; align-items: center;
         gap: 12px; background: var(--surface); border: 1px solid var(--line);
         border-radius: 12px; padding: 14px 14px; margin-bottom: 10px;
         transition: background .15s;
       }
-      .consignment-row-btn:active { background: var(--green-soft); }
+      .jatb-row-btn:active { background: var(--green-soft); }
 
-      .consignment-avatar {
+      .jatb-avatar {
         width: 42px; height: 42px; border-radius: 12px; background: var(--green-soft);
         color: var(--green-dark); display: flex; align-items: center; justify-content: center;
         font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px; flex-shrink: 0;
       }
-      .consignment-row-main { flex: 1; min-width: 0; }
-      .consignment-row-name { font-weight: 600; font-size: 15px; }
-      .consignment-row-sub { font-size: 13px; color: var(--muted); margin-top: 1px; }
-      .consignment-chev { color: var(--muted); flex-shrink: 0; }
+      .jatb-row-main { flex: 1; min-width: 0; }
+      .jatb-row-name { font-weight: 600; font-size: 15px; }
+      .jatb-row-sub { font-size: 13px; color: var(--muted); margin-top: 1px; }
+      .jatb-chev { color: var(--muted); flex-shrink: 0; }
 
-      .consignment-consignor-row { margin-bottom: 10px; }
-      .consignment-consignor-row-summary {
+      .cm-consignor-row { margin-bottom: 10px; }
+      .cm-consignor-row-summary {
         width: 100%; display: flex; align-items: center; gap: 12px;
         background: var(--surface); border: 1px solid var(--line);
         border-radius: 12px; padding: 14px 14px; cursor: pointer;
         list-style: none; transition: background .15s;
       }
-      .consignment-consignor-row-summary::-webkit-details-marker { display: none; }
-      .consignment-consignor-row-summary:active { background: var(--green-soft); }
-      .consignment-consignor-row-name {
+      .cm-consignor-row-summary::-webkit-details-marker { display: none; }
+      .cm-consignor-row-summary:active { background: var(--green-soft); }
+      .cm-consignor-row-name {
         display: block; padding: 0; border: 0; background: none;
         font-family: inherit; font-weight: 600; font-size: 15px; color: var(--ink);
         text-align: left; cursor: pointer;
       }
-      .consignment-consignor-row-name:hover { text-decoration: underline; color: var(--green); }
-      .consignment-consignor-row-chevron { color: var(--muted); flex-shrink: 0; transition: transform .15s; }
-      .consignment-consignor-row[open] .consignment-consignor-row-summary { border-radius: 12px 12px 0 0; border-bottom: 0; }
-      .consignment-consignor-row[open] .consignment-consignor-row-chevron { transform: rotate(180deg); }
-      .consignment-consignor-row-items {
+      .cm-consignor-row-name:hover { text-decoration: underline; color: var(--green); }
+      .cm-consignor-row-chevron { color: var(--muted); flex-shrink: 0; transition: transform .15s; }
+      .cm-consignor-row[open] .cm-consignor-row-summary { border-radius: 12px 12px 0 0; border-bottom: 0; }
+      .cm-consignor-row[open] .cm-consignor-row-chevron { transform: rotate(180deg); }
+      .cm-consignor-row-items {
         border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px;
         background: #fff; padding: 6px 10px;
       }
-      .consignment-consignor-row-item {
+      .cm-consignor-row-item {
         display: flex; align-items: center; gap: 10px; padding: 9px 4px;
         border-bottom: 1px solid var(--line);
       }
-      .consignment-consignor-row-item:last-child { border-bottom: 0; }
-      .consignment-consignor-row-item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-      .consignment-consignor-row-item-main strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .consignment-consignor-row-item-main small { font-size: 11px; color: var(--muted); }
-      .consignment-consignor-row-item-price { font-size: 13px; flex-shrink: 0; }
+      .cm-consignor-row-item:last-child { border-bottom: 0; }
+      .cm-consignor-row-item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+      .cm-consignor-row-item-main strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .cm-consignor-row-item-main small { font-size: 11px; color: var(--muted); }
+      .cm-consignor-row-item-price { font-size: 13px; flex-shrink: 0; }
 
-      .consignment-empty {
+      .jatb-empty {
         text-align: center; padding: 60px 20px; color: var(--muted);
       }
-      .consignment-empty h3 { font-size: 17px; margin-bottom: 6px; color: var(--ink); }
-      .consignment-empty p { font-size: 14px; margin: 0; }
+      .jatb-empty h3 { font-size: 17px; margin-bottom: 6px; color: var(--ink); }
+      .jatb-empty p { font-size: 14px; margin: 0; }
 
-      .consignment-fab-wrap {
+      .jatb-fab-wrap {
         position: sticky; bottom: 0; left: 0; right: 0; z-index: 15;
         padding: 14px 24px calc(14px + env(safe-area-inset-bottom));
         background: linear-gradient(to top, var(--bg) 60%, transparent);
       }
-      .consignment-btn {
+      .jatb-btn {
         width: auto; min-width: 180px; display: flex; align-items: center; justify-content: center;
         gap: 8px; background: var(--green); color: #fff; border: none;
         border-radius: 10px; padding: 13px 18px; font-weight: 600; font-size: 14px;
         box-shadow: 0 6px 16px rgba(47,107,79,0.25); text-decoration: none;
       }
-      .consignment-btn:active { background: var(--green-dark); }
-      .consignment-btn.secondary {
+      .jatb-btn:active { background: var(--green-dark); }
+      .jatb-btn.secondary {
         background: var(--surface); color: var(--green-dark); border: 1px solid var(--line);
         box-shadow: none;
       }
-      .consignment-btn.secondary:active { background: var(--green-soft); }
-      .consignment-btn.danger { background: var(--danger); box-shadow: 0 6px 16px rgba(179,73,47,0.25); }
-      .consignment-btn:disabled { opacity: .5; }
+      .jatb-btn.secondary:active { background: var(--green-soft); }
+      .jatb-btn.danger { background: var(--danger); box-shadow: 0 6px 16px rgba(179,73,47,0.25); }
+      .jatb-btn:disabled { opacity: .5; }
 
-      .consignment-field { margin-bottom: 14px; }
-      .consignment-label {
+      .jatb-field { margin-bottom: 14px; }
+      .jatb-label {
         display: block; font-size: 12px; font-weight: 600; color: var(--muted);
         text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px;
       }
-      .consignment-input, .consignment-select, .consignment-textarea {
+      .jatb-input, .jatb-select, .jatb-textarea {
         width: 100%; border: 1px solid var(--line); border-radius: 12px;
         padding: 12px 14px; background: var(--surface); color: var(--ink); outline: none;
       }
-      .consignment-input:focus, .consignment-select:focus, .consignment-textarea:focus {
+      .jatb-input:focus, .jatb-select:focus, .jatb-textarea:focus {
         border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft);
       }
-      .consignment-row2 { display: flex; gap: 10px; }
-      .consignment-row2 > * { flex: 1; }
-      .consignment-section-heading {
+      .jatb-row2 { display: flex; gap: 10px; }
+      .jatb-row2 > * { flex: 1; }
+      .jatb-section-heading {
         display: flex; align-items: center; justify-content: space-between;
         gap: 14px; margin: 0 0 8px;
       }
-      .consignment-section-heading .consignment-label { margin: 0; }
-      .consignment-item-number {
+      .jatb-section-heading .jatb-label { margin: 0; }
+      .jatb-item-number {
         flex: 0 0 auto; color: var(--green-dark); font-size: 22px;
         font-weight: 800; letter-spacing: .02em;
       }
-      .consignment-detail-card { margin-top: 14px; }
-      .consignment-detail-grid {
+      .jatb-detail-card { margin-top: 14px; }
+      .jatb-detail-grid {
         display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
       }
-      .consignment-detail-grid .consignment-field { min-width: 0; margin: 0; }
-      .consignment-detail-grid .consignment-field.wide { grid-column: 1 / -1; }
-      .consignment-shopify-section { margin-top: 14px; padding: 0; overflow: hidden; }
-      .consignment-shopify-summary {
+      .jatb-detail-grid .jatb-field { min-width: 0; margin: 0; }
+      .jatb-detail-grid .jatb-field.wide { grid-column: 1 / -1; }
+      .jatb-shopify-section { margin-top: 14px; padding: 0; overflow: hidden; }
+      .jatb-shopify-summary {
         display: flex; align-items: center; justify-content: space-between; gap: 12px;
         padding: 15px 16px; cursor: pointer; list-style: none;
       }
-      .consignment-shopify-summary::-webkit-details-marker { display: none; }
-      .consignment-shopify-summary > span:first-child { display: flex; align-items: center; gap: 8px; }
-      .consignment-shopify-summary::after { content: '⌄'; color: var(--muted); font-size: 18px; line-height: 1; }
-      details[open] > .consignment-shopify-summary::after { transform: rotate(180deg); }
-      .consignment-shopify-content { padding: 0 16px 16px; border-top: 1px solid var(--line); }
-      .consignment-shopify-help { margin: 12px 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
-      .consignment-shopify-fields { margin-top: 12px; }
-      .consignment-shopify-edit-details { margin: -2px 0 14px; border-bottom: 1px solid var(--line); }
-      .consignment-shopify-edit-details .consignment-shopify-summary { padding: 10px 0 14px; }
-      .consignment-shopify-edit-details .consignment-shopify-content { padding: 0 0 14px; }
-      .consignment-add-another { width: 100%; margin-top: 14px; }
+      .jatb-shopify-summary::-webkit-details-marker { display: none; }
+      .jatb-shopify-summary > span:first-child { display: flex; align-items: center; gap: 8px; }
+      .jatb-shopify-summary::after { content: '⌄'; color: var(--muted); font-size: 18px; line-height: 1; }
+      details[open] > .jatb-shopify-summary::after { transform: rotate(180deg); }
+      .jatb-shopify-content { padding: 0 16px 16px; border-top: 1px solid var(--line); }
+      .jatb-shopify-help { margin: 12px 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+      .jatb-shopify-fields { margin-top: 12px; }
+      .jatb-shopify-edit-details { margin: -2px 0 14px; border-bottom: 1px solid var(--line); }
+      .jatb-shopify-edit-details .jatb-shopify-summary { padding: 10px 0 14px; }
+      .jatb-shopify-edit-details .jatb-shopify-content { padding: 0 0 14px; }
+      .jatb-add-another { width: 100%; margin-top: 14px; }
 
-      .consignment-consignor-number-card {
+      .jatb-consignor-number-card {
         display: grid; grid-template-columns: minmax(0, 1fr) 112px;
         gap: 14px; align-items: end; margin-bottom: 14px;
       }
-      .consignment-consignor-number-preview {
+      .jatb-consignor-number-preview {
         display: grid; place-items: center; min-height: 64px;
         border: 1px solid #C9DDCE; border-radius: 12px;
         background: var(--green-soft); color: var(--green-dark);
         font-size: 26px; font-weight: 800;
       }
 
-      .consignment-chiprow { display: flex; flex-wrap: wrap; gap: 8px; }
-      .consignment-chip {
+      .jatb-chiprow { display: flex; flex-wrap: wrap; gap: 8px; }
+      .jatb-chip {
         border: 1px solid var(--line); background: var(--surface); color: var(--ink);
         border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 500;
       }
-      .consignment-chip.active { background: var(--green); border-color: var(--green); color: #fff; }
-      .consignment-tab-count {
+      .jatb-chip.active { background: var(--green); border-color: var(--green); color: #fff; }
+      .cm-tab-count {
         display: inline-grid; place-items: center; min-width: 20px; height: 20px;
         margin-left: 4px; padding: 0 6px; border-radius: 999px;
         background: #E4E7EC; color: #344054; font-size: 11px; font-weight: 700;
       }
-      .consignment-chip.active .consignment-tab-count { background: rgba(255,255,255,.2); color: #fff; }
-      .consignment-product-choice {
+      .jatb-chip.active .cm-tab-count { background: rgba(255,255,255,.2); color: #fff; }
+      .jatb-product-choice {
         display: flex; align-items: flex-start; gap: 10px;
         margin-top: 14px; padding: 13px; border-radius: 12px;
         background: var(--gold-soft); border: 1px solid #EFD7A8;
         cursor: pointer;
       }
-      .consignment-product-choice input {
+      .jatb-product-choice input {
         width: 19px; height: 19px; margin: 1px 0 0; accent-color: var(--green);
       }
-      .consignment-product-choice strong { display: block; font-size: 13px; margin-bottom: 2px; }
-      .consignment-product-choice span { display: block; color: var(--muted); font-size: 11px; line-height: 1.4; }
-      .consignment-product-choice.online {
+      .jatb-product-choice strong { display: block; font-size: 13px; margin-bottom: 2px; }
+      .jatb-product-choice span { display: block; color: var(--muted); font-size: 11px; line-height: 1.4; }
+      .jatb-product-choice.online {
         margin-top: 8px; margin-left: 28px; background: var(--green-soft);
         border-color: #C9DDCE;
       }
-      .consignment-product-card {
+      .jatb-product-card {
         margin-bottom: 14px; padding: 13px; border-radius: 14px;
         background: var(--green-soft); border: 1px solid #C9DDCE;
       }
-      .consignment-product-card.disabled {
+      .jatb-product-card.disabled {
         background: #F1F2F3; border-color: var(--line); color: var(--muted);
         opacity: .72; pointer-events: none;
       }
-      .consignment-status-card {
+      .jatb-status-card {
         border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
         background: var(--surface); margin: 0 0 14px;
       }
-      .consignment-manual-sale {
+      .jatb-manual-sale {
         display: block;
       }
-      .consignment-manual-sale-copy { margin-bottom: 10px; }
-      .consignment-manual-sale-copy strong { display: block; font-size: 13px; }
-      .consignment-manual-sale-copy span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
-      .consignment-manual-sale-controls {
+      .jatb-manual-sale-copy { margin-bottom: 10px; }
+      .jatb-manual-sale-copy strong { display: block; font-size: 13px; }
+      .jatb-manual-sale-copy span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+      .jatb-manual-sale-controls {
         display: grid; grid-template-columns: minmax(0, 1fr) auto;
         gap: 10px; align-items: end;
       }
-      .consignment-manual-sale .consignment-field { margin: 0; }
-      .consignment-sold-btn {
+      .jatb-manual-sale .jatb-field { margin: 0; }
+      .jatb-sold-btn {
         min-width: 0; width: auto; padding: 11px 16px; border-radius: 9px;
         box-shadow: none; white-space: nowrap;
       }
-      .consignment-status-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-      .consignment-status-actions .consignment-btn { min-width: 0; box-shadow: none; padding: 9px 13px; }
-      .consignment-sold-status {
+      .jatb-status-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      .jatb-status-actions .jatb-btn { min-width: 0; box-shadow: none; padding: 9px 13px; }
+      .jatb-sold-status {
         display: flex; align-items: center; justify-content: space-between;
         gap: 12px; min-height: 42px;
       }
-      .consignment-sold-status .consignment-row-sub { text-align: right; }
+      .jatb-sold-status .jatb-row-sub { text-align: right; }
 
-      .consignment-badge {
+      .jatb-badge {
         display: inline-flex; align-items: center; gap: 4px;
         font-size: 11px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
         padding: 4px 9px; border-radius: 999px;
       }
-      .consignment-badge.draft { background: var(--green-soft); color: var(--green-dark); }
-      .consignment-badge.available, .consignment-badge.active { background: #DFF5E7; color: #17663A; }
-      .consignment-badge.sold { background: #E4E7EC; color: #344054; }
-      .consignment-badge.paid { background: #DFF5E7; color: #17663A; }
-      .consignment-badge.unpaid { background: var(--gold-soft); color: #8A5D14; }
-      .consignment-badge.returned, .consignment-badge.donated { background: #F2F4F7; color: #667085; }
+      .jatb-badge.draft { background: var(--gold-soft); color: #8A5D14; }
+      .jatb-badge.available, .jatb-badge.active { background: #DFF5E7; color: #17663A; }
+      .jatb-badge.sold { background: #E4E7EC; color: #344054; }
+      .jatb-badge.paid { background: #DFF5E7; color: #17663A; }
+      .jatb-badge.unpaid { background: var(--gold-soft); color: #8A5D14; }
+      .jatb-badge.returned, .jatb-badge.donated { background: #F2F4F7; color: #667085; }
 
-      .consignment-main-nav {
+      .cm-main-nav {
         display: flex; align-items: center; gap: 4px; padding: 10px 24px;
         background: var(--surface); border-bottom: 1px solid var(--line);
         position: sticky; top: 0; z-index: 20;
       }
-      .consignment-brand {
+      .cm-brand {
         display: flex; align-items: center; gap: 10px; margin-right: 24px;
         font-size: 15px; font-weight: 700; white-space: nowrap;
       }
-      .consignment-brand-mark {
+      .cm-brand-mark {
         display: grid; place-items: center; width: 34px; height: 34px;
         border-radius: 9px; background: var(--green); color: white;
       }
-      .consignment-nav-button {
+      .cm-nav-button {
         display: flex; align-items: center; gap: 7px; padding: 9px 11px;
         border: 0; border-radius: 8px; background: transparent; color: var(--muted);
         font-size: 13px; font-weight: 600;
       }
-      .consignment-nav-button:hover { background: #F1F2F3; color: var(--ink); }
-      .consignment-nav-button.active { background: var(--green-soft); color: var(--green-dark); }
-      .consignment-dashboard-grid {
+      .cm-nav-button:hover { background: #F1F2F3; color: var(--ink); }
+      .cm-nav-button.active { background: var(--green-soft); color: var(--green-dark); }
+      .cm-dashboard-grid {
         display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
         margin-bottom: 20px;
       }
-      .consignment-metric {
+      .cm-metric {
         width: 100%; text-align: left; color: inherit; font: inherit;
         background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
         padding: 16px; min-height: 118px;
         transition: border-color .15s, box-shadow .15s, transform .15s;
       }
-      .consignment-metric:hover { border-color: #AEB4B8; box-shadow: 0 4px 14px rgba(0,0,0,.06); transform: translateY(-1px); }
-      .consignment-metric:focus-visible { outline: 3px solid var(--green-soft); border-color: var(--green); }
-      .consignment-metric-icon {
+      .cm-metric:hover { border-color: #AEB4B8; box-shadow: 0 4px 14px rgba(0,0,0,.06); transform: translateY(-1px); }
+      .cm-metric:focus-visible { outline: 3px solid var(--green-soft); border-color: var(--green); }
+      .cm-metric-icon {
         width: 34px; height: 34px; border-radius: 9px; background: var(--green-soft);
         color: var(--green-dark); display: grid; place-items: center; margin-bottom: 14px;
       }
-      .consignment-metric-label { color: var(--muted); font-size: 12px; font-weight: 600; }
-      .consignment-metric-value { font-size: 25px; font-weight: 700; margin-top: 4px; letter-spacing: -.02em; }
-      .consignment-metric-note { color: var(--muted); font-size: 11px; margin-top: 4px; }
-      .consignment-section-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .8fr); gap: 14px; }
-      .consignment-section-title {
+      .cm-metric-label { color: var(--muted); font-size: 12px; font-weight: 600; }
+      .cm-metric-value { font-size: 25px; font-weight: 700; margin-top: 4px; letter-spacing: -.02em; }
+      .cm-metric-note { color: var(--muted); font-size: 11px; margin-top: 4px; }
+      .cm-section-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .8fr); gap: 14px; }
+      .cm-section-title {
         display: flex; align-items: center; justify-content: space-between;
         gap: 12px; margin: 4px 0 12px;
       }
-      .consignment-section-title h2 { font-family: 'Inter', system-ui, sans-serif; font-size: 16px; font-weight: 700; }
-      .consignment-link-button { border: 0; background: transparent; color: var(--green); font-size: 12px; font-weight: 600; }
-      .consignment-toolbar {
+      .cm-section-title h2 { font-family: 'Inter', system-ui, sans-serif; font-size: 16px; font-weight: 700; }
+      .cm-link-button { border: 0; background: transparent; color: var(--green); font-size: 12px; font-weight: 600; }
+      .cm-toolbar {
         display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;
       }
-      .consignment-toolbar .consignment-search { margin: 0; flex: 1; min-width: 220px; }
-      .consignment-filter-select { width: auto; min-width: 170px; padding: 10px 34px 10px 12px; font-size: 13px !important; }
-      .consignment-page-toolbar { display:grid; grid-template-columns:minmax(240px,1fr) repeat(4,minmax(145px,auto)) auto; gap:10px; align-items:end; }
-      .consignment-consignors-toolbar { grid-template-columns:minmax(260px,1fr) minmax(190px,260px) auto; }
-      .consignment-page-toolbar .consignment-search { width:100%; min-height:42px; }
-      .consignment-tool-field, .consignment-tool-view { min-width:0; }
-      .consignment-tool-field > span, .consignment-tool-view > span { display:block; margin-bottom:6px; color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
-      .consignment-tool-field .consignment-select { width:100%; min-width:0; min-height:42px; }
-      .consignment-tool-view .consignment-view-toggle { min-height:42px; }
-      .consignment-items-toolbar { grid-template-columns:minmax(240px,1fr) repeat(4,minmax(145px,auto)) auto; }
-      .consignment-items-filter-details { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
-      .consignment-items-filter-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 12px 14px; list-style: none; color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer; }
-      .consignment-items-filter-summary::-webkit-details-marker { display: none; }
-      .consignment-items-filter-summary svg { color: var(--muted); transition: transform .15s; }
-      .consignment-items-filter-details[open] .consignment-items-filter-summary svg { transform: rotate(180deg); }
-      .consignment-items-filter-details .consignment-items-toolbar-top { padding: 12px 14px 14px; border-top: 1px solid var(--line); }
-      .consignment-readable-card-sku { display: flex !important; align-items: baseline; gap: 2px; min-width: 0; white-space: nowrap; }
-      .consignment-readable-card-sku b { flex-shrink: 0; font-size: 10px; }
-      .consignment-readable-card-sku span { overflow: hidden; text-overflow: ellipsis; }
+      .cm-toolbar .jatb-search { margin: 0; flex: 1; min-width: 220px; }
+      .cm-filter-select { width: auto; min-width: 170px; padding: 10px 34px 10px 12px; font-size: 13px !important; }
+      .cm-page-toolbar { display:grid; grid-template-columns:minmax(240px,1fr) repeat(4,minmax(145px,auto)) auto; gap:10px; align-items:end; }
+      .cm-consignors-toolbar { grid-template-columns:minmax(260px,1fr) minmax(190px,260px) auto; }
+      .cm-page-toolbar .jatb-search { width:100%; min-height:42px; }
+      .cm-tool-field, .cm-tool-view { min-width:0; }
+      .cm-tool-field > span, .cm-tool-view > span { display:block; margin-bottom:6px; color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+      .cm-tool-field .jatb-select { width:100%; min-width:0; min-height:42px; }
+      .cm-tool-view .cm-view-toggle { min-height:42px; }
+      .cm-items-toolbar { grid-template-columns:minmax(240px,1fr) repeat(4,minmax(145px,auto)) auto; }
+      .cm-items-filter-details { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+      .cm-items-filter-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 12px 14px; list-style: none; color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer; }
+      .cm-items-filter-summary::-webkit-details-marker { display: none; }
+      .cm-items-filter-summary svg { color: var(--muted); transition: transform .15s; }
+      .cm-items-filter-details[open] .cm-items-filter-summary svg { transform: rotate(180deg); }
+      .cm-items-filter-details .cm-items-toolbar-top { padding: 12px 14px 14px; border-top: 1px solid var(--line); }
+      .cm-readable-card-sku { display: flex !important; align-items: baseline; gap: 2px; min-width: 0; white-space: nowrap; }
+      .cm-readable-card-sku b { flex-shrink: 0; font-size: 10px; }
+      .cm-readable-card-sku span { overflow: hidden; text-overflow: ellipsis; }
       @media (max-width:980px) {
-        .consignment-page-toolbar, .consignment-items-toolbar, .consignment-consignors-toolbar { grid-template-columns:repeat(2,minmax(0,1fr)); }
-        .consignment-page-toolbar .consignment-search { grid-column:1/-1; }
-        .consignment-tool-view { grid-column:1/-1; }
-        .consignment-tool-view .consignment-view-toggle { width:100%; }
-        .consignment-tool-view .consignment-view-toggle button { flex:1; }
+        .cm-page-toolbar, .cm-items-toolbar, .cm-consignors-toolbar { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        .cm-page-toolbar .jatb-search { grid-column:1/-1; }
+        .cm-tool-view { grid-column:1/-1; }
+        .cm-tool-view .cm-view-toggle { width:100%; }
+        .cm-tool-view .cm-view-toggle button { flex:1; }
       }
       @media (max-width:600px) {
-        .consignment-page-toolbar, .consignment-items-toolbar, .consignment-consignors-toolbar { grid-template-columns:1fr; gap:9px; }
-        .consignment-page-toolbar .consignment-search, .consignment-tool-view { grid-column:auto; }
-        .consignment-page-toolbar .consignment-filter-select, .consignment-page-toolbar .consignment-select { width:100%; min-width:0; }
-        .consignment-readable-grid, .consignment-sales-grid-view { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
-        .consignment-readable-card { min-width:0; }
-        .consignment-readable-card-meta { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
-        .consignment-readable-card-meta strong { font-size:18px; overflow-wrap:anywhere; }
-        .consignment-readable-card-details { align-items:flex-start; }
-        .consignment-readable-card-actions > *,
-        .consignment-sales-grid-actions .consignment-sales-pay-btn,
-        .consignment-sales-pay-btn.compact { min-height:32px; padding:6px 8px; font-size:10px; }
+        .cm-page-toolbar, .cm-items-toolbar, .cm-consignors-toolbar { grid-template-columns:1fr; gap:9px; }
+        .cm-page-toolbar .jatb-search, .cm-tool-view { grid-column:auto; }
+        .cm-page-toolbar .cm-filter-select, .cm-page-toolbar .jatb-select { width:100%; min-width:0; }
+        .cm-readable-grid, .cm-consignor-grid, .cm-sales-grid-view { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:8px; }
+        .cm-readable-card { min-width:0; }
+        .cm-readable-card-meta { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+        .cm-readable-card-meta strong { font-size:18px; overflow-wrap:anywhere; }
+        .cm-readable-card-details { align-items:flex-start; }
+        .cm-readable-card-actions > *,
+        .cm-sales-grid-actions .cm-sales-pay-btn,
+        .cm-sales-pay-btn.compact { min-height:32px; padding:6px 8px; font-size:10px; }
       }
-      .consignment-quick-actions {
+      .cm-quick-actions {
         display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px; margin-bottom: 16px;
       }
-      .consignment-quick-action {
+      .cm-quick-action {
         display: flex; align-items: center; gap: 11px; min-height: 64px;
         padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px;
         background: var(--surface); color: var(--ink); text-align: left;
       }
-      .consignment-quick-action.primary { background: var(--green); color: #fff; border-color: var(--green); }
-      .consignment-quick-action-icon {
+      .cm-quick-action.primary { background: var(--green); color: #fff; border-color: var(--green); }
+      .cm-quick-action-icon {
         width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
         background: var(--green-soft); color: var(--green-dark); flex-shrink: 0;
       }
-      .consignment-quick-action.primary .consignment-quick-action-icon { background: rgba(255,255,255,.18); color: #fff; }
-      .consignment-quick-action strong { display: block; font-size: 14px; }
-      .consignment-quick-action-copy span { display: block; font-size: 11px; opacity: .75; margin-top: 2px; }
-      .consignment-optional {
+      .cm-quick-action.primary .cm-quick-action-icon { background: rgba(255,255,255,.18); color: #fff; }
+      .cm-quick-action strong { display: block; font-size: 14px; }
+      .cm-quick-action-copy span { display: block; font-size: 11px; opacity: .75; margin-top: 2px; }
+      .jatb-optional {
         border: 1px solid var(--line); border-radius: 12px; margin-top: 14px;
         background: #FAFBFB; overflow: hidden;
       }
-      .consignment-optional summary {
+      .jatb-optional summary {
         cursor: pointer; padding: 13px 14px; font-size: 13px; font-weight: 700;
         color: var(--green-dark); list-style-position: inside;
       }
-      .consignment-optional-body { padding: 2px 14px 14px; }
-      .consignment-category-results {
+      .jatb-optional-body { padding: 2px 14px 14px; }
+      .jatb-category-results {
         border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
         margin-top: 6px; overflow: hidden;
       }
-      .consignment-category-result {
+      .jatb-category-result {
         width: 100%; border: 0; border-bottom: 1px solid var(--line);
         background: transparent; padding: 10px 12px; text-align: left; font-size: 12px;
       }
-      .consignment-category-result:last-child { border-bottom: 0; }
-      .consignment-selected-category {
+      .jatb-category-result:last-child { border-bottom: 0; }
+      .jatb-selected-category {
         display: flex; align-items: center; justify-content: space-between; gap: 8px;
         margin-top: 7px; padding: 9px 11px; background: var(--green-soft);
         border-radius: 9px; color: var(--green-dark); font-size: 12px;
       }
-      .consignment-header-actions { display: flex; gap: 8px; align-items: center; }
-      .consignment-header-actions .consignment-btn { min-width: 0; }
-      .consignment-data-menu { position: relative; }
-      .consignment-data-menu > summary {
+      .cm-header-actions { display: flex; gap: 8px; align-items: center; }
+      .cm-header-actions .jatb-btn { min-width: 0; }
+      .cm-data-menu { position: relative; }
+      .cm-data-menu > summary {
         list-style: none; display: flex; align-items: center; gap: 7px;
         min-height: 40px; padding: 9px 12px; border: 1px solid var(--line);
         border-radius: 9px; background: var(--surface); color: var(--green-dark);
         font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
       }
-      .consignment-data-menu > summary::-webkit-details-marker { display: none; }
-      .consignment-data-menu-popover {
+      .cm-data-menu > summary::-webkit-details-marker { display: none; }
+      .cm-data-menu-popover {
         position: absolute; top: calc(100% + 6px); right: 0; z-index: 30;
         width: 150px; padding: 5px; border: 1px solid var(--line);
         border-radius: 10px; background: var(--surface);
         box-shadow: 0 10px 28px rgba(0,0,0,.14);
       }
-      .consignment-data-menu-popover button {
+      .cm-data-menu-popover button {
         width: 100%; display: flex; align-items: center; gap: 8px;
         border: 0; border-radius: 7px; padding: 10px;
         background: transparent; color: var(--ink); font-size: 13px; text-align: left;
       }
-      .consignment-data-menu-popover button:hover { background: var(--green-soft); }
-      .consignment-import-drop {
+      .cm-data-menu-popover button:hover { background: var(--green-soft); }
+      .cm-import-drop {
         border: 1px dashed #AEB4B8; border-radius: 12px; padding: 24px 18px;
         background: var(--surface); text-align: center; margin-bottom: 14px;
       }
-      .consignment-import-drop input { display: none; }
-      .consignment-import-drop label { cursor: pointer; display: grid; justify-items: center; gap: 8px; color: var(--green-dark); font-weight: 700; }
-      .consignment-import-help { color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 7px; }
-      .consignment-import-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
-      .consignment-import-preview div { background: #F9FAFB; border-radius: 9px; padding: 12px; }
-      .consignment-import-preview span { display: block; color: var(--muted); font-size: 11px; }
-      .consignment-import-preview strong { display: block; margin-top: 3px; font-size: 16px; }
-      .consignment-import-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-      .consignment-import-actions .consignment-btn { min-width: 0; box-shadow: none; }
-      .consignment-status-filter { margin-bottom: 14px; max-width: 240px; }
-      .consignment-status-filter .consignment-label { margin-bottom: 6px; }
-      .consignment-list-row {
+      .cm-import-drop input { display: none; }
+      .cm-import-drop label { cursor: pointer; display: grid; justify-items: center; gap: 8px; color: var(--green-dark); font-weight: 700; }
+      .cm-import-help { color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 7px; }
+      .cm-import-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+      .cm-import-preview div { background: #F9FAFB; border-radius: 9px; padding: 12px; }
+      .cm-import-preview span { display: block; color: var(--muted); font-size: 11px; }
+      .cm-import-preview strong { display: block; margin-top: 3px; font-size: 16px; }
+      .cm-import-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+      .cm-import-actions .jatb-btn { min-width: 0; box-shadow: none; }
+      .cm-status-filter { margin-bottom: 14px; max-width: 240px; }
+      .cm-status-filter .jatb-label { margin-bottom: 6px; }
+      .cm-list-row {
         display: grid; grid-template-columns: minmax(220px, 2fr) minmax(130px, 1fr) 100px 100px 118px 92px;
         gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line);
         font-size: 13px;
       }
-      .consignment-list-row:last-child { border-bottom: 0; }
-      .consignment-list-head { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
-      .consignment-item-groups { display: grid; gap: 12px; }
-      .consignment-item-group {
+      .cm-list-row:last-child { border-bottom: 0; }
+      .cm-list-head { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+      .cm-item-groups { display: grid; gap: 12px; }
+      .cm-item-group {
         border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden;
       }
-      .consignment-item-group-summary {
+      .cm-item-group-summary {
         list-style: none; display: grid; grid-template-columns: 30px 38px minmax(0, 1fr) 86px 70px;
         gap: 12px; align-items: center; padding: 14px; cursor: pointer;
       }
-      .consignment-item-group-summary::-webkit-details-marker { display: none; }
-      .consignment-item-group-chevron {
+      .cm-item-group-summary::-webkit-details-marker { display: none; }
+      .cm-item-group-chevron {
         width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 999px;
         display: grid; place-items: center; color: var(--muted); transition: transform .15s;
       }
-      .consignment-item-group[open] .consignment-item-group-chevron { transform: rotate(90deg); }
-      .consignment-item-group-avatar { width: 38px; height: 38px; flex: 0 0 auto; }
-      .consignment-item-group-person { min-width: 0; }
-      .consignment-item-group-person > span { display: block; }
-      .consignment-item-group-link {
+      .cm-item-group[open] .cm-item-group-chevron { transform: rotate(90deg); }
+      .cm-item-group-avatar { width: 38px; height: 38px; flex: 0 0 auto; }
+      .cm-item-group-person { min-width: 0; }
+      .cm-item-group-person > span { display: block; }
+      .cm-item-group-link {
         color: var(--green-dark); font-size: 14px; font-weight: 700; width: fit-content; cursor: pointer;
       }
-      .consignment-item-group-link:hover, .consignment-item-group-link:focus-visible { text-decoration: underline; }
-      .consignment-item-group-meta { display: flex !important; align-items: baseline; gap: 5px; margin-top: 3px; }
-      .consignment-item-group-number { color: var(--green-dark); font-size: 15px; font-weight: 800; line-height: 1.2; }
-      .consignment-item-group-count { color: var(--muted); font-size: 12px; font-weight: 500; }
-      .consignment-item-group-stat { text-align: right; }
-      .consignment-item-group-stat strong, .consignment-item-group-stat span { display: block; }
-      .consignment-item-group-stat strong { font-size: 14px; }
-      .consignment-item-group-stat span { color: var(--muted); font-size: 10px; margin-top: 2px; }
-      .consignment-item-group-items { border-top: 1px solid var(--line); }
-      .consignment-grouped-item-row {
+      .cm-item-group-link:hover, .cm-item-group-link:focus-visible { text-decoration: underline; }
+      .cm-item-group-meta { display: flex !important; align-items: baseline; gap: 5px; margin-top: 3px; }
+      .cm-item-group-number { color: var(--green-dark); font-size: 15px; font-weight: 800; line-height: 1.2; }
+      .cm-item-group-count { color: var(--muted); font-size: 12px; font-weight: 500; }
+      .cm-item-group-stat { text-align: right; }
+      .cm-item-group-stat strong, .cm-item-group-stat span { display: block; }
+      .cm-item-group-stat strong { font-size: 14px; }
+      .cm-item-group-stat span { color: var(--muted); font-size: 10px; margin-top: 2px; }
+      .cm-item-group-items { border-top: 1px solid var(--line); }
+      .cm-grouped-item-row {
         display: grid; grid-template-columns: minmax(220px, 2fr) 90px 90px 112px 92px 112px;
         gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px;
       }
-      .consignment-grouped-item-row:last-child { border-bottom: 0; }
-      .consignment-grouped-item-open {
+      .cm-grouped-item-row:last-child { border-bottom: 0; }
+      .cm-grouped-item-open {
         display: flex; align-items: center; gap: 10px; min-width: 0; border: 0; background: transparent;
         color: inherit; padding: 0; text-align: left; font: inherit;
       }
-      .consignment-grouped-item-open > span:last-child { min-width: 0; }
-      .consignment-grouped-item-open strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .consignment-grouped-item-open > span:last-child > span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
-      .consignment-item-quick-action { display: flex; justify-content: flex-start; }
-      .consignment-quick-sold-btn {
+      .cm-grouped-item-open > span:last-child { min-width: 0; }
+      .cm-grouped-item-open strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .cm-grouped-item-open > span:last-child > span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+      .cm-item-quick-action { display: flex; justify-content: flex-start; }
+      .cm-quick-sold-btn {
         border: 0; border-radius: 8px; padding: 9px 11px; background: var(--green); color: #fff;
         font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
       }
-      .consignment-quick-sold-btn:disabled { opacity: .65; cursor: wait; }
-      .consignment-item-action-note { color: var(--muted); font-size: 11px; }
-      .consignment-items-toolbar {
+      .cm-quick-sold-btn:disabled { opacity: .65; cursor: wait; }
+      .cm-item-action-note { color: var(--muted); font-size: 11px; }
+      .cm-items-toolbar {
         display: grid; grid-template-columns: minmax(250px, 1fr) 170px 155px 170px auto;
         gap: 10px; align-items: center; margin-bottom: 12px;
       }
-      .consignment-view-toggle { display: flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; background: var(--surface); }
-      .consignment-view-toggle button { border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--muted); padding: 10px 11px; font-size: 12px; font-weight: 700; white-space: nowrap; }
-      .consignment-view-toggle button:last-child { border-right: 0; }
-      .consignment-view-toggle button.active { background: #E7F0FA; color: var(--green-dark); }
-      .consignment-finder-toggle button { display:flex; align-items:center; justify-content:center; gap:7px; min-height:42px; cursor:pointer; }
-      .consignment-consignor-profile-link { border: 0; background: transparent; color: var(--green-dark); padding: 0; font: inherit; font-weight: 700; text-align: left; cursor: pointer; width: fit-content; }
-      .consignment-consignor-profile-link:hover, .consignment-consignor-profile-link:focus-visible { text-decoration: underline; }
-      .consignment-item-group-chevron { padding: 0; background: var(--surface); cursor: pointer; }
-      .consignment-item-group-chevron.open { transform: rotate(90deg); }
-      .consignment-item-open-btn, .consignment-grid-open-btn { border: 1px solid #9EBFE4; border-radius: 8px; background: #fff; color: var(--green-dark); padding: 8px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; }
-      .consignment-all-items-card { padding: 0; overflow: hidden; }
-      .consignment-all-item-row { display: grid; grid-template-columns: minmax(210px, 2fr) 82px minmax(120px, 1fr) 84px 88px 108px 90px 108px; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px; }
-      .consignment-all-item-row:last-child { border-bottom: 0; }
-      .consignment-all-items-card > .consignment-list-head { grid-template-columns: minmax(210px, 2fr) 82px minmax(120px, 1fr) 84px 88px 108px 90px 108px; }
-      .consignment-items-grid { display: grid; grid-template-columns: repeat(auto-fill, 148px); gap: 8px; justify-content: start; align-items: start; }
-      .consignment-item-grid-card { width: 148px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); overflow: hidden; min-width: 0; }
-      .consignment-grid-image { width: 100%; height: 78px; border: 0; border-bottom: 1px solid var(--line); background: #F4F6F8; display: block; padding: 0; overflow: hidden; cursor: pointer; }
-      .consignment-grid-image-wrapper { width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; }
-      .consignment-grid-image img { display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; object-position: center; }
-      .consignment-grid-card-body { padding: 8px; display: grid; gap: 5px; overflow: hidden; }
-      .consignment-grid-title { border: 0; background: transparent; padding: 0; color: var(--ink); font-size: 11px; font-weight: 800; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
-      .consignment-grid-sub { color: var(--muted); font-size: 8px; }
-      .consignment-grid-card-body .consignment-consignor-profile-link { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; font-weight: 700; }
-      .consignment-grid-meta { display: grid; grid-template-columns: 1fr; gap: 7px; }
-      .consignment-grid-meta span { min-width: 0; }
-      .consignment-grid-meta small, .consignment-grid-meta strong { display: block; }
-      .consignment-grid-meta small { color: var(--muted); font-size: 7px; }
-      .consignment-grid-meta strong { font-size: 10px; margin-top: 1px; }
-      .consignment-grid-badges { display: flex; flex-wrap: wrap; gap: 3px; min-height: 17px; }
-      .consignment-grid-badges .consignment-product-badge, .consignment-grid-badges .consignment-badge { min-width: 0; padding: 3px 5px; font-size: 6px; }
-      .consignment-item-grid-card .consignment-quick-sold-btn, .consignment-item-grid-card .consignment-grid-open-btn { width: 100%; padding: 6px; font-size: 9px; }
-      .consignment-sales-row {
+      .cm-view-toggle { display: flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; background: var(--surface); }
+      .cm-view-toggle button { border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--muted); padding: 10px 11px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+      .cm-view-toggle button:last-child { border-right: 0; }
+      .cm-view-toggle button.active { background: #E7F0FA; color: var(--green-dark); }
+      .cm-finder-toggle button { display:flex; align-items:center; justify-content:center; gap:7px; min-height:42px; cursor:pointer; }
+      .cm-consignor-list { padding:0; overflow:hidden; }
+      .cm-consignor-list-row { width:100%; display:grid; grid-template-columns:minmax(230px,2fr) minmax(190px,1.4fr) 70px 100px 24px; gap:14px; align-items:center; padding:13px 16px; border:0; border-bottom:1px solid var(--line); background:var(--surface); color:var(--ink); text-align:left; font:inherit; cursor:pointer; }
+      .cm-consignor-list-row:last-child { border-bottom:0; }
+      button.cm-consignor-list-row:hover { background:#F8FAFC; }
+      .cm-consignor-identity { display:flex; align-items:center; gap:11px; min-width:0; }
+      .cm-consignor-identity > span:last-child, .cm-consignor-contact { display:grid; gap:3px; min-width:0; }
+      .cm-consignor-identity strong, .cm-consignor-contact strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
+      .cm-consignor-identity small, .cm-consignor-contact small { color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; }
+      .cm-consignor-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; }
+      .cm-consignor-card { display:flex; flex-direction:column; min-height:220px; padding:18px; border:1px solid var(--line); border-radius:12px; background:var(--surface); color:var(--ink); text-align:left; font:inherit; cursor:pointer; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+      .cm-consignor-card:hover { border-color:#9EBFE4; box-shadow:0 7px 20px rgba(15,23,42,.08); }
+      .cm-consignor-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; color:var(--muted); }
+      .cm-consignor-card-name { font-size:16px; line-height:1.25; }
+      .cm-consignor-card-number { color:var(--muted); margin-top:4px; font-size:14px; font-weight:700; }
+      .cm-consignor-card-contact { color:var(--muted); font-size:12px; margin:13px 0 16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .cm-consignor-card-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:auto; padding-top:14px; border-top:1px solid var(--line); }
+      .cm-consignor-card-stats span { display:grid; gap:3px; }
+      .cm-consignor-card-stats small { color:var(--muted); font-size:9px; text-transform:uppercase; font-weight:700; }
+      .cm-consignor-card-stats strong { font-size:15px; }
+      .cm-consignor-profile-link { border: 0; background: transparent; color: var(--green-dark); padding: 0; font: inherit; font-weight: 700; text-align: left; cursor: pointer; width: fit-content; }
+      .cm-consignor-profile-link:hover, .cm-consignor-profile-link:focus-visible { text-decoration: underline; }
+      .cm-item-group-chevron { padding: 0; background: var(--surface); cursor: pointer; }
+      .cm-item-group-chevron.open { transform: rotate(90deg); }
+      .cm-item-open-btn, .cm-grid-open-btn { border: 1px solid #9EBFE4; border-radius: 8px; background: #fff; color: var(--green-dark); padding: 8px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+      .cm-all-items-card { padding: 0; overflow: hidden; }
+      .cm-all-item-row { display: grid; grid-template-columns: minmax(210px, 2fr) 82px minmax(120px, 1fr) 84px 88px 108px 90px 108px; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px; }
+      .cm-all-item-row:last-child { border-bottom: 0; }
+      .cm-all-items-card > .cm-list-head { grid-template-columns: minmax(210px, 2fr) 82px minmax(120px, 1fr) 84px 88px 108px 90px 108px; }
+      .cm-items-grid { display: grid; grid-template-columns: repeat(auto-fill, 148px); gap: 8px; justify-content: start; align-items: start; }
+      .cm-item-grid-card { width: 148px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); overflow: hidden; min-width: 0; }
+      .cm-grid-image { width: 100%; height: 78px; border: 0; border-bottom: 1px solid var(--line); background: #F4F6F8; display: block; padding: 0; overflow: hidden; cursor: pointer; }
+      .cm-grid-image-wrapper { width: 100%; height: 100%; display: grid; place-items: center; overflow: hidden; }
+      .cm-grid-image img { display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; object-position: center; }
+      .cm-grid-card-body { padding: 8px; display: grid; gap: 5px; overflow: hidden; }
+      .cm-grid-title { border: 0; background: transparent; padding: 0; color: var(--ink); font-size: 11px; font-weight: 800; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+      .cm-grid-sub { color: var(--muted); font-size: 8px; }
+      .cm-grid-card-body .cm-consignor-profile-link { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; font-weight: 700; }
+      .cm-grid-meta { display: grid; grid-template-columns: 1fr; gap: 7px; }
+      .cm-grid-meta span { min-width: 0; }
+      .cm-grid-meta small, .cm-grid-meta strong { display: block; }
+      .cm-grid-meta small { color: var(--muted); font-size: 7px; }
+      .cm-grid-meta strong { font-size: 10px; margin-top: 1px; }
+      .cm-grid-badges { display: flex; flex-wrap: wrap; gap: 3px; min-height: 17px; }
+      .cm-grid-badges .cm-product-badge, .cm-grid-badges .jatb-badge { min-width: 0; padding: 3px 5px; font-size: 6px; }
+      .cm-item-grid-card .cm-quick-sold-btn, .cm-item-grid-card .cm-grid-open-btn { width: 100%; padding: 6px; font-size: 9px; }
+      .cm-sales-row {
         display: grid; grid-template-columns: minmax(230px, 2fr) 86px minmax(130px, 1fr) 92px 112px 92px 128px;
         gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line);
         font-size: 13px;
       }
-      .consignment-sales-row:last-child { border-bottom: 0; }
-      .consignment-sales-action { display: flex; justify-content: flex-start; }
-      .consignment-sales-pay-btn {
+      .cm-sales-row:last-child { border-bottom: 0; }
+      .cm-sales-action { display: flex; justify-content: flex-start; }
+      .cm-sales-pay-btn {
         border: 0; border-radius: 8px; padding: 9px 12px; background: var(--green); color: white;
         font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
       }
-      .consignment-sales-paid-note { color: var(--muted); font-size: 12px; font-weight: 600; }
-      .consignment-product-badge {
+      .cm-sales-paid-note { color: var(--muted); font-size: 12px; font-weight: 600; }
+      .cm-product-badge {
         display: inline-flex; align-items: center; justify-content: center; justify-self: start;
         width: fit-content; min-width: 76px; padding: 5px 9px; border-radius: 999px;
         font-size: 10px; font-weight: 700; line-height: 1; text-transform: uppercase; white-space: nowrap;
       }
-      .consignment-product-badge.manual { background: #FDE68A; color: #713F12; }
-      .consignment-product-badge.draft { background: #FFF4D6; color: #8A5D14; }
-      .consignment-product-badge.pos { background: #E4EEF9; color: #143F73; }
-      .consignment-product-badge.online { background: #DFF5E7; color: #17663A; }
-      .consignment-item-primary { display: flex; align-items: center; gap: 10px; min-width: 0; }
-      .consignment-item-primary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .consignment-item-primary span { color: var(--muted); font-size: 11px; }
-      .consignment-empty-small { text-align: center; color: var(--muted); padding: 28px 16px; font-size: 13px; }
-      .consignment-date-tabs { display: flex; gap: 4px; }
-      .consignment-date-tabs button {
+      .cm-product-badge.manual { background: #FDE68A; color: #713F12; }
+      .cm-product-badge.draft { background: #FFF4D6; color: #8A5D14; }
+      .cm-product-badge.pos { background: #E4EEF9; color: #143F73; }
+      .cm-product-badge.online { background: #DFF5E7; color: #17663A; }
+      .cm-item-primary { display: flex; align-items: center; gap: 10px; min-width: 0; }
+      .cm-item-primary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .cm-item-primary span { color: var(--muted); font-size: 11px; }
+      .cm-empty-small { text-align: center; color: var(--muted); padding: 28px 16px; font-size: 13px; }
+      .cm-date-tabs { display: flex; gap: 4px; }
+      .cm-date-tabs button {
         border: 0; background: transparent; color: var(--muted); border-radius: 7px;
         padding: 7px 10px; font-size: 12px; font-weight: 600;
       }
-      .consignment-date-tabs button.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-      .consignment-payout-summary {
-        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px;
+      .cm-date-tabs button.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+      .cm-payout-summary {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px;
       }
-      .consignment-payouts-page { padding-top: 12px; }
-      .consignment-payouts-page .consignment-status-row { margin-bottom: 8px; }
-      .consignment-payouts-page .consignment-payout-summary { gap: 8px; margin-bottom: 10px; }
-      .consignment-payouts-page .consignment-summary-box {
-        min-width: 0; min-height: 62px; padding: 10px 12px;
-        display: flex; flex-direction: column; justify-content: center;
-      }
-      .consignment-payouts-page .consignment-summary-box span { line-height: 1.2; }
-      .consignment-payouts-page .consignment-summary-box strong { margin-top: 3px; line-height: 1.1; }
-      .consignment-payouts-page .consignment-items-toolbar { gap: 8px; margin-bottom: 10px; }
-      .consignment-payouts-page .consignment-items-filter-summary { min-height: 44px; padding: 10px 12px; }
-      .consignment-payouts-page .consignment-items-filter-details .consignment-items-toolbar-top { padding: 10px 12px 12px; }
-      .consignment-payouts-page .consignment-items-toolbar-bottom { gap: 8px; }
-      .consignment-payouts-page .consignment-search { margin-bottom: 0; }
-      .consignment-payouts-page .consignment-payout-list { margin-bottom: 10px; }
-      .consignment-payouts-page .consignment-payout-list .consignment-section-title { margin-bottom: 10px; }
-      .consignment-payout-row {
+      .cm-payout-row {
         display: grid; grid-template-columns: minmax(0, 1fr) auto;
         gap: 12px 16px; align-items: center;
         border: 1px solid var(--line); border-radius: 12px;
         padding: 14px; margin-bottom: 10px; background: var(--surface);
       }
-      .consignment-payout-group { display: block; padding: 0; }
-      .consignment-payout-group-summary {
-        display: grid; grid-template-columns: 18px minmax(0, 1fr) auto auto auto;
-        align-items: center; gap: 12px 16px; padding: 14px;
-        cursor: pointer; list-style: none;
+      .cm-payout-list.grid {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px; padding: 16px;
       }
-      .consignment-payout-group-stat { text-align: center; min-width: 56px; }
-      .consignment-payout-group-stat strong, .consignment-payout-group-stat span { display: block; }
-      .consignment-payout-group-stat strong { font-size: 16px; }
-      .consignment-payout-group-stat span { color: var(--muted); font-size: 11px; margin-top: 2px; }
-      .consignment-payout-group-summary::-webkit-details-marker { display: none; }
-      .consignment-payout-chev { color: var(--muted); flex-shrink: 0; transition: transform .15s; }
-      .consignment-payout-group[open] .consignment-payout-chev { transform: rotate(90deg); }
-      .consignment-payout-group .consignment-payout-person { cursor: pointer; }
-      .consignment-payout-group .consignment-payout-all-items {
-        padding: 0 14px 14px 44px; border-top: 1px solid var(--line);
+      .cm-payout-list.grid .cm-section-title,
+      .cm-payout-list.grid .cm-empty-small { grid-column: 1 / -1; }
+      .cm-payout-list.grid .cm-payout-row {
+        grid-template-columns: minmax(0, 1fr); align-content: space-between;
+        gap: 16px; min-width: 0; min-height: 144px; margin: 0; padding: 16px;
       }
-      .consignment-payout-group .consignment-payout-all-items { padding-top: 12px; }
-      .consignment-consignor-card-open:disabled { opacity: .5; cursor: default; }
-      .consignment-consignor-card-open:disabled:hover { background: var(--surface); border-color: var(--line); color: var(--ink); }
-      .consignment-payout-person {
+      .cm-payout-list.grid .cm-payout-action { justify-content: space-between; }
+      @media (max-width: 720px) {
+        .cm-payout-list.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px; }
+        .cm-payout-list.grid .cm-payout-row { min-height: 178px; padding: 10px; gap: 10px; }
+        .cm-payout-list.grid .cm-payout-person { align-items: flex-start; gap: 8px; }
+        .cm-payout-list.grid .jatb-avatar { width: 34px; height: 34px; border-radius: 9px; font-size: 13px; }
+        .cm-payout-list.grid .jatb-row-name { font-size: 13px; line-height: 1.25; }
+        .cm-payout-list.grid .jatb-row-sub { font-size: 10px; line-height: 1.35; }
+        .cm-payout-list.grid .cm-payout-action { flex-direction: column; align-items: stretch; gap: 8px; }
+        .cm-payout-list.grid .cm-payout-amount { font-size: 16px; }
+        .cm-payout-list.grid .cm-payout-action .jatb-btn { width: 100%; min-width: 0; padding: 8px 6px; font-size: 11px; }
+      }
+      .cm-payout-person {
         display: flex; align-items: center; gap: 12px; min-width: 0;
         border: 0; background: transparent; text-align: left; padding: 0;
       }
-      .consignment-payout-action {
+      .cm-payout-action {
         display: flex; align-items: center; gap: 12px; justify-content: flex-end;
       }
-      .consignment-payout-amount { font-size: 17px; white-space: nowrap; }
-      .consignment-payout-action .consignment-btn {
+      .cm-payout-amount { font-size: 17px; white-space: nowrap; }
+      .cm-payout-action .jatb-btn {
         width: auto; min-width: 132px; padding: 10px 14px; box-shadow: none;
       }
-      .consignment-summary-box { background: #F9FAFB; border-radius: 9px; padding: 12px; }
-      .consignment-summary-box span { display: block; color: var(--muted); font-size: 11px; }
-      .consignment-summary-box strong { display: block; margin-top: 4px; font-size: 18px; }
-      .consignment-payout-fields {
+      .cm-summary-box { background: #F9FAFB; border-radius: 9px; padding: 12px; }
+      .cm-summary-box span { display: block; color: var(--muted); font-size: 11px; }
+      .cm-summary-box strong { display: block; margin-top: 4px; font-size: 18px; }
+      .cm-payout-fields {
         display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;
       }
-      .consignment-payout-fields > .consignment-field { min-width: 0; }
-      .consignment-store-credit-note {
+      .cm-payout-fields > .jatb-field { min-width: 0; }
+      .cm-store-credit-note {
         display: flex; gap: 9px; align-items: flex-start; padding: 11px 12px;
         margin: -2px 0 14px; border-radius: 10px; background: var(--gold-soft);
         color: #714B0E; font-size: 12px; line-height: 1.45;
       }
-      .consignment-history-list { display: grid; gap: 10px; }
-      .consignment-history-card {
+      .cm-history-list { display: grid; gap: 10px; }
+      .cm-history-card {
         width: 100%; border: 1px solid var(--line); border-radius: 13px;
         background: var(--surface); color: var(--ink); overflow: hidden; text-align: left;
       }
-      .consignment-history-card-summary {
+      .cm-history-card-summary {
         width: 100%; min-width: 0; margin: 0; border: 0;
         display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto;
         align-items: center; gap: 11px; padding: 14px;
         background: transparent; color: inherit; text-align: left;
         appearance: none; -webkit-appearance: none;
       }
-      .consignment-history-card-summary:hover { background: #FAFBFB; }
-      .consignment-history-card-summary:active { background: var(--green-soft); }
-      .consignment-history-card-copy { min-width: 0; }
-      .consignment-history-card-copy strong {
+      .cm-history-card-summary:hover { background: #FAFBFB; }
+      .cm-history-card-summary:active { background: var(--green-soft); }
+      .cm-history-card-copy { min-width: 0; }
+      .cm-history-card-copy strong {
         display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
       }
-      .consignment-history-consignor-link {
+      .cm-history-consignor-link {
         display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         font-weight: 700; color: var(--ink); cursor: pointer;
       }
-      .consignment-history-consignor-link:hover { color: var(--green); text-decoration: underline; }
-      .consignment-history-consignor-link:focus-visible {
+      .cm-history-consignor-link:hover { color: var(--green); text-decoration: underline; }
+      .cm-history-consignor-link:focus-visible {
         color: var(--green); text-decoration: underline; outline: 2px solid var(--green-soft); outline-offset: 2px;
       }
-      .consignment-history-card-copy span { display: block; color: var(--muted); font-size: 11px; margin-top: 3px; }
-      .consignment-history-card-amount { text-align: right; }
-      .consignment-history-card-amount strong { display: block; font-size: 16px; }
-      .consignment-history-card-amount span { display: block; color: var(--muted); font-size: 11px; margin-top: 3px; }
-      .consignment-history-card-details {
+      .cm-history-card-copy span { display: block; color: var(--muted); font-size: 11px; margin-top: 3px; }
+      .cm-history-card-amount { text-align: right; }
+      .cm-history-card-amount strong { display: block; font-size: 16px; }
+      .cm-history-card-amount span { display: block; color: var(--muted); font-size: 11px; margin-top: 3px; }
+      .cm-history-card-details {
         border-top: 1px solid var(--line); padding: 13px 14px; background: #FAFBFB;
       }
-      .consignment-history-meta {
+      .cm-history-meta {
         display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
         margin-bottom: 12px;
       }
-      .consignment-history-meta div { background: var(--surface); border-radius: 9px; padding: 9px; }
-      .consignment-history-meta span { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
-      .consignment-history-meta strong { display: block; font-size: 12px; margin-top: 3px; overflow-wrap: anywhere; }
-      .consignment-history-item {
+      .cm-history-meta div { background: var(--surface); border-radius: 9px; padding: 9px; }
+      .cm-history-meta span { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+      .cm-history-meta strong { display: block; font-size: 12px; margin-top: 3px; overflow-wrap: anywhere; }
+      .cm-history-item {
         display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px;
         align-items: center; padding: 10px 0; border-top: 1px solid var(--line);
       }
-      .consignment-history-item:first-of-type { border-top: 0; }
-      .consignment-history-item-copy strong { display: block; font-size: 13px; }
-      .consignment-history-item-copy span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
-      .consignment-history-note { color: var(--muted); font-size: 11px; margin-top: 10px; line-height: 1.45; }
-      .consignment-paid-detail { display: block; color: var(--green-dark); font-size: 11px; margin-top: 4px; }
+      .cm-history-item:first-of-type { border-top: 0; }
+      .cm-history-item-copy strong { display: block; font-size: 13px; }
+      .cm-history-item-copy span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+      .cm-history-note { color: var(--muted); font-size: 11px; margin-top: 10px; line-height: 1.45; }
+      .cm-paid-detail { display: block; color: var(--green-dark); font-size: 11px; margin-top: 4px; }
 
-      .consignment-tag {
+      .jatb-tag {
         display: inline-flex; align-items: center; gap: 5px;
         background: var(--ink); color: #fff; font-family: 'Fraunces', serif;
         font-weight: 600; font-size: 12px; padding: 3px 10px 3px 8px; border-radius: 4px 10px 10px 4px;
         position: relative;
       }
-      .consignment-tag::before {
+      .jatb-tag::before {
         content: ''; width: 5px; height: 5px; border-radius: 999px; background: #fff;
       }
 
-      .consignment-photo-btn {
+      .jatb-photo-btn {
         width: 84px; height: 84px; border-radius: 14px; border: 1.5px dashed var(--line);
         background: var(--surface); display: flex; flex-direction: column; align-items: center;
         justify-content: center; gap: 4px; color: var(--muted); font-size: 11px; flex-shrink: 0;
         overflow: hidden; text-align: center; line-height: 1.2;
       }
-      .consignment-photo-btn img { width: 100%; height: 100%; object-fit: cover; }
-      .consignment-photo-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
-      .consignment-photo-alt {
+      .jatb-photo-btn img { width: 100%; height: 100%; object-fit: cover; }
+      .jatb-photo-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
+      .jatb-photo-alt {
         font-size: 10.5px; color: var(--muted); text-decoration: underline;
         text-align: center; max-width: 84px;
       }
 
-      .consignment-intake-primary {
+      .jatb-intake-primary {
         display: grid; grid-template-columns: 128px minmax(0, 1fr);
         gap: 16px; align-items: start; padding: 16px;
         margin-bottom: 0; border-radius: 12px 12px 0 0;
       }
-      .consignment-intake-primary .consignment-photo-wrap {
+      .jatb-intake-primary .jatb-photo-wrap {
         width: 128px; gap: 6px;
       }
-      .consignment-intake-primary .consignment-photo-btn {
+      .jatb-intake-primary .jatb-photo-btn {
         width: 128px; height: 128px; border-radius: 10px;
         background: #FAFBFB; font-size: 11px; gap: 5px;
       }
-      .consignment-intake-primary .consignment-photo-btn svg { width: 22px; height: 22px; }
-      .consignment-intake-primary .consignment-photo-alt {
+      .jatb-intake-primary .jatb-photo-btn svg { width: 22px; height: 22px; }
+      .jatb-intake-primary .jatb-photo-alt {
         max-width: 128px; font-size: 10px;
       }
-      .consignment-intake-primary-fields {
+      .jatb-intake-primary-fields {
         display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 240px);
         gap: 12px; align-content: start; padding-top: 1px;
       }
-      .consignment-intake-primary + .consignment-detail-card {
+      .jatb-intake-primary + .jatb-detail-card {
         margin-top: 0; border-top: 0; border-radius: 0 0 12px 12px;
       }
-      .consignment-intake-primary-fields .consignment-field { margin: 0; min-width: 0; }
-      .consignment-intake-primary-fields .consignment-input {
+      .jatb-intake-primary-fields .jatb-field { margin: 0; min-width: 0; }
+      .jatb-intake-primary-fields .jatb-input {
         min-height: 46px; border-radius: 10px;
       }
-      .consignment-shopify-photo-row {
+      .jatb-shopify-photo-row {
         display: grid; grid-template-columns: 140px minmax(0, 1fr);
         gap: 16px; align-items: start; margin-top: 12px;
       }
 
-      .consignment-batch-item {
+      .jatb-batch-item {
         display: flex; align-items: center; gap: 10px; background: var(--surface);
         border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px;
       }
-      .consignment-batch-thumb {
+      .jatb-batch-thumb {
         width: 44px; height: 44px; border-radius: 8px; background: var(--green-soft);
         flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center;
       }
-      .consignment-batch-thumb img { width: 100%; height: 100%; object-fit: cover; }
-      .consignment-batch-remove {
+      .jatb-batch-thumb img { width: 100%; height: 100%; object-fit: cover; }
+      .jatb-batch-remove {
         width: 30px; height: 30px; border-radius: 999px; border: none; background: var(--danger-soft);
         color: var(--danger); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
       }
 
-      .consignment-toast {
+      .jatb-toast {
         position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
         background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 999px;
         font-size: 13px; font-weight: 500; z-index: 50; display: flex; align-items: center; gap: 6px;
         box-shadow: 0 8px 20px rgba(0,0,0,0.2);
       }
 
-      .consignment-loading { display: flex; align-items: center; justify-content: center; height: 100%; padding: 80px 0; color: var(--muted); }
-      .consignment-spin { animation: consignment-spin 1s linear infinite; }
-      @keyframes consignment-spin { to { transform: rotate(360deg); } }
+      .jatb-loading { display: flex; align-items: center; justify-content: center; height: 100%; padding: 80px 0; color: var(--muted); }
+      .jatb-spin { animation: jatb-spin 1s linear infinite; }
+      @keyframes jatb-spin { to { transform: rotate(360deg); } }
 
-      .consignment-footnote {
+      .jatb-footnote {
         text-align: center; font-size: 12px; color: var(--muted); padding: 18px 0 6px;
       }
-      .consignment-footnote button { background: none; border: none; color: var(--muted); text-decoration: underline; font-size: 12px; }
+      .jatb-footnote button { background: none; border: none; color: var(--muted); text-decoration: underline; font-size: 12px; }
 
       @media (prefers-reduced-motion: reduce) {
-        .consignment-row-btn, .consignment-btn, .consignment-back { transition: none; }
-        .consignment-spin { animation: none; }
+        .jatb-row-btn, .jatb-btn, .jatb-back { transition: none; }
+        .jatb-spin { animation: none; }
       }
-      .consignment button:focus-visible, .consignment input:focus-visible, .consignment select:focus-visible {
+      .jatb button:focus-visible, .jatb input:focus-visible, .jatb select:focus-visible {
         outline: 2px solid var(--green); outline-offset: 2px;
       }
       @media (max-width: 900px) {
-        .consignment-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .consignment-section-grid { grid-template-columns: 1fr; }
-        .consignment-list-row { grid-template-columns: minmax(180px, 2fr) minmax(110px, 1fr) 85px 108px 92px; }
-        .consignment-list-row > :nth-child(4) { display: none; }
-        .consignment-grouped-item-row { grid-template-columns: minmax(190px, 2fr) 84px 106px 88px 106px; }
-        .consignment-grouped-item-row > :nth-child(3) { display: none; }
-        .consignment-sales-row { grid-template-columns: minmax(200px, 2fr) 80px minmax(120px, 1fr) 88px 100px 86px 118px; }
-        .consignment-items-toolbar { grid-template-columns: minmax(220px, 1fr) 160px 145px 160px; }
-        .consignment-view-toggle { grid-column: 1 / -1; width: fit-content; }
-        .consignment-items-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .consignment-all-item-row, .consignment-all-items-card > .consignment-list-head { grid-template-columns: minmax(180px, 2fr) 76px minmax(105px, 1fr) 80px 102px 86px 102px; }
-        .consignment-all-item-row > :nth-child(5), .consignment-all-items-card > .consignment-list-head > :nth-child(5) { display: none; }
+        .cm-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cm-section-grid { grid-template-columns: 1fr; }
+        .cm-list-row { grid-template-columns: minmax(180px, 2fr) minmax(110px, 1fr) 85px 108px 92px; }
+        .cm-list-row > :nth-child(4) { display: none; }
+        .cm-grouped-item-row { grid-template-columns: minmax(190px, 2fr) 84px 106px 88px 106px; }
+        .cm-grouped-item-row > :nth-child(3) { display: none; }
+        .cm-sales-row { grid-template-columns: minmax(200px, 2fr) 80px minmax(120px, 1fr) 88px 100px 86px 118px; }
+        .cm-items-toolbar { grid-template-columns: minmax(220px, 1fr) 160px 145px 160px; }
+        .cm-view-toggle { grid-column: 1 / -1; width: fit-content; }
+        .cm-items-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .cm-all-item-row, .cm-all-items-card > .cm-list-head { grid-template-columns: minmax(180px, 2fr) 76px minmax(105px, 1fr) 80px 102px 86px 102px; }
+        .cm-all-item-row > :nth-child(5), .cm-all-items-card > .cm-list-head > :nth-child(5) { display: none; }
       }
       @media (max-width: 640px) {
-        .consignment { padding-bottom: 74px; }
-        .consignment-back-to-top {
+        .jatb { padding-bottom: 74px; }
+        .jatb-back-to-top {
           right: 14px;
           bottom: calc(84px + env(safe-area-inset-bottom));
         }
-        .consignment-header { padding: 18px 16px 12px; position: static; }
-        .consignment-header-row { flex-direction: column; align-items: stretch; gap: 10px; }
-        .consignment-header-action { width: 100%; }
-        .consignment-header-actions { flex-wrap: wrap; }
-        .consignment-header-actions .consignment-btn {
+        .jatb-header { padding: 18px 16px 12px; position: static; }
+        .jatb-header-row { flex-direction: column; align-items: stretch; gap: 10px; }
+        .jatb-header-action { width: 100%; }
+        .cm-header-actions { flex-wrap: wrap; }
+        .cm-header-actions .jatb-btn {
           width: calc(50% - 4px); flex: 0 0 auto;
         }
-        .consignment-body { padding: 14px 16px 96px; }
-        .consignment-fab-wrap { padding-left: 16px; padding-right: 16px; bottom: 68px; }
-        .consignment-btn { width: 100%; min-width: 0; }
-        .consignment-main-nav {
+        .jatb-body { padding: 14px 16px 96px; }
+        .jatb-fab-wrap { padding-left: 16px; padding-right: 16px; bottom: 68px; }
+        .jatb-btn { width: 100%; min-width: 0; }
+        .cm-main-nav {
           position: fixed; top: auto; bottom: 0; left: 0; right: 0;
           justify-content: space-around; padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
           border-top: 1px solid var(--line); border-bottom: 0; box-shadow: 0 -5px 18px rgba(0,0,0,.08);
         }
-        .consignment-brand { display: none; }
-        .consignment-nav-button { flex: 1; flex-direction: column; gap: 3px; font-size: 10px; padding: 6px 2px; }
-        .consignment-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-        .consignment-metric { padding: 13px; min-height: 108px; }
-        .consignment-metric-value { font-size: 21px; }
-        .consignment-section-grid { grid-template-columns: 1fr; }
-        .consignment-list-head { display: none; }
-        .consignment-list-row {
+        .cm-brand { display: none; }
+        .cm-nav-button { flex: 1; flex-direction: column; gap: 3px; font-size: 10px; padding: 6px 2px; }
+        .cm-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+        .cm-metric { padding: 13px; min-height: 108px; }
+        .cm-metric-value { font-size: 21px; }
+        .cm-section-grid { grid-template-columns: 1fr; }
+        .cm-list-head { display: none; }
+        .cm-list-row {
           grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px;
         }
-        .consignment-list-row > :nth-child(2), .consignment-list-row > :nth-child(3), .consignment-list-row > :nth-child(4), .consignment-list-row > :nth-child(6) { display: none; }
-        .consignment-item-group-summary { grid-template-columns: 28px 36px minmax(0, 1fr); gap: 9px; padding: 12px; }
-        .consignment-item-group-stat { display: none; }
-        .consignment-grouped-item-row {
+        .cm-list-row > :nth-child(2), .cm-list-row > :nth-child(3), .cm-list-row > :nth-child(4), .cm-list-row > :nth-child(6) { display: none; }
+        .cm-item-group-summary { grid-template-columns: 28px 36px minmax(0, 1fr); gap: 9px; padding: 12px; }
+        .cm-item-group-stat { display: none; }
+        .cm-grouped-item-row {
           position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 12px;
         }
-        .consignment-grouped-item-row.consignment-list-head { display: none; }
-        .consignment-grouped-item-row > :nth-child(1) { flex: 1 1 100%; min-width: 0; padding-right: 96px; }
-        .consignment-grouped-item-row > :nth-child(3) { display: none; }
-        .consignment-grouped-item-row > .consignment-item-quick-action {
+        .cm-grouped-item-row.cm-list-head { display: none; }
+        .cm-grouped-item-row > :nth-child(1) { flex: 1 1 100%; min-width: 0; padding-right: 96px; }
+        .cm-grouped-item-row > :nth-child(3) { display: none; }
+        .cm-grouped-item-row > .cm-item-quick-action {
           position: absolute; top: 12px; right: 12px; margin: 0;
           display: flex; justify-content: flex-end;
         }
-        .consignment-grouped-item-row .consignment-item-open-btn,
-        .consignment-grouped-item-row .consignment-quick-sold-btn { width: auto; min-width: 0; padding: 7px 9px; font-size: 11px; }
-        .consignment-sales-row { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px; }
-        .consignment-sales-row.consignment-list-head { display: none; }
-        .consignment-sales-row > :nth-child(2), .consignment-sales-row > :nth-child(3), .consignment-sales-row > :nth-child(4), .consignment-sales-row > :nth-child(5), .consignment-sales-row > :nth-child(6) { display: none; }
-        .consignment-sales-pay-btn { width: auto; min-width: 112px; }
-        .consignment-items-toolbar { grid-template-columns: 1fr; }
-        .consignment-view-toggle { width: 100%; }
-        .consignment-view-toggle button { flex: 1; padding: 9px 5px; font-size: 10px; }
-        .consignment-items-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; justify-content: stretch; }
-        .consignment-item-grid-card { width: 100%; }
-        .consignment-grid-image { height: 78px; }
-        .consignment-grid-card-body { padding: 8px; }
-        .consignment-all-item-row {
+        .cm-grouped-item-row .cm-item-open-btn,
+        .cm-grouped-item-row .cm-quick-sold-btn { width: auto; min-width: 0; padding: 7px 9px; font-size: 11px; }
+        .cm-sales-row { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px; }
+        .cm-sales-row.cm-list-head { display: none; }
+        .cm-sales-row > :nth-child(2), .cm-sales-row > :nth-child(3), .cm-sales-row > :nth-child(4), .cm-sales-row > :nth-child(5), .cm-sales-row > :nth-child(6) { display: none; }
+        .cm-sales-pay-btn { width: auto; min-width: 112px; }
+        .cm-consignor-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+        .cm-consignor-card { min-height:190px; padding:12px; }
+        .cm-consignor-card-stats { gap:4px; }
+        .cm-consignor-card-stats small { font-size:7px; }
+        .cm-consignor-card-stats strong { font-size:12px; }
+        .cm-consignor-list-row { grid-template-columns:minmax(0,1fr) auto; gap:10px; padding:12px; }
+        .cm-consignor-list-row.cm-list-head { display:none; }
+        .cm-consignor-list-row > :nth-child(2), .cm-consignor-list-row > :nth-child(4) { display:none; }
+        .cm-items-toolbar { grid-template-columns: 1fr; }
+        .cm-view-toggle { width: 100%; }
+        .cm-view-toggle button { flex: 1; padding: 9px 5px; font-size: 10px; }
+        .cm-items-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; justify-content: stretch; }
+        .cm-item-grid-card { width: 100%; }
+        .cm-grid-image { height: 78px; }
+        .cm-grid-card-body { padding: 8px; }
+        .cm-all-item-row {
           display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;
         }
-        .consignment-all-items-card > .consignment-list-head { display: none; }
-        .consignment-all-item-row > :nth-child(1) { flex: 1 1 100%; }
-        .consignment-all-item-row > :nth-child(3), .consignment-all-item-row > :nth-child(5) { display: none; }
-        .consignment-all-item-row > :nth-child(2) { font-weight: 800; color: var(--green-dark); }
-        .consignment-all-item-row > :nth-child(8) { margin-left: auto; }
-        .consignment-payout-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .consignment-payouts-page { padding-top: 10px; }
-        .consignment-payouts-page .consignment-payout-summary {
-          grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-bottom: 8px;
-        }
-        .consignment-payouts-page .consignment-summary-box { min-height: 58px; padding: 9px 10px; }
-        .consignment-payouts-page .consignment-summary-box strong { font-size: 17px; }
-        .consignment-payouts-page .consignment-items-toolbar { gap: 8px; margin-bottom: 8px; }
-        .consignment-payouts-page .consignment-items-toolbar-bottom { gap: 8px; }
-        .consignment-payouts-page .consignment-payout-list { padding: 12px; }
-        .consignment-quick-actions { grid-template-columns: 1fr 1fr; gap: 8px; }
-        .consignment-quick-action { min-height: 72px; padding: 11px; align-items: flex-start; }
-        .consignment-filter-select { width: 100%; }
-        .consignment-row2, .consignment-payout-fields { display: grid; grid-template-columns: minmax(0, 1fr); }
-        .consignment-intake-primary {
+        .cm-all-items-card > .cm-list-head { display: none; }
+        .cm-all-item-row > :nth-child(1) { flex: 1 1 100%; }
+        .cm-all-item-row > :nth-child(3), .cm-all-item-row > :nth-child(5) { display: none; }
+        .cm-all-item-row > :nth-child(2) { font-weight: 800; color: var(--green-dark); }
+        .cm-all-item-row > :nth-child(8) { margin-left: auto; }
+        .cm-payout-summary { grid-template-columns: 1fr; }
+        .cm-quick-actions { grid-template-columns: 1fr 1fr; gap: 8px; }
+        .cm-quick-action { min-height: 72px; padding: 11px; align-items: flex-start; }
+        .cm-filter-select { width: 100%; }
+        .jatb-row2, .cm-payout-fields { display: grid; grid-template-columns: minmax(0, 1fr); }
+        .jatb-intake-primary {
           grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 12px;
         }
-        .consignment-intake-primary .consignment-photo-wrap { width: 96px; }
-        .consignment-intake-primary .consignment-photo-btn {
+        .jatb-intake-primary .jatb-photo-wrap { width: 96px; }
+        .jatb-intake-primary .jatb-photo-btn {
           width: 96px; height: 96px; aspect-ratio: auto;
         }
-        .consignment-intake-primary .consignment-photo-alt { max-width: 96px; }
-        .consignment-intake-primary-fields {
+        .jatb-intake-primary .jatb-photo-alt { max-width: 96px; }
+        .jatb-intake-primary-fields {
           grid-template-columns: minmax(0, 1fr); gap: 9px;
         }
-        .consignment-shopify-photo-row {
+        .jatb-shopify-photo-row {
           grid-template-columns: minmax(0, 1fr); gap: 12px;
         }
-        .consignment-shopify-photo-row .consignment-photo-btn { width: 96px; height: 96px; }
-        .consignment-detail-grid {
+        .jatb-shopify-photo-row .jatb-photo-btn { width: 96px; height: 96px; }
+        .jatb-detail-grid {
           grid-template-columns: minmax(0, 1fr);
         }
-        .consignment-detail-grid .consignment-field.wide { grid-column: auto; }
-        .consignment-manual-sale-controls { grid-template-columns: minmax(0, 1fr) 76px; gap: 8px; }
-        .consignment-manual-sale .consignment-sold-btn { width: auto; min-width: 76px; }
-        .consignment-sold-status { align-items: flex-start; flex-direction: column; gap: 6px; }
-        .consignment-sold-status .consignment-row-sub { text-align: left; }
-        .consignment-payout-row { grid-template-columns: 1fr; gap: 12px; }
-        .consignment-payout-group-summary { grid-template-columns: 18px minmax(0, 1fr); }
-        .consignment-payout-group-summary .consignment-payout-group-stat { display: none; }
-        .consignment-payout-group-summary .consignment-payout-action { grid-column: 1 / -1; justify-content: space-between; }
-        .consignment-payout-action { justify-content: space-between; }
-        .consignment-payout-action .consignment-btn { width: auto; min-width: 132px; }
-        .consignment-payout-create-body { padding-bottom: 180px; }
-        .consignment-history-card-summary {
+        .jatb-detail-grid .jatb-field.wide { grid-column: auto; }
+        .jatb-manual-sale-controls { grid-template-columns: minmax(0, 1fr) 76px; gap: 8px; }
+        .jatb-manual-sale .jatb-sold-btn { width: auto; min-width: 76px; }
+        .jatb-sold-status { align-items: flex-start; flex-direction: column; gap: 6px; }
+        .jatb-sold-status .jatb-row-sub { text-align: left; }
+        .cm-payout-row { grid-template-columns: 1fr; gap: 12px; }
+        .cm-payout-action { justify-content: space-between; }
+        .cm-payout-action .jatb-btn { width: auto; min-width: 132px; }
+        .cm-payout-create-body { padding-bottom: 180px; }
+        .cm-history-card-summary {
           grid-template-columns: auto minmax(0, 1fr) auto;
           grid-template-areas:
             "avatar copy arrow"
@@ -1010,96 +1011,70 @@ function GlobalStyle() {
             "avatar paid arrow";
           padding: 13px 12px; gap: 5px 10px;
         }
-        .consignment-history-card-summary > .consignment-avatar { grid-area: avatar; }
-        .consignment-history-card-copy { grid-area: copy; }
-        .consignment-history-card-amount {
+        .cm-history-card-summary > .jatb-avatar { grid-area: avatar; }
+        .cm-history-card-copy { grid-area: copy; }
+        .cm-history-card-amount {
           grid-area: amount; text-align: left;
           display: flex; align-items: baseline; gap: 8px;
         }
-        .consignment-history-card-amount strong { font-size: 17px; }
-        .consignment-history-card-amount span { margin-top: 0; }
-        .consignment-history-card-summary > .consignment-badge { grid-area: paid; justify-self: start; }
-        .consignment-history-card-summary > svg { grid-area: arrow; }
-        .consignment-history-meta { grid-template-columns: 1fr; }
+        .cm-history-card-amount strong { font-size: 17px; }
+        .cm-history-card-amount span { margin-top: 0; }
+        .cm-history-card-summary > .jatb-badge { grid-area: paid; justify-self: start; }
+        .cm-history-card-summary > svg { grid-area: arrow; }
+        .cm-history-meta { grid-template-columns: 1fr; }
       }
 
       /* Shared readable card layout — used by both the Items grid and the
          Sales grid so the two views look consistent. */
-      .consignment-readable-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; align-items:stretch; }
-      .consignment-readable-card { min-width:0; min-height:270px; display:flex; flex-direction:column; padding:16px; border:1px solid var(--line); border-radius:12px; background:#fff; box-shadow:0 1px 2px rgba(16,24,40,.04); }
-      .consignment-readable-card-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
-      .consignment-readable-card-top strong { display:block; overflow:hidden; color:var(--ink); font-size:16px; line-height:1.25; white-space:nowrap; text-overflow:ellipsis; }
-      .consignment-readable-card-top small { display:block; margin-top:5px; color:var(--muted); font-size:11px; }
-      .consignment-readable-card-top small b { color:var(--ink); }
-      .consignment-grid-thumb-row { display:flex; gap:10px; align-items:center; min-width:0; }
-      .consignment-grid-thumb { flex:0 0 auto; width:44px; height:44px; border-radius:8px; overflow:hidden; background:var(--green-soft); display:flex; align-items:center; justify-content:center; }
-      .consignment-grid-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
-      .consignment-readable-consignor-link { padding:0; border:0; background:none; color:var(--green); font:inherit; font-size:14px; font-weight:800; text-align:left; cursor:pointer; margin-top:12px; }
-      .consignment-readable-card-meta { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0 14px; padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
-      .consignment-readable-card-meta span { display:flex; flex-direction:column; gap:3px; }
-      .consignment-readable-card-meta small { color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; }
-      .consignment-readable-card-meta strong { color:var(--ink); font-size:21px; line-height:1.1; }
-      .consignment-sales-money-rows { grid-template-columns:1fr; gap:0; }
-      .consignment-sales-money-rows > span { flex-direction:row; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; }
-      .consignment-sales-money-rows > span + span { border-top:1px solid var(--line); }
-      .consignment-sales-money-rows strong { white-space:nowrap; overflow-wrap:normal; word-break:normal; flex-shrink:0; }
-      .consignment-readable-card-details { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
-      .consignment-readable-card-details strong { color:var(--ink); font-size:13px; }
-      .consignment-readable-card-actions { margin-top:auto; display:flex; gap:8px; flex-wrap:wrap; }
-      .consignment-readable-card-actions > * { flex:1; min-height:42px; }
-      @media (max-width:1100px) { .consignment-readable-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-      @media (max-width:760px) { .consignment-readable-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .consignment-readable-card { min-height:250px; padding:13px; } .consignment-readable-card-meta strong { font-size:18px; } }
-
-      .consignment-consignor-card-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; align-items:stretch; }
-      .consignment-consignor-card {
-        display:flex; flex-direction:column; gap:12px; background:var(--surface);
-        border:1px solid var(--line); border-radius:12px; padding:16px;
-      }
-      .consignment-consignor-card-top { display:flex; align-items:center; gap:10px; }
-      .consignment-consignor-card-name { display:flex; flex-direction:column; min-width:0; }
-      .consignment-consignor-card-name strong { font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-      .consignment-consignor-card-name small { color:var(--muted); font-size:11px; }
-      .consignment-consignor-card-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-      .consignment-consignor-card-stats span {
-        display:flex; flex-direction:column; align-items:center; gap:2px;
-        background:#FAFAFB; border-radius:8px; padding:8px;
-      }
-      .consignment-consignor-card-stats strong { font-size:16px; }
-      .consignment-consignor-card-stats small { color:var(--muted); font-size:10px; text-transform:uppercase; font-weight:700; }
-      .consignment-consignor-card-due { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--muted); }
-      .consignment-consignor-card-due strong { color:var(--ink); font-size:15px; }
-      .consignment-consignor-card-open {
-        margin-top:auto; border:1px solid var(--line); background:var(--surface); border-radius:8px;
-        padding:9px; font-size:12px; font-weight:700; cursor:pointer; color:var(--ink);
-      }
-      .consignment-consignor-card-open:hover { background:var(--blue-soft); border-color:var(--blue); color:var(--green-dark); }
-      @media (max-width:1100px) { .consignment-consignor-card-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-      @media (max-width:760px) { .consignment-consignor-card-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+      .cm-readable-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; align-items:stretch; }
+      .cm-readable-card { min-width:0; min-height:270px; display:flex; flex-direction:column; padding:16px; border:1px solid var(--line); border-radius:12px; background:#fff; box-shadow:0 1px 2px rgba(16,24,40,.04); }
+      .cm-readable-card-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+      .cm-readable-card-top strong { display:block; overflow:hidden; color:var(--ink); font-size:16px; line-height:1.25; white-space:nowrap; text-overflow:ellipsis; }
+      .cm-readable-card-top small { display:block; margin-top:5px; color:var(--muted); font-size:11px; }
+      .cm-readable-card-top small b { color:var(--ink); }
+      .cm-grid-thumb-row { display:flex; gap:10px; align-items:center; min-width:0; }
+      .cm-grid-thumb { flex:0 0 auto; width:44px; height:44px; border-radius:8px; overflow:hidden; background:var(--green-soft); display:flex; align-items:center; justify-content:center; }
+      .cm-grid-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+      .cm-readable-consignor-link { padding:0; border:0; background:none; color:var(--green); font:inherit; font-size:14px; font-weight:800; text-align:left; cursor:pointer; margin-top:12px; }
+      .cm-readable-card-meta { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0 14px; padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+      .cm-readable-card-meta span { display:flex; flex-direction:column; gap:3px; }
+      .cm-readable-card-meta small { color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; }
+      .cm-readable-card-meta strong { color:var(--ink); font-size:21px; line-height:1.1; }
+      .cm-sales-money-rows { grid-template-columns:1fr; gap:0; }
+      .cm-sales-money-rows > span { flex-direction:row; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; }
+      .cm-sales-money-rows > span + span { border-top:1px solid var(--line); }
+      .cm-sales-money-rows strong { white-space:nowrap; overflow-wrap:normal; word-break:normal; flex-shrink:0; }
+      .cm-readable-card-details { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
+      .cm-readable-card-details strong { color:var(--ink); font-size:13px; }
+      .cm-readable-card-actions { margin-top:auto; display:flex; gap:8px; flex-wrap:wrap; }
+      .cm-readable-card-actions > * { flex:1; min-height:42px; }
+      @media (max-width:1100px) { .cm-readable-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+      @media (max-width:760px) { .cm-readable-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .cm-readable-card { min-height:250px; padding:13px; } .cm-readable-card-meta strong { font-size:18px; } }
 
       /* Items toolbar: two clean rows matching the approved inventory layout. */
-      .consignment-items-toolbar {
+      .cm-items-toolbar {
         display: grid;
         grid-template-columns: 1fr;
         gap: 16px;
         margin: 2px 0 16px;
       }
-      .consignment-items-toolbar-top {
+      .cm-items-toolbar-top {
         display: grid;
         grid-template-columns: repeat(4, minmax(150px, 1fr));
         gap: 12px;
         max-width: 920px;
         align-items: end;
       }
-      .consignment-items-toolbar-bottom {
+      .cm-items-toolbar-bottom {
         display: grid;
         grid-template-columns: minmax(260px, 520px) auto;
         gap: 12px;
         align-items: end;
       }
-      .consignment-items-toolbar .consignment-tool-field,
-      .consignment-items-toolbar .consignment-tool-view { min-width: 0; }
-      .consignment-items-toolbar .consignment-tool-field > span,
-      .consignment-items-toolbar .consignment-tool-view > span {
+      .cm-items-toolbar .cm-tool-field,
+      .cm-items-toolbar .cm-tool-view { min-width: 0; }
+      .cm-items-toolbar .cm-tool-field > span,
+      .cm-items-toolbar .cm-tool-view > span {
         display: block;
         margin-bottom: 6px;
         color: var(--muted);
@@ -1108,150 +1083,147 @@ function GlobalStyle() {
         letter-spacing: .04em;
         text-transform: uppercase;
       }
-      .consignment-items-toolbar .consignment-select {
+      .cm-items-toolbar .jatb-select {
         width: 100%;
         min-width: 0;
         min-height: 44px;
         border-radius: 11px;
       }
-      .consignment-items-toolbar .consignment-search {
+      .cm-items-toolbar .jatb-search {
         width: 100%;
         min-width: 0;
         min-height: 46px;
         margin: 0;
         border-radius: 12px;
       }
-      .consignment-items-toolbar .consignment-view-toggle { min-height: 46px; }
+      .cm-items-toolbar .cm-view-toggle { min-height: 46px; }
       @media (max-width: 900px) {
-        .consignment-items-toolbar-top { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; }
+        .cm-items-toolbar-top { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; }
       }
       @media (max-width: 640px) {
-        .consignment-items-toolbar { gap: 12px; }
-        .consignment-items-toolbar-top,
-        .consignment-items-toolbar-bottom { grid-template-columns: 1fr; gap: 9px; }
-        .consignment-items-toolbar .consignment-view-toggle { width: 100%; }
-        .consignment-items-toolbar .consignment-view-toggle button { flex: 1; min-height: 44px; font-size: 12px; }
+        .cm-items-toolbar { gap: 12px; }
+        .cm-items-toolbar-top,
+        .cm-items-toolbar-bottom { grid-template-columns: 1fr; gap: 9px; }
+        .cm-items-toolbar .cm-view-toggle { width: 100%; }
+        .cm-items-toolbar .cm-view-toggle button { flex: 1; min-height: 44px; font-size: 12px; }
       }
       /* Consignor dashboard */
-      .consignment-consignor-profile {
+      .cm-consignor-profile {
         display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
         overflow: hidden; padding: 0; margin-bottom: 10px;
       }
-      .consignment-profile-column { min-width: 0; padding: 10px 14px; }
-      .consignment-profile-column + .consignment-profile-column { border-left: 1px solid var(--line); background: #FAFBFC; }
-      .consignment-profile-title {
+      .cm-profile-column { min-width: 0; padding: 10px 14px; }
+      .cm-profile-column + .cm-profile-column { border-left: 1px solid var(--line); background: #FAFBFC; }
+      .cm-profile-title {
         margin: 0 0 2px; color: var(--ink); font-size: 10px; font-weight: 800;
         text-align: center; text-transform: uppercase; letter-spacing: .07em;
       }
-      .consignment-profile-row {
+      .cm-profile-row {
         min-height: 50px; display: grid; grid-template-columns: 25px minmax(0, 1fr);
         align-items: center; gap: 8px; border-bottom: 1px solid #EDF0F2;
       }
-      .consignment-profile-row:last-child { border-bottom: 0; }
-      .consignment-profile-row.detail { grid-template-columns: minmax(0, 1fr); padding-left: 33px; }
-      .consignment-profile-icon { width: 25px; height: 25px; display: grid; place-items: center; color: var(--muted); }
-      .consignment-profile-copy { min-width: 0; }
-      .consignment-profile-label {
+      .cm-profile-row:last-child { border-bottom: 0; }
+      .cm-profile-row.detail { grid-template-columns: minmax(0, 1fr); padding-left: 33px; }
+      .cm-profile-icon { width: 25px; height: 25px; display: grid; place-items: center; color: var(--muted); }
+      .cm-profile-copy { min-width: 0; }
+      .cm-profile-label {
         display: block; margin-bottom: 3px; color: var(--muted); font-size: 9px;
         font-weight: 800; line-height: 1; text-transform: uppercase; letter-spacing: .045em;
       }
-      .consignment-profile-value { display: block; color: var(--ink); font-size: 12px; font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; }
-      .consignment-profile-link { color: var(--blue); font-weight: 750; text-decoration: none; }
-      .consignment-profile-link:hover, .consignment-profile-link:focus { text-decoration: underline; }
-      .consignment-consignor-stats {
+      .cm-profile-value { display: block; color: var(--ink); font-size: 12px; font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; }
+      .cm-profile-link { color: var(--blue); font-weight: 750; text-decoration: none; }
+      .cm-profile-link:hover, .cm-profile-link:focus { text-decoration: underline; }
+      .cm-consignor-stats {
         display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 8px; margin-bottom: 16px;
       }
-      .consignment-consignor-stat {
+      .cm-consignor-stat {
         min-width: 0; min-height: 62px; display: flex; flex-direction: column;
         justify-content: center; padding: 10px 12px; border: 1px solid var(--line);
         border-radius: 9px; background: var(--surface);
       }
-      .consignment-consignor-stat span { color: var(--muted); font-size: 11px; font-weight: 650; white-space: nowrap; }
-      .consignment-consignor-stat strong { margin-top: 5px; color: var(--ink); font-size: 20px; line-height: 1; white-space: nowrap; }
-      .consignment-consignor-items-head {
+      .cm-consignor-stat span { color: var(--muted); font-size: 11px; font-weight: 650; white-space: nowrap; }
+      .cm-consignor-stat strong { margin-top: 5px; color: var(--ink); font-size: 20px; line-height: 1; white-space: nowrap; }
+      .cm-consignor-items-head {
         display: flex; align-items: flex-end; justify-content: space-between;
         gap: 12px; margin: 0 0 9px;
       }
-      .consignment-consignor-items-head h3 { margin: 0; font-size: 17px; }
-      .consignment-consignor-items-tools { display: flex; align-items: center; gap: 10px; }
-      .consignment-consignor-items-count { color: var(--muted); font-size: 13px; }
-      .consignment-consignor-view-toggle {
+      .cm-consignor-items-head h3 { margin: 0; font-size: 17px; }
+      .cm-consignor-items-tools { display: flex; align-items: center; gap: 10px; }
+      .cm-consignor-items-count { color: var(--muted); font-size: 13px; }
+      .cm-consignor-view-toggle {
         display: grid; grid-template-columns: 1fr 1fr; overflow: hidden;
         border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
       }
-      .consignment-consignor-view-toggle button {
+      .cm-consignor-view-toggle button {
         height: 32px; padding: 0 12px; border: 0; border-right: 1px solid var(--line);
         background: var(--surface); color: var(--muted); font-size: 12px; font-weight: 750;
       }
-      .consignment-consignor-view-toggle button:last-child { border-right: 0; }
-      .consignment-consignor-view-toggle button.active { background: #EAF2FC; color: #153E7A; }
-      .consignment-consignor-item-list { display: grid; gap: 8px; }
-      .consignment-consignor-item {
+      .cm-consignor-view-toggle button:last-child { border-right: 0; }
+      .cm-consignor-view-toggle button.active { background: #EAF2FC; color: #153E7A; }
+      .cm-consignor-item-list { display: grid; gap: 8px; }
+      .cm-consignor-item {
         display: grid; grid-template-columns: minmax(0, 1fr) auto;
         align-items: center; gap: 12px; margin: 0; padding: 10px 12px;
       }
-      .consignment-consignor-item-open {
+      .cm-consignor-item-open {
         min-width: 0; display: grid; grid-template-columns: 48px minmax(0, 1fr);
         align-items: center; gap: 12px; padding: 0; border: 0; background: transparent; text-align: left;
       }
-      .consignment-consignor-item-copy { min-width: 0; }
-      .consignment-consignor-item-title { display: block; overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-      .consignment-consignor-item-meta { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.35; }
-      .consignment-consignor-item-actions {
+      .cm-consignor-item-copy { min-width: 0; }
+      .cm-consignor-item-title { display: block; overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+      .cm-consignor-item-meta { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+      .cm-consignor-item-actions {
         display: grid; grid-template-columns: minmax(76px, auto) minmax(96px, auto) minmax(106px, auto);
         align-items: center; justify-content: end; gap: 6px;
       }
-      .consignment-consignor-item-actions .consignment-product-badge,
-      .consignment-consignor-item-actions .consignment-badge { width: 100%; min-width: 0; box-sizing: border-box; }
-      .consignment-consignor-pay-btn {
+      .cm-consignor-item-actions .cm-product-badge,
+      .cm-consignor-item-actions .jatb-badge { width: 100%; min-width: 0; box-sizing: border-box; }
+      .cm-consignor-pay-btn {
         height: 32px; padding: 0 10px; border: 0; border-radius: 8px;
         background: var(--blue); color: white; font-size: 11px; font-weight: 750; white-space: nowrap;
       }
-      .consignment-consignor-item-list.grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+      .cm-consignor-item-list.grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-      @media (max-width: 1100px) {
-        .consignment-consignor-item-list.grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      }
-      .consignment-consignor-item-list.grid .consignment-consignor-item {
+      .cm-consignor-item-list.grid .cm-consignor-item {
         display: flex; flex-direction: column; align-items: stretch; min-width: 0; min-height: 180px;
       }
-      .consignment-consignor-item-list.grid .consignment-consignor-item-open {
+      .cm-consignor-item-list.grid .cm-consignor-item-open {
         grid-template-columns: 42px minmax(0, 1fr);
       }
-      .consignment-consignor-item-list.grid .consignment-consignor-item-actions {
+      .cm-consignor-item-list.grid .cm-consignor-item-actions {
         grid-template-columns: 1fr; justify-content: stretch; width: 100%; margin-top: auto;
       }
 
       @media (max-width: 640px) {
-        .consignment-consignor-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .consignment-profile-column { padding: 9px 10px; }
-        .consignment-profile-row { min-height: 54px; grid-template-columns: 20px minmax(0, 1fr); gap: 6px; }
-        .consignment-profile-row.detail { grid-template-columns: minmax(0, 1fr); padding-left: 26px; }
-        .consignment-profile-icon { width: 20px; height: 20px; }
-        .consignment-profile-label { font-size: 8px; }
-        .consignment-profile-value { font-size: 10px; }
-        .consignment-consignor-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
-        .consignment-consignor-stat { min-height: 58px; padding: 9px 7px; }
-        .consignment-consignor-stat span { font-size: 9px; }
-        .consignment-consignor-stat strong { font-size: 17px; }
-        .consignment-consignor-items-head { align-items: flex-start; flex-direction: column; }
-        .consignment-consignor-items-tools { width: 100%; justify-content: space-between; }
-        .consignment-consignor-view-toggle { margin-left: auto; }
-        .consignment-consignor-item-list.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-        .consignment-consignor-item-list.grid .consignment-consignor-item { min-height: 224px; padding: 10px; gap: 8px; }
-        .consignment-consignor-item-list.grid .consignment-consignor-item-open { grid-template-columns: 38px minmax(0, 1fr); gap: 8px; }
-        .consignment-consignor-item-list:not(.grid) .consignment-consignor-item {
+        .cm-consignor-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cm-profile-column { padding: 9px 10px; }
+        .cm-profile-row { min-height: 54px; grid-template-columns: 20px minmax(0, 1fr); gap: 6px; }
+        .cm-profile-row.detail { grid-template-columns: minmax(0, 1fr); padding-left: 26px; }
+        .cm-profile-icon { width: 20px; height: 20px; }
+        .cm-profile-label { font-size: 8px; }
+        .cm-profile-value { font-size: 10px; }
+        .cm-consignor-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
+        .cm-consignor-stat { min-height: 58px; padding: 9px 7px; }
+        .cm-consignor-stat span { font-size: 9px; }
+        .cm-consignor-stat strong { font-size: 17px; }
+        .cm-consignor-items-head { align-items: flex-start; flex-direction: column; }
+        .cm-consignor-items-tools { width: 100%; justify-content: space-between; }
+        .cm-consignor-view-toggle { margin-left: auto; }
+        .cm-consignor-item-list.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+        .cm-consignor-item-list.grid .cm-consignor-item { min-height: 224px; padding: 10px; gap: 8px; }
+        .cm-consignor-item-list.grid .cm-consignor-item-open { grid-template-columns: 38px minmax(0, 1fr); gap: 8px; }
+        .cm-consignor-item-list:not(.grid) .cm-consignor-item {
           grid-template-columns: minmax(0, 1fr); align-items: stretch;
         }
-        .consignment-consignor-item-list:not(.grid) .consignment-consignor-item-actions {
+        .cm-consignor-item-list:not(.grid) .cm-consignor-item-actions {
           grid-template-columns: minmax(72px, 82px) minmax(92px, 106px) minmax(104px, 112px);
           justify-content: start; padding-left: 60px;
         }
-        .consignment-consignor-item-title { font-size: 13px; }
-        .consignment-consignor-item-meta { font-size: 11px; overflow-wrap: anywhere; }
-        .consignment-consignor-pay-btn { padding: 0 7px; font-size: 10px; }
+        .cm-consignor-item-title { font-size: 13px; }
+        .cm-consignor-item-meta { font-size: 11px; overflow-wrap: anywhere; }
+        .cm-consignor-pay-btn { padding: 0 7px; font-size: 10px; }
       }
     `}</style>
   );
@@ -1261,20 +1233,20 @@ function GlobalStyle() {
 
 function Header({ eyebrow, title, onBack = null, action = null }) {
   return (
-    <div className="consignment-header">
-      <div className="consignment-header-row">
-        <div className="consignment-header-main">
+    <div className="jatb-header">
+      <div className="jatb-header-row">
+        <div className="jatb-header-main">
           {onBack && (
-            <button className="consignment-back" onClick={onBack} aria-label="Back">
+            <button className="jatb-back" onClick={onBack} aria-label="Back">
               <ArrowLeft size={18} />
             </button>
           )}
           <div>
-            {eyebrow && <p className="consignment-eyebrow">{eyebrow}</p>}
-            <h1 className="consignment-title">{title}</h1>
+            {eyebrow && <p className="jatb-eyebrow">{eyebrow}</p>}
+            <h1 className="jatb-title">{title}</h1>
           </div>
         </div>
-        {action && <div className="consignment-header-action">{action}</div>}
+        {action && <div className="jatb-header-action">{action}</div>}
       </div>
     </div>
   );
@@ -1289,8 +1261,8 @@ async function handlePhotoFile(e, onChange) {
 
 function PhotoPicker({ value, onChange }) {
   return (
-    <div className="consignment-photo-wrap">
-      <label className="consignment-photo-btn">
+    <div className="jatb-photo-wrap">
+      <label className="jatb-photo-btn">
         {value ? (
           <img src={value} alt="Item" />
         ) : (
@@ -1307,7 +1279,7 @@ function PhotoPicker({ value, onChange }) {
           onChange={(e) => handlePhotoFile(e, onChange)}
         />
       </label>
-      <label className="consignment-photo-alt">
+      <label className="jatb-photo-alt">
         {value ? 'Retake or choose' : 'Choose from library'}
         <input
           type="file"
@@ -1325,10 +1297,11 @@ function statusClass(status) {
 }
 
 // Display-only relabel: the stored status value stays "Draft" (so existing
-// data and filters keep working) but manual items show "Available" instead.
+// data and filters keep working) but manual items shouldn't show a badge
+// that reads "Draft" next to Shopify's own draft/active product status.
 function statusLabel(status) {
   const value = status || 'Draft';
-  return value === 'Draft' ? 'Available' : value;
+  return value === 'Draft' ? 'Pending' : value;
 }
 
 function AppNavigation({ view, onNavigate }) {
@@ -1341,16 +1314,16 @@ function AppNavigation({ view, onNavigate }) {
   ];
 
   return (
-    <nav className="consignment-main-nav" aria-label="Consignment manager">
-      <div className="consignment-brand">
-        <span className="consignment-brand-mark"><Tag size={18} /></span>
-        JustConsignIn
+    <nav className="cm-main-nav" aria-label="Consignment manager">
+      <div className="cm-brand">
+        <span className="cm-brand-mark"><Tag size={18} /></span>
+        Consignment Manager
       </div>
       {entries.map(([key, label, Icon]) => (
         <button
           key={key}
           type="button"
-          className={`consignment-nav-button ${view === key ? 'active' : ''}`}
+          className={`cm-nav-button ${view === key ? 'active' : ''}`}
           onClick={() => onNavigate(key)}
         >
           <Icon size={17} />
@@ -1363,11 +1336,11 @@ function AppNavigation({ view, onNavigate }) {
 
 function MetricCard({ icon: Icon, label, value, note, onClick }) {
   return (
-    <button type="button" className="consignment-metric" onClick={onClick} aria-label={`Open ${label}`}>
-      <div className="consignment-metric-icon"><Icon size={18} /></div>
-      <div className="consignment-metric-label">{label}</div>
-      <div className="consignment-metric-value">{value}</div>
-      {note && <div className="consignment-metric-note">{note}</div>}
+    <button type="button" className="cm-metric" onClick={onClick} aria-label={`Open ${label}`}>
+      <div className="cm-metric-icon"><Icon size={18} /></div>
+      <div className="cm-metric-label">{label}</div>
+      <div className="cm-metric-value">{value}</div>
+      {note && <div className="cm-metric-note">{note}</div>}
     </button>
   );
 }
@@ -1408,12 +1381,12 @@ function DashboardScreen({
   return (
     <>
       <Header eyebrow="Overview" title="Consignment dashboard" />
-      <div className="consignment-body">
-        <div className="consignment-toolbar" style={{ justifyContent: 'space-between' }}>
+      <div className="jatb-body">
+        <div className="cm-toolbar" style={{ justifyContent: 'space-between' }}>
           <p style={{ margin: 0, color: 'var(--muted)', fontSize: 13 }}>
             Live sales, inventory, and consignor balances from Shopify.
           </p>
-          <div className="consignment-date-tabs" aria-label="Dashboard period">
+          <div className="cm-date-tabs" aria-label="Dashboard period">
             <button type="button">Week</button>
             <button type="button" className="active">Month</button>
             <button type="button">Year</button>
@@ -1421,63 +1394,63 @@ function DashboardScreen({
           </div>
         </div>
 
-        <div className="consignment-quick-actions" aria-label="Quick actions">
-          <button type="button" className="consignment-quick-action" onClick={onNewConsignor}>
-            <span className="consignment-quick-action-icon"><Users size={19} /></span>
-            <span className="consignment-quick-action-copy">
+        <div className="cm-quick-actions" aria-label="Quick actions">
+          <button type="button" className="cm-quick-action" onClick={onNewConsignor}>
+            <span className="cm-quick-action-icon"><Users size={19} /></span>
+            <span className="cm-quick-action-copy">
               <strong>Add consignor</strong>
               <span>Create a new account</span>
             </span>
           </button>
-          <button type="button" className="consignment-quick-action primary" onClick={onNewItem}>
-            <span className="consignment-quick-action-icon"><Plus size={19} /></span>
-            <span className="consignment-quick-action-copy">
+          <button type="button" className="cm-quick-action primary" onClick={onNewItem}>
+            <span className="cm-quick-action-icon"><Plus size={19} /></span>
+            <span className="cm-quick-action-copy">
               <strong>Add new item</strong>
               <span>Choose or create a consignor</span>
             </span>
           </button>
         </div>
 
-        <div className="consignment-dashboard-grid">
+        <div className="cm-dashboard-grid">
           <MetricCard icon={PackageSearch} label="Active items" value={activeItems.length} note={`${items.length} items total`} onClick={() => onNavigate('items')} />
           <MetricCard icon={Users} label="Consignors" value={consignors.length} note={`${consignorBalances.length} with payouts due`} onClick={() => onNavigate('home')} />
           <MetricCard icon={TrendingUp} label="Consignment sales" value={money(totalSales)} note={`${soldItems.length} sold items`} onClick={() => onNavigate('sales')} />
           <MetricCard icon={CircleDollarSign} label="Payouts due" value={money(amountDue)} note={`${unpaidSales.length} unpaid sales`} onClick={() => onNavigate('payouts')} />
         </div>
 
-        <div className="consignment-section-grid">
-          <section className="consignment-card">
-            <div className="consignment-section-title">
+        <div className="cm-section-grid">
+          <section className="jatb-card">
+            <div className="cm-section-title">
               <h2>Consignors with payouts due</h2>
-              <button type="button" className="consignment-link-button" onClick={() => onNavigate('payouts')}>View payouts</button>
+              <button type="button" className="cm-link-button" onClick={() => onNavigate('payouts')}>View payouts</button>
             </div>
             {consignorBalances.length === 0 ? (
-              <div className="consignment-empty-small">No unpaid consignment sales yet.</div>
+              <div className="cm-empty-small">No unpaid consignment sales yet.</div>
             ) : consignorBalances.slice(0, 6).map(({ consignor, sales, due }) => (
               <button
                 key={consignor.id}
                 type="button"
-                className="consignment-row-btn"
+                className="jatb-row-btn"
                 onClick={() => onOpenConsignor(consignor.id)}
               >
-                <div className="consignment-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</div>
-                <div className="consignment-row-main">
-                  <div className="consignment-row-name">{consignor.firstName} {consignor.lastName}</div>
-                  <div className="consignment-row-sub">#{consignor.number} · {sales.length} unpaid sale{sales.length === 1 ? '' : 's'}</div>
+                <div className="jatb-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</div>
+                <div className="jatb-row-main">
+                  <div className="jatb-row-name">{consignor.firstName} {consignor.lastName}</div>
+                  <div className="jatb-row-sub">#{consignor.number} · {sales.length} unpaid sale{sales.length === 1 ? '' : 's'}</div>
                 </div>
                 <strong>{money(due)}</strong>
-                <ChevronRight size={18} className="consignment-chev" />
+                <ChevronRight size={18} className="jatb-chev" />
               </button>
             ))}
           </section>
 
-          <section className="consignment-card">
-            <div className="consignment-section-title">
+          <section className="jatb-card">
+            <div className="cm-section-title">
               <h2>Recent sales</h2>
-              <button type="button" className="consignment-link-button" onClick={() => onNavigate('sales')}>View all</button>
+              <button type="button" className="cm-link-button" onClick={() => onNavigate('sales')}>View all</button>
             </div>
             {recentSales.length === 0 ? (
-              <div className="consignment-empty-small">Paid Shopify orders will appear here automatically.</div>
+              <div className="cm-empty-small">Paid Shopify orders will appear here automatically.</div>
             ) : recentSales.map((item) => (
               <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--line)' }}>
                 <div>
@@ -1581,7 +1554,7 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
   function ConsignorName({ consignor }) {
     if (!consignor) return <span>Unassigned</span>;
     return (
-      <button type="button" className="consignment-consignor-profile-link" onClick={() => onOpenConsignor(consignor.id)}>
+      <button type="button" className="cm-consignor-profile-link" onClick={() => onOpenConsignor(consignor.id)}>
         {consignor.firstName} {consignor.lastName}
       </button>
     );
@@ -1591,13 +1564,13 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
     const isManualAvailable = product.className === 'manual' && (item.status === 'Available' || item.status === 'Active') && !item.paidOut;
     if (isManualAvailable) {
       return (
-        <button type="button" className="consignment-quick-sold-btn" disabled={sellingItemId === item.id} onClick={() => quickMarkSold(item)}>
+        <button type="button" className="cm-quick-sold-btn" disabled={sellingItemId === item.id} onClick={() => quickMarkSold(item)}>
           {sellingItemId === item.id ? 'Saving…' : 'Mark sold'}
         </button>
       );
     }
     return (
-      <button type="button" className={compact ? 'consignment-grid-open-btn' : 'consignment-item-open-btn'} onClick={() => onOpenItem(item.id)}>
+      <button type="button" className={compact ? 'cm-grid-open-btn' : 'cm-item-open-btn'} onClick={() => onOpenItem(item.id)}>
         Open item
       </button>
     );
@@ -1609,30 +1582,30 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
         eyebrow="Inventory"
         title="Items"
         action={(
-          <button className="consignment-btn" type="button" onClick={onNewItem}>
+          <button className="jatb-btn" type="button" onClick={onNewItem}>
             <Plus size={17} /> Add new item
           </button>
         )}
       />
-      <div className="consignment-body">
-        <div className="consignment-items-toolbar">
-          <details className="consignment-items-filter-details">
-            <summary className="consignment-items-filter-summary">
+      <div className="jatb-body">
+        <div className="cm-items-toolbar">
+          <details className="cm-items-filter-details">
+            <summary className="cm-items-filter-summary">
               <span>Filters &amp; sorting</span>
               <ChevronDown size={20} aria-hidden="true" />
             </summary>
-            <div className="consignment-items-toolbar-top">
-            <label className="consignment-tool-field"><span>Consignor</span><select className="consignment-select consignment-filter-select" value={consignorFilter} onChange={(event) => setConsignorFilter(event.target.value)} aria-label="Filter by consignor">
+            <div className="cm-items-toolbar-top">
+            <label className="cm-tool-field"><span>Consignor</span><select className="jatb-select cm-filter-select" value={consignorFilter} onChange={(event) => setConsignorFilter(event.target.value)} aria-label="Filter by consignor">
               <option value="All">All consignors</option>
               {consignors.map((consignor) => <option key={consignor.id} value={consignor.id}>#{consignor.number} · {consignor.firstName} {consignor.lastName}</option>)}
             </select></label>
-            <label className="consignment-tool-field"><span>Sort</span><select className="consignment-select consignment-filter-select" value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort items">
+            <label className="cm-tool-field"><span>Sort</span><select className="jatb-select cm-filter-select" value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort items">
               <option value="consignor">Consignor name</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="ticket">SKU / item number</option><option value="priceHigh">Price high to low</option><option value="priceLow">Price low to high</option>
             </select></label>
-            <label className="consignment-tool-field"><span>Product type</span><select className="consignment-select consignment-filter-select" value={productFilter} onChange={(event) => setProductFilter(event.target.value)} aria-label="Filter by product type">
+            <label className="cm-tool-field"><span>Product type</span><select className="jatb-select cm-filter-select" value={productFilter} onChange={(event) => setProductFilter(event.target.value)} aria-label="Filter by product type">
               <option value="All">All product types</option><option value="Manual">Manual</option><option value="POS">POS</option><option value="Online">Online</option><option value="POS + Online">POS + Online</option>
             </select></label>
-            <label className="consignment-tool-field"><span>Status</span><select id="item-status-filter" className="consignment-select consignment-filter-select" value={filter} onChange={(event) => setFilter(event.target.value)}>
+            <label className="cm-tool-field"><span>Status</span><select id="item-status-filter" className="jatb-select cm-filter-select" value={filter} onChange={(event) => setFilter(event.target.value)}>
               {statuses.map((status) => {
                 const count = status === 'Current' ? items.filter((item) => !item.paidOut).length : status === 'Archived' ? items.filter((item) => item.paidOut).length : items.filter((item) => item.status === status && !item.paidOut).length;
                 return <option key={status} value={status}>{statusLabel(status)} ({count})</option>;
@@ -1640,12 +1613,12 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
             </select></label>
             </div>
           </details>
-          <div className="consignment-items-toolbar-bottom">
-            <div className="consignment-search">
+          <div className="cm-items-toolbar-bottom">
+            <div className="jatb-search">
               <Search size={19} />
               <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, SKU, brand, or consignor" />
             </div>
-            <div className="consignment-tool-view"><span>View</span><div className="consignment-view-toggle consignment-finder-toggle" aria-label="Choose item view">
+            <div className="cm-tool-view"><span>View</span><div className="cm-view-toggle cm-finder-toggle" aria-label="Choose item view">
               <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={16} /> All items</button>
               <button type="button" className={viewMode === 'grouped' ? 'active' : ''} onClick={() => setViewMode('grouped')} aria-pressed={viewMode === 'grouped'}><Users size={16} /> By consignor</button>
               <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={16} /> Grid</button>
@@ -1654,10 +1627,10 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
         </div>
 
 
-        {filtered.length === 0 && <section className="consignment-card"><div className="consignment-empty-small">No items match these filters.</div></section>}
+        {filtered.length === 0 && <section className="jatb-card"><div className="cm-empty-small">No items match these filters.</div></section>}
 
         {viewMode === 'grouped' && (
-          <div className="consignment-item-groups">
+          <div className="cm-item-groups">
             {groupedEntries.map(([consignorId, consignorItems]) => {
               const consignor = consignorById[consignorId];
               const availableCount = consignorItems.filter((item) => item.status === 'Available' || item.status === 'Active').length;
@@ -1665,26 +1638,26 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
               const initials = consignor ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` : '—';
               const collapsed = collapsedGroups.has(consignorId);
               return (
-                <section className="consignment-item-group" key={consignorId}>
-                  <div className="consignment-item-group-summary">
-                    <button type="button" className={`consignment-item-group-chevron ${collapsed ? '' : 'open'}`} onClick={() => toggleGroup(consignorId)} aria-label={collapsed ? 'Expand consignor items' : 'Collapse consignor items'}><ChevronRight size={16} /></button>
-                    <span className="consignment-avatar consignment-item-group-avatar">{initials}</span>
-                    <span className="consignment-item-group-person">
+                <section className="cm-item-group" key={consignorId}>
+                  <div className="cm-item-group-summary">
+                    <button type="button" className={`cm-item-group-chevron ${collapsed ? '' : 'open'}`} onClick={() => toggleGroup(consignorId)} aria-label={collapsed ? 'Expand consignor items' : 'Collapse consignor items'}><ChevronRight size={16} /></button>
+                    <span className="jatb-avatar cm-item-group-avatar">{initials}</span>
+                    <span className="cm-item-group-person">
                       <ConsignorName consignor={consignor} />
-                      <span className="consignment-item-group-meta"><strong className="consignment-item-group-number">#{consignor?.number || '—'}</strong><span className="consignment-item-group-count">· {consignorItems.length} item{consignorItems.length === 1 ? '' : 's'}</span></span>
+                      <span className="cm-item-group-meta"><strong className="cm-item-group-number">#{consignor?.number || '—'}</strong><span className="cm-item-group-count">· {consignorItems.length} item{consignorItems.length === 1 ? '' : 's'}</span></span>
                     </span>
-                    <span className="consignment-item-group-stat"><strong>{availableCount}</strong><span>Available</span></span>
-                    <span className="consignment-item-group-stat"><strong>{soldCount}</strong><span>Sold</span></span>
+                    <span className="cm-item-group-stat"><strong>{availableCount}</strong><span>Available</span></span>
+                    <span className="cm-item-group-stat"><strong>{soldCount}</strong><span>Sold</span></span>
                   </div>
                   {!collapsed && (
-                    <div className="consignment-item-group-items">
-                      <div className="consignment-grouped-item-row consignment-list-head"><span>Item</span><span>Price</span><span>Commission</span><span>Product</span><span>Status</span><span>Action</span></div>
+                    <div className="cm-item-group-items">
+                      <div className="cm-grouped-item-row cm-list-head"><span>Item</span><span>Price</span><span>Commission</span><span>Product</span><span>Status</span><span>Action</span></div>
                       {consignorItems.map((item) => {
                         const product = productLabel(item);
                         return (
-                          <div className="consignment-grouped-item-row" key={item.id}>
-                            <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem(item.id)}><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span></button>
-                            <strong>{money(item.price)}</strong><span>{item.commissionPct}%</span><span className={`consignment-product-badge ${product.className}`}>{product.text}</span><span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span><span className="consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
+                          <div className="cm-grouped-item-row" key={item.id}>
+                            <button type="button" className="cm-grouped-item-open" onClick={() => onOpenItem(item.id)}><span className="jatb-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span></button>
+                            <strong>{money(item.price)}</strong><span>{item.commissionPct}%</span><span className={`cm-product-badge ${product.className}`}>{product.text}</span><span className={`jatb-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span><span className="cm-item-quick-action"><ItemAction item={item} product={product} /></span>
                           </div>
                         );
                       })}
@@ -1697,15 +1670,15 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
         )}
 
         {viewMode === 'list' && (
-          <section className="consignment-card consignment-all-items-card">
-            <div className="consignment-list-row consignment-list-head"><span>Item</span><span>SKU</span><span>Consignor</span><span>Price</span><span>Commission</span><span>Product</span><span>Status</span><span>Action</span></div>
+          <section className="jatb-card cm-all-items-card">
+            <div className="cm-list-row cm-list-head"><span>Item</span><span>SKU</span><span>Consignor</span><span>Price</span><span>Commission</span><span>Product</span><span>Status</span><span>Action</span></div>
             {filtered.map((item) => {
               const consignor = consignorById[item.consignorId];
               const product = productLabel(item);
               return (
-                <div className="consignment-all-item-row" key={item.id}>
-                  <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem(item.id)}><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span></button>
-                  <strong>{item.itemNumber || '—'}</strong><ConsignorName consignor={consignor} /><strong>{money(item.price)}</strong><span>{item.commissionPct}%</span><span className={`consignment-product-badge ${product.className}`}>{product.text}</span><span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span><span className="consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
+                <div className="cm-all-item-row" key={item.id}>
+                  <button type="button" className="cm-grouped-item-open" onClick={() => onOpenItem(item.id)}><span className="jatb-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span></button>
+                  <strong>{item.itemNumber || '—'}</strong><ConsignorName consignor={consignor} /><strong>{money(item.price)}</strong><span>{item.commissionPct}%</span><span className={`cm-product-badge ${product.className}`}>{product.text}</span><span className={`jatb-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span><span className="cm-item-quick-action"><ItemAction item={item} product={product} /></span>
                 </div>
               );
             })}
@@ -1713,15 +1686,15 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
         )}
 
         {viewMode === 'grid' && (
-          <div className="consignment-readable-grid">
+          <div className="cm-readable-grid">
             {filtered.map((item) => {
               const consignor = consignorById[item.consignorId];
               const product = productLabel(item);
               return (
-                <article className="consignment-readable-card" key={item.id}>
-                  <div className="consignment-readable-card-top">
-                    <div className="consignment-grid-thumb-row">
-                      <div className="consignment-grid-thumb">
+                <article className="cm-readable-card" key={item.id}>
+                  <div className="cm-readable-card-top">
+                    <div className="cm-grid-thumb-row">
+                      <div className="cm-grid-thumb">
                         {(item.shopifyPhoto || item.photo) ? (
                           <img src={item.shopifyPhoto || item.photo} alt="" />
                         ) : (
@@ -1730,31 +1703,31 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
                       </div>
                       <div style={{ minWidth: 0 }}>
                         <strong>{item.description || item.type || 'Consignment item'}</strong>
-                        <small className="consignment-readable-card-sku"><b>SKU {item.itemNumber || '—'}</b>{item.size ? <span> · {item.size}</span> : null}</small>
+                        <small className="cm-readable-card-sku"><b>SKU {item.itemNumber || '—'}</b>{item.size ? <span> · {item.size}</span> : null}</small>
                       </div>
                     </div>
-                    <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
+                    <span className={`cm-product-badge ${product.className}`}>{product.text}</span>
                   </div>
 
                   {consignor ? (
-                    <button type="button" className="consignment-readable-consignor-link" onClick={() => onOpenConsignor(consignor.id)}>
+                    <button type="button" className="cm-readable-consignor-link" onClick={() => onOpenConsignor(consignor.id)}>
                       {consignor.firstName} {consignor.lastName}
                     </button>
                   ) : (
-                    <span className="consignment-readable-consignor-link" style={{ cursor: 'default', color: 'var(--muted)' }}>Unassigned</span>
+                    <span className="cm-readable-consignor-link" style={{ cursor: 'default', color: 'var(--muted)' }}>Unassigned</span>
                   )}
 
-                  <div className="consignment-readable-card-meta consignment-sales-money-rows">
+                  <div className="cm-readable-card-meta cm-sales-money-rows">
                     <span><small>Price</small><strong>{money(item.price)}</strong></span>
                     <span><small>Commission</small><strong>{item.commissionPct}%</strong></span>
                   </div>
 
-                  <div className="consignment-readable-card-details">
+                  <div className="cm-readable-card-details">
                     <span><small>Status</small></span>
-                    <span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid' : statusLabel(item.status)}</span>
+                    <span className={`jatb-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid' : statusLabel(item.status)}</span>
                   </div>
 
-                  <div className="consignment-readable-card-actions"><ItemAction item={item} product={product} compact /></div>
+                  <div className="cm-readable-card-actions"><ItemAction item={item} product={product} compact /></div>
                 </article>
               );
             })}
@@ -1772,7 +1745,9 @@ function SalesScreen({ items, consignors, onStartPayout, onOpenConsignor }) {
   const [sourceFilter, setSourceFilter] = useState('all');
   const [sortMode, setSortMode] = useState('newest');
   const [viewMode, setViewMode] = useState('list');
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 761px)').matches,
+  );
 
   const consignorById = Object.fromEntries(consignors.map((entry) => [entry.id, entry]));
   const saleSource = (item) => {
@@ -1851,13 +1826,13 @@ function SalesScreen({ items, consignors, onStartPayout, onOpenConsignor }) {
   };
 
   const ConsignorLink = ({ consignor }) => consignor ? (
-    <button type="button" className="consignment-sales-consignor-link" onClick={() => onOpenConsignor?.(consignor.id)}>{consignor.firstName} {consignor.lastName}</button>
+    <button type="button" className="cm-sales-consignor-link" onClick={() => onOpenConsignor?.(consignor.id)}>{consignor.firstName} {consignor.lastName}</button>
   ) : <span>—</span>;
 
   const PayoutAction = ({ item, consignor, compact = false }) => !item.paidOut && consignor ? (
-    <button type="button" className={`consignment-sales-pay-btn${compact ? ' compact' : ''}`} onClick={() => onStartPayout(consignor.id)}>Pay consignor</button>
+    <button type="button" className={`cm-sales-pay-btn${compact ? ' compact' : ''}`} onClick={() => onStartPayout(consignor.id)}>Pay consignor</button>
   ) : (
-    <span className="consignment-sales-paid-note">Paid</span>
+    <span className="cm-sales-paid-note">Paid</span>
   );
 
   return (
@@ -1865,53 +1840,50 @@ function SalesScreen({ items, consignors, onStartPayout, onOpenConsignor }) {
       <Header
         eyebrow="Sales ledger"
         title="Sales"
-        action={<button type="button" className="consignment-btn secondary" onClick={exportSales}><Download size={16} /> Export</button>}
+        action={<button type="button" className="jatb-btn secondary" onClick={exportSales}><Download size={16} /> Export</button>}
       />
-      <div className="consignment-body consignment-sales-page">
-        <div className="consignment-sales-summary-grid">
-          <div className="consignment-sales-summary-card"><span>Total sales</span><strong>{money(totalSales)}</strong></div>
-          <div className="consignment-sales-summary-card"><span>Unpaid to consignors</span><strong>{money(totalUnpaid)}</strong></div>
-          <div className="consignment-sales-summary-card"><span>Unpaid sales</span><strong>{unpaidCount}</strong></div>
-          <div className="consignment-sales-summary-card"><span>Paid sales</span><strong>{paidCount}</strong></div>
+      <div className="jatb-body cm-sales-page">
+        <div className="cm-sales-summary-grid">
+          <div className="cm-sales-summary-card"><span>Total sales</span><strong>{money(totalSales)}</strong></div>
+          <div className="cm-sales-summary-card"><span>Unpaid to consignors</span><strong>{money(totalUnpaid)}</strong></div>
+          <div className="cm-sales-summary-card"><span>Unpaid sales</span><strong>{unpaidCount}</strong></div>
+          <div className="cm-sales-summary-card"><span>Paid sales</span><strong>{paidCount}</strong></div>
         </div>
 
-        <div className="consignment-items-toolbar">
-        <details className="consignment-items-filter-details" open={filtersOpen} onToggle={(event) => setFiltersOpen(event.currentTarget.open)}>
-          <summary className="consignment-items-filter-summary"><span>Filters &amp; sorting</span><ChevronDown size={20} /></summary>
-          <div className="consignment-items-toolbar-top">
-            <label className="consignment-tool-field"><span>Payout status</span><select className="consignment-select consignment-filter-select" value={payoutFilter} onChange={(event) => setPayoutFilter(event.target.value)}><option value="all">All payout statuses</option><option value="unpaid">Unpaid</option><option value="paid">Paid</option></select></label>
-            <label className="consignment-tool-field"><span>Consignor</span><select className="consignment-select consignment-filter-select" value={consignorFilter} onChange={(event) => setConsignorFilter(event.target.value)}><option value="all">All consignors</option>{consignors.slice().sort((a,b) => `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`)).map((consignor) => <option key={consignor.id} value={consignor.id}>{consignor.firstName} {consignor.lastName}</option>)}</select></label>
-            <label className="consignment-tool-field"><span>Sale source</span><select className="consignment-select consignment-filter-select" value={sourceFilter} onChange={(event) => setSourceFilter(event.target.value)}><option value="all">All sale sources</option><option value="manual">Manual</option><option value="pos">POS</option><option value="online">Online</option></select></label>
-            <label className="consignment-tool-field"><span>Sort</span><select className="consignment-select consignment-filter-select" value={sortMode} onChange={(event) => setSortMode(event.target.value)}><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="price">Highest sale price</option><option value="due">Highest consignor due</option><option value="consignor">Consignor name</option><option value="sku">SKU</option></select></label>
-          </div>
-        </details>
-
-        <div className="consignment-items-toolbar-bottom">
-          <div className="consignment-search"><Search size={19} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, SKU, brand, or consignor" /></div>
-          <div className="consignment-tool-view"><span>View</span><div className="consignment-view-toggle consignment-finder-toggle" aria-label="Choose sales view"><button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={16} /> All items</button><button type="button" className={viewMode === 'grouped' ? 'active' : ''} onClick={() => setViewMode('grouped')} aria-pressed={viewMode === 'grouped'}><Users size={16} /> By consignor</button><button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={16} /> Grid</button></div></div>
-        </div>
+        <div className="cm-sales-toolbar">
+          <div className="jatb-search"><Search size={17} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search sale, SKU, order, or consignor" /></div>
+          <details className="cm-sales-filter-dropdown" open={filtersOpen} onToggle={(event) => setFiltersOpen(event.currentTarget.open)}>
+            <summary><span>Filters &amp; sorting</span><ChevronDown size={17} /></summary>
+            <div className="cm-sales-filter-fields">
+              <label className="cm-tool-field"><span>Payout status</span><select className="jatb-select" value={payoutFilter} onChange={(event) => setPayoutFilter(event.target.value)}><option value="all">All payout statuses</option><option value="unpaid">Unpaid</option><option value="paid">Paid</option></select></label>
+              <label className="cm-tool-field"><span>Consignor</span><select className="jatb-select" value={consignorFilter} onChange={(event) => setConsignorFilter(event.target.value)}><option value="all">All consignors</option>{consignors.slice().sort((a,b) => `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`)).map((consignor) => <option key={consignor.id} value={consignor.id}>{consignor.firstName} {consignor.lastName}</option>)}</select></label>
+              <label className="cm-tool-field"><span>Sale source</span><select className="jatb-select" value={sourceFilter} onChange={(event) => setSourceFilter(event.target.value)}><option value="all">All sale sources</option><option value="manual">Manual</option><option value="pos">POS</option><option value="online">Online</option></select></label>
+              <label className="cm-tool-field"><span>Sort</span><select className="jatb-select" value={sortMode} onChange={(event) => setSortMode(event.target.value)}><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="price">Highest sale price</option><option value="due">Highest consignor due</option><option value="consignor">Consignor name</option><option value="sku">SKU</option></select></label>
+            </div>
+          </details>
+          <div className="cm-tool-view cm-sales-view"><span>View</span><div className="cm-view-toggle cm-finder-toggle" aria-label="Choose sales view"><button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={16} /> All sales</button><button type="button" className={viewMode === 'grouped' ? 'active' : ''} onClick={() => setViewMode('grouped')} aria-pressed={viewMode === 'grouped'}><Users size={16} /> By consignor</button><button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={16} /> Grid</button></div></div>
         </div>
 
-        {filteredSales.length === 0 && <div className="consignment-empty-small">No sales match the selected filters.</div>}
+        {filteredSales.length === 0 && <div className="cm-empty-small">No sales match the selected filters.</div>}
 
         {viewMode === 'list' && filteredSales.length > 0 && (
           <>
-            <div className="consignment-sales-scroll-hint" aria-hidden="true">Swipe to see more <span>→</span></div>
-            <section className="consignment-card consignment-sales-table-card">
-            <div className="consignment-sales-multi-row consignment-list-head"><span>Sale</span><span>SKU</span><span>Consignor</span><span>Source</span><span>Sale price</span><span>Consignor due</span><span>Payout</span><span>Action</span></div>
+            <div className="cm-sales-scroll-hint" aria-hidden="true">Swipe to see more <span>→</span></div>
+            <section className="jatb-card cm-sales-table-card">
+            <div className="cm-sales-multi-row cm-list-head"><span>Sale</span><span>SKU</span><span>Consignor</span><span>Source</span><span>Sale price</span><span>Consignor due</span><span>Payout</span><span>Action</span></div>
             {filteredSales.map((item) => {
               const consignor = consignorById[item.consignorId];
               const salePrice = Number(item.salePrice ?? item.price ?? 0);
               const due = (salePrice * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100;
               const source = sourceLabel(item);
-              return <div className="consignment-sales-multi-row" key={item.id}><span className="consignment-item-primary"><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <ReceiptText size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || (source.text === 'Manual' ? 'Manual sale' : 'Shopify order')} · {item.dateSold || 'Paid'}</span></span></span><strong>{item.itemNumber || '—'}</strong><ConsignorLink consignor={consignor} /><span className={`consignment-product-badge ${source.className}`}>{source.text}</span><strong>{money(salePrice)}</strong><strong>{money(due)}</strong><span className={`consignment-badge ${item.paidOut ? 'available' : 'draft'}`}>{item.paidOut ? 'Paid' : 'Unpaid'}</span><span className="consignment-sales-action"><PayoutAction item={item} consignor={consignor} /></span></div>;
+              return <div className="cm-sales-multi-row" key={item.id}><span className="cm-item-primary"><span className="jatb-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <ReceiptText size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || (source.text === 'Manual' ? 'Manual sale' : 'Shopify order')} · {item.dateSold || 'Paid'}</span></span></span><strong>{item.itemNumber || '—'}</strong><ConsignorLink consignor={consignor} /><span className={`cm-product-badge ${source.className}`}>{source.text}</span><strong>{money(salePrice)}</strong><strong>{money(due)}</strong><span className={`jatb-badge ${item.paidOut ? 'available' : 'draft'}`}>{item.paidOut ? 'Paid' : 'Unpaid'}</span><span className="cm-sales-action"><PayoutAction item={item} consignor={consignor} /></span></div>;
             })}
             </section>
           </>
         )}
 
         {viewMode === 'grouped' && filteredSales.length > 0 && (
-          <div className="consignment-sales-groups">
+          <div className="cm-sales-groups">
             {groupedSales.map(({ consignor, sales }) => {
               const groupTotal = sales.reduce((sum, item) => sum + Number(item.salePrice ?? item.price ?? 0), 0);
               const groupDue = sales.filter((item) => !item.paidOut).reduce((sum, item) => {
@@ -1919,23 +1891,23 @@ function SalesScreen({ items, consignors, onStartPayout, onOpenConsignor }) {
                 return sum + (price * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100;
               }, 0);
               return (
-                <details className="consignment-sales-group" open key={consignor?.id || 'unknown'}>
+                <details className="cm-sales-group" open key={consignor?.id || 'unknown'}>
                   <summary>
-                    <span className="consignment-sales-group-chevron">›</span>
-                    <span className="consignment-sales-avatar">{`${consignor?.firstName?.[0] || '?'}${consignor?.lastName?.[0] || ''}`}</span>
-                    <span className="consignment-sales-group-person"><ConsignorLink consignor={consignor} /><small>Consignor #{consignor?.number || '—'} · {sales.length} sales</small></span>
-                    <span className="consignment-sales-group-stat"><strong>{money(groupTotal)}</strong><small>Total sales</small></span>
-                    <span className="consignment-sales-group-stat"><strong>{money(groupDue)}</strong><small>Total owed</small></span>
-                    <span className="consignment-sales-group-stat"><strong>{sales.filter((item) => !item.paidOut).length}</strong><small>Unpaid</small></span>
+                    <span className="cm-sales-group-chevron">›</span>
+                    <span className="cm-sales-avatar">{`${consignor?.firstName?.[0] || '?'}${consignor?.lastName?.[0] || ''}`}</span>
+                    <span className="cm-sales-group-person"><ConsignorLink consignor={consignor} /><small>Consignor #{consignor?.number || '—'} · {sales.length} sales</small></span>
+                    <span className="cm-sales-group-stat"><strong>{money(groupTotal)}</strong><small>Total sales</small></span>
+                    <span className="cm-sales-group-stat"><strong>{money(groupDue)}</strong><small>Total owed</small></span>
+                    <span className="cm-sales-group-stat"><strong>{sales.filter((item) => !item.paidOut).length}</strong><small>Unpaid</small></span>
                   </summary>
-                  <div className="consignment-sales-scroll-hint" aria-hidden="true">Swipe to see more <span>→</span></div>
-                  <div className="consignment-sales-group-list consignment-sales-table-card">
-                    <div className="consignment-sales-multi-row consignment-list-head"><span>Sale</span><span>SKU</span><span>Consignor</span><span>Source</span><span>Sale price</span><span>Consignor due</span><span>Payout</span><span>Action</span></div>
+                  <div className="cm-sales-scroll-hint" aria-hidden="true">Swipe to see more <span>→</span></div>
+                  <div className="cm-sales-group-list cm-sales-table-card">
+                    <div className="cm-sales-multi-row cm-list-head"><span>Sale</span><span>SKU</span><span>Consignor</span><span>Source</span><span>Sale price</span><span>Consignor due</span><span>Payout</span><span>Action</span></div>
                     {sales.map((item) => {
                       const salePrice = Number(item.salePrice ?? item.price ?? 0);
                       const due = (salePrice * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100;
                       const source = sourceLabel(item);
-                      return <div className="consignment-sales-multi-row" key={item.id}><span className="consignment-item-primary"><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <ReceiptText size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || (source.text === 'Manual' ? 'Manual sale' : 'Shopify order')} · {item.dateSold || 'Paid'}</span></span></span><strong>{item.itemNumber || '—'}</strong><ConsignorLink consignor={consignor} /><span className={`consignment-product-badge ${source.className}`}>{source.text}</span><strong>{money(salePrice)}</strong><strong>{money(due)}</strong><span className={`consignment-badge ${item.paidOut ? 'available' : 'draft'}`}>{item.paidOut ? 'Paid' : 'Unpaid'}</span><span className="consignment-sales-action"><PayoutAction item={item} consignor={consignor} /></span></div>;
+                      return <div className="cm-sales-multi-row" key={item.id}><span className="cm-item-primary"><span className="jatb-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <ReceiptText size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || (source.text === 'Manual' ? 'Manual sale' : 'Shopify order')} · {item.dateSold || 'Paid'}</span></span></span><strong>{item.itemNumber || '—'}</strong><ConsignorLink consignor={consignor} /><span className={`cm-product-badge ${source.className}`}>{source.text}</span><strong>{money(salePrice)}</strong><strong>{money(due)}</strong><span className={`jatb-badge ${item.paidOut ? 'available' : 'draft'}`}>{item.paidOut ? 'Paid' : 'Unpaid'}</span><span className="cm-sales-action"><PayoutAction item={item} consignor={consignor} /></span></div>;
                     })}
                   </div>
                 </details>
@@ -1945,17 +1917,17 @@ function SalesScreen({ items, consignors, onStartPayout, onOpenConsignor }) {
         )}
 
         {viewMode === 'grid' && filteredSales.length > 0 && (
-          <div className="consignment-readable-grid">
+          <div className="cm-readable-grid">
             {filteredSales.map((item) => {
               const consignor = consignorById[item.consignorId];
               const salePrice = Number(item.salePrice ?? item.price ?? 0);
               const due = (salePrice * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100;
               const source = sourceLabel(item);
               return (
-                <article className="consignment-readable-card" key={item.id}>
-                  <div className="consignment-readable-card-top">
-                    <div className="consignment-grid-thumb-row">
-                      <div className="consignment-grid-thumb">
+                <article className="cm-readable-card" key={item.id}>
+                  <div className="cm-readable-card-top">
+                    <div className="cm-grid-thumb-row">
+                      <div className="cm-grid-thumb">
                         {(item.shopifyPhoto || item.photo) ? (
                           <img src={item.shopifyPhoto || item.photo} alt="" />
                         ) : (
@@ -1967,23 +1939,23 @@ function SalesScreen({ items, consignors, onStartPayout, onOpenConsignor }) {
                         <small><b>SKU:</b> {item.itemNumber || '—'}</small>
                       </div>
                     </div>
-                    <span className={`consignment-product-badge ${source.className}`}>{source.text}</span>
+                    <span className={`cm-product-badge ${source.className}`}>{source.text}</span>
                   </div>
 
                   <ConsignorLink consignor={consignor} />
 
-                  <div className="consignment-readable-card-meta consignment-sales-money-rows">
+                  <div className="cm-readable-card-meta cm-sales-money-rows">
                     <span><small>Sale price</small><strong>{money(salePrice)}</strong></span>
                     <span><small>Consignor due</small><strong>{money(due)}</strong></span>
                   </div>
 
-                  <div className="consignment-readable-card-details">
+                  <div className="cm-readable-card-details">
                     <span><small>Sale date</small><strong>{formatSaleDate(item.dateSold)}</strong></span>
-                    <span className={`consignment-badge ${item.paidOut ? 'available' : 'draft'}`}>{item.paidOut ? 'Paid' : 'Unpaid'}</span>
+                    <span className={`jatb-badge ${item.paidOut ? 'available' : 'draft'}`}>{item.paidOut ? 'Paid' : 'Unpaid'}</span>
                   </div>
 
-                  <div className="consignment-sales-grid-order">{item.orderName || (source.text === 'Manual' ? 'Manual sale' : 'Shopify order')}</div>
-                  <div className="consignment-readable-card-actions"><PayoutAction item={item} consignor={consignor} compact /></div>
+                  <div className="cm-sales-grid-order">{item.orderName || (source.text === 'Manual' ? 'Manual sale' : 'Shopify order')}</div>
+                  <div className="cm-readable-card-actions"><PayoutAction item={item} consignor={consignor} compact /></div>
                 </article>
               );
             })}
@@ -1991,100 +1963,95 @@ function SalesScreen({ items, consignors, onStartPayout, onOpenConsignor }) {
         )}
       </div>
       <style>{`
-        .consignment-sales-header-tools { display:flex; align-items:center; gap:10px; min-width:min(680px, 58vw); }
-        .consignment-sales-search { position:relative; flex:1; }
-        .consignment-sales-search > span { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); }
-        .consignment-sales-search input { width:100%; min-height:40px; padding:9px 12px 9px 35px; border:1px solid var(--border); border-radius:10px; background:#fff; }
-        .consignment-sales-page { padding-top:16px; }
-        .consignment-sales-summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:18px; }
-        .consignment-sales-summary-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
-        .consignment-sales-summary-card span { display:block; color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; }
-        .consignment-sales-summary-card strong { display:block; margin-top:5px; font-size:22px; }
-        .consignment-sales-filter-dropdown { margin-bottom:18px; overflow:hidden; border:1px solid var(--border); border-radius:12px; background:#fff; }
-        .consignment-sales-filter-dropdown > summary { min-height:58px; display:flex; align-items:center; justify-content:space-between; padding:13px 18px; list-style:none; color:var(--ink); font-size:15px; font-weight:800; cursor:pointer; }
-        .consignment-sales-filter-dropdown > summary::-webkit-details-marker { display:none; }
-        .consignment-sales-filter-dropdown > summary svg { color:var(--muted); transition:transform .18s; }
-        .consignment-sales-filter-dropdown[open] > summary svg { transform:rotate(180deg); }
-        .consignment-sales-filter-fields { display:grid; grid-template-columns:repeat(4,minmax(135px,1fr)); gap:12px; align-items:end; padding:16px 18px 18px; border-top:1px solid var(--border); }
-        .consignment-sales-filter-fields .consignment-tool-field > span { display:block; margin-bottom:6px; color:var(--muted); font-size:10px; font-weight:700; text-transform:uppercase; }
-        .consignment-sales-filter-fields select { width:100%; min-height:40px; padding:9px 10px; border:1px solid var(--border); border-radius:9px; background:#fff; }
-        .consignment-sales-toolbar { display:grid; grid-template-columns:minmax(280px,.9fr) minmax(460px,1.1fr); gap:16px; align-items:end; margin-bottom:18px; }
-        .consignment-sales-toolbar > .consignment-search { min-height:52px; margin:0; padding:0 16px; border-radius:12px; }
-        .consignment-sales-toolbar > .consignment-search input { min-height:50px; font-size:16px; }
-        .consignment-sales-view .consignment-view-toggle { min-height:52px; }
-        .consignment-sales-view .consignment-view-toggle button { flex:1; min-height:50px; display:flex; align-items:center; justify-content:center; gap:8px; }
-        .consignment-sales-scroll-hint { display:none; }
-        .consignment-sales-filter-row > label > span { display:block; margin-bottom:6px; color:var(--muted); font-size:10px; font-weight:700; text-transform:uppercase; }
-        .consignment-sales-filter-row select { width:100%; min-height:40px; padding:9px 10px; border:1px solid var(--border); border-radius:9px; background:#fff; }
-        .consignment-sales-view-toggle { display:flex; overflow:hidden; border:1px solid var(--border); border-radius:9px; background:#fff; }
-        .consignment-sales-view-toggle button { min-height:40px; padding:9px 12px; border:0; border-right:1px solid var(--border); background:#fff; color:var(--muted); font-weight:700; white-space:nowrap; }
-        .consignment-sales-view-toggle button:last-child { border-right:0; }
-        .consignment-sales-view-toggle button.active { background:var(--green-soft); color:var(--green); }
-        .consignment-sales-table-card { padding:0; overflow:hidden; }
-        .consignment-sales-multi-row { display:grid; grid-template-columns:minmax(210px,1.35fr) 85px minmax(130px,1fr) 95px 95px 110px 85px 120px; gap:12px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--border); font-size:12px; }
-        .consignment-sales-multi-row:last-child { border-bottom:0; }
-        .consignment-sales-consignor-link { padding:0; border:0; background:none; color:var(--green); font:inherit; font-weight:700; text-align:left; cursor:pointer; }
-        .consignment-sales-consignor-link:hover { text-decoration:underline; }
-        .consignment-sales-pay-btn { border:0; border-radius:8px; background:var(--green); color:#fff; padding:8px 10px; font-size:11px; font-weight:700; white-space:nowrap; cursor:pointer; }
-        .consignment-sales-pay-btn.compact { width:100%; }
-        .consignment-sales-money-rows { grid-template-columns:1fr; gap:0; }
-        .consignment-sales-money-rows > span { flex-direction:row; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; }
-        .consignment-sales-money-rows > span + span { border-top:1px solid var(--border); }
-        .consignment-sales-money-rows strong { white-space:nowrap; overflow-wrap:normal; }
-        .consignment-sales-paid-note { color:var(--green-dark); font-size:11px; font-weight:700; }
-        .consignment-sales-group { margin-bottom:10px; overflow:hidden; border:1px solid var(--border); border-radius:12px; background:#fff; }
-        .consignment-sales-group > summary { display:grid; grid-template-columns:auto auto minmax(0,1fr) auto auto auto; gap:12px; align-items:center; padding:13px 14px; list-style:none; cursor:pointer; }
-        .consignment-sales-group > summary::-webkit-details-marker { display:none; }
-        .consignment-sales-group-chevron { width:26px; height:26px; display:grid; place-items:center; border:1px solid var(--border); border-radius:50%; transition:transform .2s; }
-        .consignment-sales-group[open] .consignment-sales-group-chevron { transform:rotate(90deg); }
-        .consignment-sales-avatar { width:36px; height:36px; display:grid; place-items:center; border-radius:9px; background:var(--green-soft); color:var(--green); font-size:11px; font-weight:800; }
-        .consignment-sales-group-person { display:flex; flex-direction:column; gap:2px; }
-        .consignment-sales-group-person small, .consignment-sales-group-stat small { color:var(--muted); font-size:9px; }
-        .consignment-sales-group-stat { display:flex; flex-direction:column; text-align:right; }
-        .consignment-sales-group-list { border-top:1px solid var(--border); }
-        .consignment-sales-group-row { display:grid; grid-template-columns:minmax(230px,1fr) 90px 100px 90px 120px; gap:12px; align-items:center; padding:11px 14px; border-bottom:1px solid var(--border); font-size:12px; }
-        .consignment-sales-group-row:last-child { border-bottom:0; }
-        .consignment-sales-grid-view { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; align-items:stretch; }
-        .consignment-sales-grid-card { min-width:0; min-height:270px; display:flex; flex-direction:column; padding:16px; border:1px solid var(--border); border-radius:12px; background:#fff; box-shadow:0 1px 2px rgba(16,24,40,.04); }
-        .consignment-sales-grid-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
-        .consignment-sales-grid-top > div { min-width:0; }
-        .consignment-sales-grid-top strong { display:block; overflow:hidden; color:var(--text); font-size:17px; line-height:1.25; white-space:nowrap; text-overflow:ellipsis; }
-        .consignment-sales-grid-top small { display:block; margin-top:5px; color:var(--muted); font-size:11px; }
-        .consignment-sales-grid-top small b { color:var(--text); }
-        .consignment-sales-grid-card > .consignment-sales-consignor-link { margin-top:12px; color:var(--green); font-size:14px; font-weight:800; }
-        .consignment-sales-grid-meta { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0 14px; padding:14px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
-        .consignment-sales-grid-meta span, .consignment-sales-grid-details > span:first-child { display:flex; flex-direction:column; gap:3px; }
-        .consignment-sales-grid-meta small, .consignment-sales-grid-details small { color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; }
-        .consignment-sales-grid-meta strong { color:var(--text); font-size:21px; line-height:1.1; }
-        .consignment-sales-grid-details { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-        .consignment-sales-grid-details strong { color:var(--text); font-size:13px; }
-        .consignment-sales-grid-details .consignment-badge { min-width:78px; padding:6px 10px; font-size:10px; }
-        .consignment-sales-grid-order { margin-bottom:14px; color:var(--muted); font-size:11px; }
-        .consignment-sales-grid-actions { margin-top:auto; }
-        .consignment-sales-grid-actions .consignment-sales-pay-btn { width:100%; min-height:42px; font-size:13px; }
-        .consignment-sales-grid-actions .consignment-sales-paid-note { width:100%; min-height:42px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:8px; background:#f7f8f9; }
-        @media (max-width:1100px) { .consignment-sales-grid-view { grid-template-columns:repeat(3,minmax(0,1fr)); } .consignment-sales-filter-fields { grid-template-columns:repeat(2,minmax(0,1fr)); } .consignment-sales-toolbar { grid-template-columns:1fr; } .consignment-sales-multi-row { min-width:1000px; } .consignment-sales-table-card { overflow-x:auto; } }
+        .cm-sales-header-tools { display:flex; align-items:center; gap:10px; min-width:min(680px, 58vw); }
+        .cm-sales-search { position:relative; flex:1; }
+        .cm-sales-search > span { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); }
+        .cm-sales-search input { width:100%; min-height:40px; padding:9px 12px 9px 35px; border:1px solid var(--border); border-radius:10px; background:#fff; }
+        .cm-sales-page { padding-top:14px; }
+        .cm-sales-summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:14px; }
+        .cm-sales-summary-card { background:#fff; border:1px solid var(--border); border-radius:11px; padding:13px; }
+        .cm-sales-summary-card span { display:block; color:var(--muted); font-size:10px; font-weight:700; text-transform:uppercase; }
+        .cm-sales-summary-card strong { display:block; margin-top:4px; font-size:18px; }
+        .cm-sales-toolbar { display:grid; grid-template-columns:minmax(220px,300px) minmax(0,1fr) auto; gap:10px; align-items:end; margin-bottom:14px; }
+        .cm-sales-toolbar > .jatb-search { margin:0; min-height:42px; }
+        .cm-sales-filter-dropdown > summary { display:none; }
+        .cm-sales-filter-fields { display:grid; grid-template-columns:repeat(4,minmax(135px,1fr)); gap:10px; align-items:end; }
+        .cm-sales-filter-fields .cm-tool-field > span { display:block; margin-bottom:6px; color:var(--muted); font-size:10px; font-weight:700; text-transform:uppercase; }
+        .cm-sales-filter-fields select { width:100%; min-height:40px; padding:9px 10px; border:1px solid var(--border); border-radius:9px; background:#fff; }
+        .cm-sales-scroll-hint { display:none; }
+        .cm-sales-filter-row > label > span { display:block; margin-bottom:6px; color:var(--muted); font-size:10px; font-weight:700; text-transform:uppercase; }
+        .cm-sales-filter-row select { width:100%; min-height:40px; padding:9px 10px; border:1px solid var(--border); border-radius:9px; background:#fff; }
+        .cm-sales-view-toggle { display:flex; overflow:hidden; border:1px solid var(--border); border-radius:9px; background:#fff; }
+        .cm-sales-view-toggle button { min-height:40px; padding:9px 12px; border:0; border-right:1px solid var(--border); background:#fff; color:var(--muted); font-weight:700; white-space:nowrap; }
+        .cm-sales-view-toggle button:last-child { border-right:0; }
+        .cm-sales-view-toggle button.active { background:var(--green-soft); color:var(--green); }
+        .cm-sales-table-card { padding:0; overflow:hidden; }
+        .cm-sales-multi-row { display:grid; grid-template-columns:minmax(210px,1.35fr) 85px minmax(130px,1fr) 95px 95px 110px 85px 120px; gap:12px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--border); font-size:12px; }
+        .cm-sales-multi-row:last-child { border-bottom:0; }
+        .cm-sales-consignor-link { padding:0; border:0; background:none; color:var(--green); font:inherit; font-weight:700; text-align:left; cursor:pointer; }
+        .cm-sales-consignor-link:hover { text-decoration:underline; }
+        .cm-sales-pay-btn { border:0; border-radius:8px; background:var(--green); color:#fff; padding:8px 10px; font-size:11px; font-weight:700; white-space:nowrap; cursor:pointer; }
+        .cm-sales-pay-btn.compact { width:100%; }
+        .cm-sales-money-rows { grid-template-columns:1fr; gap:0; }
+        .cm-sales-money-rows > span { flex-direction:row; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; }
+        .cm-sales-money-rows > span + span { border-top:1px solid var(--border); }
+        .cm-sales-money-rows strong { white-space:nowrap; overflow-wrap:normal; }
+        .cm-sales-paid-note { color:var(--green-dark); font-size:11px; font-weight:700; }
+        .cm-sales-group { margin-bottom:10px; overflow:hidden; border:1px solid var(--border); border-radius:12px; background:#fff; }
+        .cm-sales-group > summary { display:grid; grid-template-columns:auto auto minmax(0,1fr) auto auto auto; gap:12px; align-items:center; padding:13px 14px; list-style:none; cursor:pointer; }
+        .cm-sales-group > summary::-webkit-details-marker { display:none; }
+        .cm-sales-group-chevron { width:26px; height:26px; display:grid; place-items:center; border:1px solid var(--border); border-radius:50%; transition:transform .2s; }
+        .cm-sales-group[open] .cm-sales-group-chevron { transform:rotate(90deg); }
+        .cm-sales-avatar { width:36px; height:36px; display:grid; place-items:center; border-radius:9px; background:var(--green-soft); color:var(--green); font-size:11px; font-weight:800; }
+        .cm-sales-group-person { display:flex; flex-direction:column; gap:2px; }
+        .cm-sales-group-person small, .cm-sales-group-stat small { color:var(--muted); font-size:9px; }
+        .cm-sales-group-stat { display:flex; flex-direction:column; text-align:right; }
+        .cm-sales-group-list { border-top:1px solid var(--border); }
+        .cm-sales-group-row { display:grid; grid-template-columns:minmax(230px,1fr) 90px 100px 90px 120px; gap:12px; align-items:center; padding:11px 14px; border-bottom:1px solid var(--border); font-size:12px; }
+        .cm-sales-group-row:last-child { border-bottom:0; }
+        .cm-sales-grid-view { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; align-items:stretch; }
+        .cm-sales-grid-card { min-width:0; min-height:270px; display:flex; flex-direction:column; padding:16px; border:1px solid var(--border); border-radius:12px; background:#fff; box-shadow:0 1px 2px rgba(16,24,40,.04); }
+        .cm-sales-grid-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+        .cm-sales-grid-top > div { min-width:0; }
+        .cm-sales-grid-top strong { display:block; overflow:hidden; color:var(--text); font-size:17px; line-height:1.25; white-space:nowrap; text-overflow:ellipsis; }
+        .cm-sales-grid-top small { display:block; margin-top:5px; color:var(--muted); font-size:11px; }
+        .cm-sales-grid-top small b { color:var(--text); }
+        .cm-sales-grid-card > .cm-sales-consignor-link { margin-top:12px; color:var(--green); font-size:14px; font-weight:800; }
+        .cm-sales-grid-meta { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0 14px; padding:14px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+        .cm-sales-grid-meta span, .cm-sales-grid-details > span:first-child { display:flex; flex-direction:column; gap:3px; }
+        .cm-sales-grid-meta small, .cm-sales-grid-details small { color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; }
+        .cm-sales-grid-meta strong { color:var(--text); font-size:21px; line-height:1.1; }
+        .cm-sales-grid-details { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+        .cm-sales-grid-details strong { color:var(--text); font-size:13px; }
+        .cm-sales-grid-details .jatb-badge { min-width:78px; padding:6px 10px; font-size:10px; }
+        .cm-sales-grid-order { margin-bottom:14px; color:var(--muted); font-size:11px; }
+        .cm-sales-grid-actions { margin-top:auto; }
+        .cm-sales-grid-actions .cm-sales-pay-btn { width:100%; min-height:42px; font-size:13px; }
+        .cm-sales-grid-actions .cm-sales-paid-note { width:100%; min-height:42px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:8px; background:#f7f8f9; }
+        @media (max-width:1100px) { .cm-sales-grid-view { grid-template-columns:repeat(3,minmax(0,1fr)); } .cm-sales-filter-row { grid-template-columns:repeat(2,minmax(0,1fr)); } .cm-sales-view-toggle { grid-column:1/-1; width:max-content; } .cm-sales-multi-row { min-width:1000px; } .cm-sales-table-card { overflow-x:auto; } }
         @media (max-width:760px) {
-          .consignment-sales-header-tools { min-width:0; width:100%; flex-direction:column; align-items:stretch; }
-          .consignment-sales-summary-grid { grid-template-columns:1fr 1fr; }
-          .consignment-sales-summary-card { padding:14px; }
-          .consignment-sales-summary-card strong { font-size:19px; }
-          .consignment-sales-toolbar { grid-template-columns:1fr; align-items:stretch; }
-          .consignment-sales-filter-dropdown > summary { min-height:50px; padding:11px 14px; font-size:13px; }
-          .consignment-sales-filter-fields { grid-template-columns:1fr; gap:9px; padding:12px; border-top:1px solid var(--border); }
-          .consignment-sales-view { grid-column:auto; }
-          .consignment-sales-view .consignment-view-toggle { width:100%; }
-          .consignment-sales-view .consignment-view-toggle button { flex:1; }
-          .consignment-sales-scroll-hint { display:flex; align-items:center; justify-content:flex-end; gap:5px; margin:-2px 2px 7px; color:var(--green-dark); font-size:11px; font-weight:700; }
-          .consignment-sales-scroll-hint span { font-size:16px; }
-          .consignment-sales-table-card { position:relative; box-shadow:inset -14px 0 14px -16px rgba(20,63,115,.75); }
-          .consignment-sales-group > summary { grid-template-columns:auto auto minmax(0,1fr); }
-          .consignment-sales-group-stat { display:none; }
-          .consignment-sales-group-row { grid-template-columns:1fr auto; }
-          .consignment-sales-group-row > *:not(.consignment-item-primary):not(.consignment-sales-pay-btn):not(.consignment-sales-paid-note) { display:none; }
-          .consignment-sales-grid-view { grid-template-columns:repeat(2,minmax(0,1fr)); justify-content:stretch; }
-          .consignment-sales-grid-card { min-height:250px; padding:13px; }
-          .consignment-sales-grid-meta strong { font-size:18px; }
+          .cm-sales-header-tools { min-width:0; width:100%; flex-direction:column; align-items:stretch; }
+          .cm-sales-summary-grid { grid-template-columns:1fr 1fr; }
+          .cm-sales-toolbar { grid-template-columns:1fr; align-items:stretch; }
+          .cm-sales-filter-dropdown { border:1px solid var(--border); border-radius:10px; background:#fff; overflow:hidden; }
+          .cm-sales-filter-dropdown > summary { display:flex; align-items:center; justify-content:space-between; min-height:42px; padding:10px 12px; color:var(--green-dark); font-size:13px; font-weight:700; cursor:pointer; list-style:none; }
+          .cm-sales-filter-dropdown > summary::-webkit-details-marker { display:none; }
+          .cm-sales-filter-dropdown > summary svg { transition:transform .18s; }
+          .cm-sales-filter-dropdown[open] > summary svg { transform:rotate(180deg); }
+          .cm-sales-filter-fields { grid-template-columns:1fr; gap:9px; padding:12px; border-top:1px solid var(--border); }
+          .cm-sales-view { grid-column:auto; }
+          .cm-sales-view .cm-view-toggle { width:100%; }
+          .cm-sales-view .cm-view-toggle button { flex:1; }
+          .cm-sales-scroll-hint { display:flex; align-items:center; justify-content:flex-end; gap:5px; margin:-2px 2px 7px; color:var(--green-dark); font-size:11px; font-weight:700; }
+          .cm-sales-scroll-hint span { font-size:16px; }
+          .cm-sales-table-card { position:relative; box-shadow:inset -14px 0 14px -16px rgba(20,63,115,.75); }
+          .cm-sales-group > summary { grid-template-columns:auto auto minmax(0,1fr); }
+          .cm-sales-group-stat { display:none; }
+          .cm-sales-group-row { grid-template-columns:1fr auto; }
+          .cm-sales-group-row > *:not(.cm-item-primary):not(.cm-sales-pay-btn):not(.cm-sales-paid-note) { display:none; }
+          .cm-sales-grid-view { grid-template-columns:repeat(2,minmax(0,1fr)); justify-content:stretch; }
+          .cm-sales-grid-card { min-height:250px; padding:13px; }
+          .cm-sales-grid-meta strong { font-size:18px; }
         }
       `}</style>
     </>
@@ -2137,7 +2104,7 @@ function PayoutsScreen({ items, consignors, onOpenConsignor, onStartPayout }) {
       if (sort === 'amount') return b.due - a.due;
       return `${a.consignor.lastName} ${a.consignor.firstName}`.localeCompare(`${b.consignor.lastName} ${b.consignor.firstName}`);
     });
-  const displayedRows = viewMode === 'list' ? rows : allConsignorRows;
+  const displayedRows = viewMode === 'grouped' ? allConsignorRows : rows;
   const totalDue = rows.reduce((sum, entry) => sum + entry.due, 0);
   const payoutHistory = Object.values(items.filter((item) => item.paidOut && item.payoutId).reduce((groups, item) => {
     if (!groups[item.payoutId]) groups[item.payoutId] = { ...item, items: [], amount: item.payoutTotal || 0 };
@@ -2148,163 +2115,86 @@ function PayoutsScreen({ items, consignors, onOpenConsignor, onStartPayout }) {
   return (
     <>
       <Header eyebrow="Payments" title="Payouts" />
-      <div className="consignment-body consignment-payouts-page">
-        <div className="consignment-status-row">
-          <button type="button" className={`consignment-chip ${tab === 'outstanding' ? 'active' : ''}`} onClick={() => setTab('outstanding')}>Outstanding</button>
-          <button type="button" className={`consignment-chip ${tab === 'history' ? 'active' : ''}`} onClick={() => setTab('history')}>
-            Payout history <span className="consignment-tab-count">{payoutHistory.length}</span>
+      <div className="jatb-body">
+        <div className="cm-status-row">
+          <button type="button" className={`jatb-chip ${tab === 'outstanding' ? 'active' : ''}`} onClick={() => setTab('outstanding')}>Outstanding</button>
+          <button type="button" className={`jatb-chip ${tab === 'history' ? 'active' : ''}`} onClick={() => setTab('history')}>
+            Payout history <span className="cm-tab-count">{payoutHistory.length}</span>
           </button>
         </div>
         {tab === 'outstanding' && (
           <>
-        <div className="consignment-payout-summary">
-          <div className="consignment-summary-box"><span>Total due</span><strong>{money(totalDue)}</strong></div>
-          <div className="consignment-summary-box"><span>Consignors to pay</span><strong>{rows.length}</strong></div>
+        <div className="cm-payout-summary">
+          <div className="cm-summary-box"><span>Total due</span><strong>{money(totalDue)}</strong></div>
+          <div className="cm-summary-box"><span>Consignors to pay</span><strong>{rows.length}</strong></div>
         </div>
 
-        <div className="consignment-items-toolbar">
-          <details className="consignment-items-filter-details">
-            <summary className="consignment-items-filter-summary"><span>Filters &amp; sorting</span><ChevronDown size={20} aria-hidden="true" /></summary>
-            <div className="consignment-items-toolbar-top">
-              <label className="consignment-tool-field"><span>Sort</span>
-                <select className="consignment-select consignment-filter-select" value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort payouts">
-                  <option value="amount">Highest amount due</option>
-                  <option value="name">Consignor name</option>
-                  <option value="oldest">Oldest unpaid sale</option>
-                </select>
-              </label>
-            </div>
-          </details>
-          <div className="consignment-items-toolbar-bottom">
-          <div className="consignment-search">
+        <div className="cm-toolbar">
+          <div className="jatb-search">
             <Search size={17} />
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search consignor or number" />
           </div>
-          <div className="consignment-tool-view">
+          <select className="jatb-select cm-filter-select" value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort payouts">
+            <option value="amount">Highest amount due</option>
+            <option value="name">Consignor name</option>
+            <option value="oldest">Oldest unpaid sale</option>
+          </select>
+          <div className="cm-tool-view">
             <span>View</span>
-            <div className="consignment-view-toggle consignment-finder-toggle" aria-label="Choose payout view">
+            <div className="cm-view-toggle cm-finder-toggle" aria-label="Choose payout view">
               <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={16} /> All payouts</button>
               <button type="button" className={viewMode === 'grouped' ? 'active' : ''} onClick={() => setViewMode('grouped')} aria-pressed={viewMode === 'grouped'}><Users size={16} /> By consignor</button>
               <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={16} /> Grid</button>
             </div>
           </div>
-          </div>
         </div>
-        {viewMode !== 'grid' && (
-        <section className={`consignment-card consignment-payout-list list`}>
-          <div className="consignment-section-title">
+        <section className={`jatb-card cm-payout-list ${viewMode === 'grid' ? 'grid' : 'list'}`}>
+          <div className="cm-section-title">
             <h2>{viewMode === 'grouped' ? 'All consignors' : 'Consignors with payouts due'}</h2>
             <CalendarDays size={18} color="var(--muted)" />
           </div>
-          {displayedRows.length === 0 && <div className="consignment-empty-small">{viewMode === 'grouped' ? 'No consignors match this search.' : 'There are no eligible unpaid sales.'}</div>}
-          {viewMode === 'grouped' && displayedRows.map(({ consignor, sales, due }) => {
-            const availableCount = sales.filter((item) => item.status === 'Available' || item.status === 'Active').length;
-            const unpaidCount = sales.filter((item) => (item.status === 'Sold' || item.dateSold) && !item.paidOut).length;
-            return (
-            <details className="consignment-payout-row consignment-payout-group" open={unpaidCount > 0} key={consignor.id}>
-              <summary className="consignment-payout-group-summary">
-                <ChevronRight size={16} className="consignment-payout-chev" aria-hidden="true" />
-                <span
-                  className="consignment-payout-person"
-                  role="button"
-                  tabIndex={0}
-                  onClick={(event) => { event.preventDefault(); event.stopPropagation(); onOpenConsignor(consignor.id); }}
-                  onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); event.stopPropagation(); onOpenConsignor(consignor.id); } }}
-                >
-                  <span className="consignment-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</span>
-                  <span className="consignment-row-main">
-                    <span className="consignment-row-name">{consignor.firstName} {consignor.lastName}</span>
-                    <span className="consignment-row-sub">#{consignor.number} · {sales.length} item{sales.length === 1 ? '' : 's'}</span>
-                  </span>
-                </span>
-                <span className="consignment-payout-group-stat"><strong>{availableCount}</strong><span>Available</span></span>
-                <span className="consignment-payout-group-stat"><strong>{unpaidCount}</strong><span>Unpaid</span></span>
-                <span className="consignment-payout-action">
-                  <strong className="consignment-payout-amount">{money(due)}</strong>
-                  <button
-                    type="button"
-                    className="consignment-btn"
-                    onClick={(event) => { event.preventDefault(); event.stopPropagation(); onStartPayout(consignor.id); }}
-                  >
-                    Go to payout
-                  </button>
-                </span>
-              </summary>
-              {sales.length > 0 && (
-                <div className="consignment-payout-all-items">
+          {displayedRows.length === 0 && <div className="cm-empty-small">{viewMode === 'grouped' ? 'No consignors match this search.' : 'There are no eligible unpaid sales.'}</div>}
+          {displayedRows.map(({ consignor, sales, due }) => (
+            <div key={consignor.id} className="cm-payout-row">
+              <button
+                type="button"
+                className="cm-payout-person"
+                onClick={() => onOpenConsignor(consignor.id)}
+              >
+                <div className="jatb-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</div>
+                <div className="jatb-row-main">
+                  <div className="jatb-row-name">{consignor.firstName} {consignor.lastName}</div>
+                  <div className="jatb-row-sub">#{consignor.number} · {sales.length} {viewMode === 'grouped' ? `item${sales.length === 1 ? '' : 's'}` : `eligible item${sales.length === 1 ? '' : 's'}`}</div>
+                </div>
+              </button>
+              <div className="cm-payout-action">
+                <strong className="cm-payout-amount">{money(due)}</strong>
+                {due > 0 && <button type="button" className="jatb-btn" onClick={() => onStartPayout(consignor.id)}>Review & pay</button>}
+              </div>
+              {viewMode === 'grouped' && sales.length > 0 && (
+                <div className="cm-payout-all-items" style={{ gridColumn: '1 / -1', width: '100%' }}>
                   {sales.map((item) => (
-                    <div className="consignment-history-item" key={item.id}>
-                      <span className="consignment-batch-thumb">
+                    <div className="cm-history-item" key={item.id}>
+                      <span className="jatb-batch-thumb">
                         {item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}
                       </span>
-                      <span className="consignment-history-item-copy">
+                      <span className="cm-history-item-copy">
                         <strong>{item.description || item.itemNumber}</strong>
-                        <span>SKU {item.itemNumber} · {item.status || 'Draft'} · {money(item.salePrice ?? item.price)}</span>
+                        <span>SKU {item.itemNumber} · {statusLabel(item.status)} · {money(item.salePrice ?? item.price)}</span>
                       </span>
-                      <span className={`consignment-badge ${item.paidOut ? 'paid' : ''}`}>{item.paidOut ? 'Paid' : ((item.status === 'Sold' || item.dateSold) ? 'Unpaid' : 'Not sold')}</span>
+                      <span className={`jatb-badge ${item.paidOut ? 'paid' : ''}`}>{item.paidOut ? 'Paid' : ((item.status === 'Sold' || item.dateSold) ? 'Unpaid' : 'Not sold')}</span>
                     </div>
                   ))}
                 </div>
               )}
-            </details>
-            );
-          })}
-          {viewMode === 'list' && displayedRows.map(({ consignor, sales, due }) => (
-            <div key={consignor.id} className="consignment-payout-row">
-              <button
-                type="button"
-                className="consignment-payout-person"
-                onClick={() => onOpenConsignor(consignor.id)}
-              >
-                <div className="consignment-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</div>
-                <div className="consignment-row-main">
-                  <div className="consignment-row-name">{consignor.firstName} {consignor.lastName}</div>
-                  <div className="consignment-row-sub">#{consignor.number} · {sales.length} eligible item{sales.length === 1 ? '' : 's'}</div>
-                </div>
-              </button>
-              <div className="consignment-payout-action">
-                <strong className="consignment-payout-amount">{money(due)}</strong>
-                {due > 0 && <button type="button" className="consignment-btn" onClick={() => onStartPayout(consignor.id)}>Review & pay</button>}
-              </div>
             </div>
           ))}
         </section>
-        )}
-        {viewMode === 'grid' && (
-          <>
-            {displayedRows.length === 0 && <section className="consignment-card"><div className="consignment-empty-small">No consignors match this search.</div></section>}
-            <div className="consignment-consignor-card-grid">
-              {displayedRows.map(({ consignor, sales, due }) => {
-                const availableCount = sales.filter((item) => item.status === 'Available' || item.status === 'Active').length;
-                const unpaidCount = sales.filter((item) => (item.status === 'Sold' || item.dateSold) && !item.paidOut).length;
-                const paidCount = sales.filter((item) => item.paidOut).length;
-                return (
-                  <article className="consignment-consignor-card" key={consignor.id}>
-                    <div className="consignment-consignor-card-top">
-                      <span className="consignment-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</span>
-                      <span className="consignment-consignor-card-name">
-                        <strong>{consignor.firstName} {consignor.lastName}</strong>
-                        <small>#{consignor.number} · {sales.length} item{sales.length === 1 ? '' : 's'}</small>
-                      </span>
-                    </div>
-                    <div className="consignment-consignor-card-stats stats-3">
-                      <span><strong>{availableCount}</strong><small>Available</small></span>
-                      <span><strong>{unpaidCount}</strong><small>Unpaid</small></span>
-                      <span><strong>{paidCount}</strong><small>Paid</small></span>
-                    </div>
-                    <div className="consignment-consignor-card-due"><small>Total due</small><strong>{money(due)}</strong></div>
-                    <button type="button" className="consignment-consignor-card-open" onClick={() => onStartPayout(consignor.id)}>Go to payout</button>
-                  </article>
-                );
-              })}
-            </div>
-          </>
-        )}
           </>
         )}
         {tab === 'history' && (
-          <section className="consignment-history-list">
-            {payoutHistory.length === 0 && <div className="consignment-empty-small">Recorded payouts will appear here.</div>}
+          <section className="cm-history-list">
+            {payoutHistory.length === 0 && <div className="cm-empty-small">Recorded payouts will appear here.</div>}
             {payoutHistory.map((payout) => {
               const consignor = consignorById[payout.consignorId];
               const consignorName = consignor
@@ -2312,20 +2202,20 @@ function PayoutsScreen({ items, consignors, onOpenConsignor, onStartPayout }) {
                 : 'Unknown consignor';
               const expanded = expandedPayoutId === payout.payoutId;
               return (
-                <article className="consignment-history-card" key={payout.payoutId}>
+                <article className="cm-history-card" key={payout.payoutId}>
                   <button
                     type="button"
-                    className="consignment-history-card-summary"
+                    className="cm-history-card-summary"
                     onClick={() => setExpandedPayoutId(expanded ? '' : payout.payoutId)}
                     aria-expanded={expanded}
                   >
-                    <span className="consignment-avatar">
+                    <span className="jatb-avatar">
                       {consignor?.firstName?.[0] || '?'}{consignor?.lastName?.[0] || ''}
                     </span>
-                    <span className="consignment-history-card-copy">
+                    <span className="cm-history-card-copy">
                       {consignor ? (
                         <span
-                          className="consignment-history-consignor-link"
+                          className="cm-history-consignor-link"
                           role="link"
                           tabIndex={0}
                           onClick={(event) => {
@@ -2347,11 +2237,11 @@ function PayoutsScreen({ items, consignors, onOpenConsignor, onStartPayout }) {
                       )}
                       <span>{payout.payoutDate || 'Date not recorded'} · {payout.items.length} item{payout.items.length === 1 ? '' : 's'}</span>
                     </span>
-                    <span className="consignment-history-card-amount">
+                    <span className="cm-history-card-amount">
                       <strong>{money(payout.amount)}</strong>
                       <span>{payout.payoutMethod || 'Method not recorded'}</span>
                     </span>
-                    <span className="consignment-badge paid">Paid</span>
+                    <span className="jatb-badge paid">Paid</span>
                     <ChevronRight
                       size={17}
                       color="var(--muted)"
@@ -2359,8 +2249,8 @@ function PayoutsScreen({ items, consignors, onOpenConsignor, onStartPayout }) {
                     />
                   </button>
                   {expanded && (
-                    <div className="consignment-history-card-details">
-                      <div className="consignment-history-meta">
+                    <div className="cm-history-card-details">
+                      <div className="cm-history-meta">
                         <div><span>Paid to</span><strong>{consignorName}</strong></div>
                         <div><span>Payment method</span><strong>{payout.payoutMethod || 'Not recorded'}</strong></div>
                         <div><span>Reference</span><strong>{payout.payoutReference || payout.payoutId}</strong></div>
@@ -2369,11 +2259,11 @@ function PayoutsScreen({ items, consignors, onOpenConsignor, onStartPayout }) {
                         const salePrice = Number(item.salePrice ?? item.price ?? 0);
                         const rate = Number(item.commissionPct ?? consignor?.commissionPct ?? 0);
                         return (
-                          <div className="consignment-history-item" key={item.id}>
-                            <span className="consignment-batch-thumb">
+                          <div className="cm-history-item" key={item.id}>
+                            <span className="jatb-batch-thumb">
                               {item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}
                             </span>
-                            <span className="consignment-history-item-copy">
+                            <span className="cm-history-item-copy">
                               <strong>{item.description || item.itemNumber}</strong>
                               <span>{item.itemNumber} · {item.orderName || 'No order reference'} · {money(salePrice)} × {rate}%</span>
                             </span>
@@ -2382,11 +2272,11 @@ function PayoutsScreen({ items, consignors, onOpenConsignor, onStartPayout }) {
                         );
                       })}
                       {Number(payout.payoutAdjustment || 0) !== 0 && (
-                        <div className="consignment-history-note">Manual adjustment: {money(payout.payoutAdjustment)}</div>
+                        <div className="cm-history-note">Manual adjustment: {money(payout.payoutAdjustment)}</div>
                       )}
-                      {payout.payoutNote && <div className="consignment-history-note">Note: {payout.payoutNote}</div>}
+                      {payout.payoutNote && <div className="cm-history-note">Note: {payout.payoutNote}</div>}
                       {payout.payoutMethod === 'Store credit' && (
-                        <div className="consignment-history-note"><strong>Store credit recorded:</strong> {money(payout.amount)}</div>
+                        <div className="cm-history-note"><strong>Store credit recorded:</strong> {money(payout.amount)}</div>
                       )}
                     </div>
                   )}
@@ -2427,23 +2317,23 @@ function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
   return (
     <>
       <Header eyebrow={`Consignor #${consignor.number}`} title="Create payout" onBack={onBack} />
-      <div className="consignment-body consignment-payout-create-body">
-        <div className="consignment-section-grid">
+      <div className="jatb-body cm-payout-create-body">
+        <div className="cm-section-grid">
           <section>
-            <div className="consignment-card">
-              <div className="consignment-section-title">
+            <div className="jatb-card">
+              <div className="cm-section-title">
                 <div>
                   <h2>{consignor.firstName} {consignor.lastName}</h2>
                   <p style={{ margin: '4px 0 0', color: 'var(--muted)', fontSize: 12 }}>
                     Default commission: {consignor.commissionPct}%
                   </p>
                 </div>
-                <div className="consignment-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</div>
+                <div className="jatb-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</div>
               </div>
             </div>
 
-            <div className="consignment-card">
-              <div className="consignment-section-title">
+            <div className="jatb-card">
+              <div className="cm-section-title">
                 <div>
                   <h2>Items in this payout</h2>
                   <p style={{ margin: '4px 0 0', color: 'var(--muted)', fontSize: 12 }}>
@@ -2452,28 +2342,28 @@ function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
                 </div>
                 <button
                   type="button"
-                  className="consignment-link-button"
+                  className="cm-link-button"
                   onClick={() => setSelectedIds(selectedIds.length === eligible.length ? [] : eligible.map((item) => item.id))}
                 >
                   {selectedIds.length === eligible.length ? 'Exclude all' : 'Select all'}
                 </button>
               </div>
 
-              {eligible.length === 0 && <div className="consignment-empty-small">This consignor has no eligible unpaid sales.</div>}
+              {eligible.length === 0 && <div className="cm-empty-small">This consignor has no eligible unpaid sales.</div>}
               {eligible.map((item) => {
                 const salePrice = Number(item.salePrice ?? item.price ?? 0);
                 const rate = Number(item.commissionPct ?? consignor.commissionPct ?? 0);
                 const due = (salePrice * rate) / 100;
                 return (
-                  <label key={item.id} className="consignment-row-btn" style={{ cursor: 'pointer' }}>
+                  <label key={item.id} className="jatb-row-btn" style={{ cursor: 'pointer' }}>
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(item.id)}
                       onChange={() => toggleItem(item.id)}
                       style={{ width: 18, height: 18, accentColor: 'var(--green)' }}
                     />
-                    <span className="consignment-item-primary" style={{ flex: 1 }}>
-                      <span className="consignment-batch-thumb">
+                    <span className="cm-item-primary" style={{ flex: 1 }}>
+                      <span className="jatb-batch-thumb">
                         {item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}
                       </span>
                       <span>
@@ -2489,54 +2379,54 @@ function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
           </section>
 
           <aside>
-            <div className="consignment-card">
-              <div className="consignment-section-title"><h2>Payout summary</h2></div>
+            <div className="jatb-card">
+              <div className="cm-section-title"><h2>Payout summary</h2></div>
               <div style={{ display: 'grid', gap: 10, fontSize: 13 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Selected sales</span><strong>{selected.length}</strong></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Consignor earnings</span><strong>{money(itemTotal)}</strong></div>
-                <div className="consignment-field" style={{ margin: '4px 0 0' }}>
-                  <label className="consignment-label">Manual adjustment</label>
-                  <input className="consignment-input" type="number" inputMode="decimal" value={adjustment} onChange={(event) => setAdjustment(event.target.value)} placeholder="0.00" />
+                <div className="jatb-field" style={{ margin: '4px 0 0' }}>
+                  <label className="jatb-label">Manual adjustment</label>
+                  <input className="jatb-input" type="number" inputMode="decimal" value={adjustment} onChange={(event) => setAdjustment(event.target.value)} placeholder="0.00" />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 12, borderTop: '1px solid var(--line)', fontSize: 16 }}>
                   <strong>Amount due</strong><strong>{money(payoutTotal)}</strong>
                 </div>
               </div>
             </div>
-            <div className="consignment-card">
-              <div className="consignment-field">
-                <label className="consignment-label">Payment method</label>
-                <select className="consignment-select" value={method} onChange={(event) => setMethod(event.target.value)}>
+            <div className="jatb-card">
+              <div className="jatb-field">
+                <label className="jatb-label">Payment method</label>
+                <select className="jatb-select" value={method} onChange={(event) => setMethod(event.target.value)}>
                   <option>E-transfer</option><option>Cash</option><option>Cheque</option><option>Store credit</option><option>Other</option>
                 </select>
               </div>
               {method === 'Store credit' && (
-                <div className="consignment-store-credit-note">
+                <div className="cm-store-credit-note">
                   <CircleDollarSign size={17} />
                   <span>This records the amount as store credit in the payout ledger and on each linked Shopify product.</span>
                 </div>
               )}
-              <div className="consignment-payout-fields">
-                <div className="consignment-field">
-                  <label className="consignment-label">Payout date</label>
-                  <input className="consignment-input" type="date" value={payoutDate} onChange={(event) => setPayoutDate(event.target.value)} />
+              <div className="cm-payout-fields">
+                <div className="jatb-field">
+                  <label className="jatb-label">Payout date</label>
+                  <input className="jatb-input" type="date" value={payoutDate} onChange={(event) => setPayoutDate(event.target.value)} />
                 </div>
-                <div className="consignment-field">
-                  <label className="consignment-label">Reference</label>
+                <div className="jatb-field">
+                  <label className="jatb-label">Reference</label>
                   <input
-                    className="consignment-input"
+                    className="jatb-input"
                     value={reference}
                     onChange={(event) => setReference(event.target.value)}
                     placeholder={method === 'Store credit' ? 'Credit memo or note' : 'Optional confirmation #'}
                   />
                 </div>
               </div>
-              <label className="consignment-label">Payout note</label>
-              <textarea className="consignment-textarea" rows={3} value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional payment reference or note" />
+              <label className="jatb-label">Payout note</label>
+              <textarea className="jatb-textarea" rows={3} value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional payment reference or note" />
             </div>
             <button
               type="button"
-              className="consignment-btn"
+              className="jatb-btn"
               disabled={!selected.length || saving}
               onClick={async () => {
                 setSaving(true);
@@ -2566,113 +2456,27 @@ function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
 
 /* ---------- screens ---------- */
 
-function HomeScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpenItem, onMarkSold, onNewConsignor, onNewItem, onImport, onExport }) {
-  const [filter, setFilter] = useState('All');
-  const [consignorFilter, setConsignorFilter] = useState('All');
-  const [productFilter, setProductFilter] = useState('All');
-  const [sort, setSort] = useState('consignor');
-  const [viewMode, setViewMode] = useState('grouped');
-  const [sellingItemId, setSellingItemId] = useState(null);
-  const [collapsedGroups, setCollapsedGroups] = useState(() => new Set());
-  const statuses = ['All', 'Draft', 'Available', 'Sold', 'Archived', 'Returned', 'Donated'];
-  const consignorById = Object.fromEntries(consignors.map((entry) => [entry.id, entry]));
-
-  const filtered = items.filter((item) => {
+function HomeScreen({ consignors, items, query, setQuery, onOpenConsignor, onNewConsignor, onNewItem, onImport, onExport }) {
+  const [sort, setSort] = useState('number');
+  const [viewMode, setViewMode] = useState('list');
+  const filtered = consignors.filter((c) => {
     const q = query.trim().toLowerCase();
-    const consignor = consignorById[item.consignorId];
-    const matchesQuery = !q || `${item.description} ${item.itemNumber} ${item.type} ${item.brand || ''} ${consignor?.firstName || ''} ${consignor?.lastName || ''} ${consignor?.number || ''}`.toLowerCase().includes(q);
-    const matchesConsignor = consignorFilter === 'All' || item.consignorId === consignorFilter;
-    const product = productLabel(item);
-    const matchesProduct = productFilter === 'All'
-      || (productFilter === 'Manual' && product.className === 'manual')
-      || (productFilter === 'POS' && product.text === 'POS')
-      || (productFilter === 'Online' && product.text === 'Online')
-      || (productFilter === 'POS + Online' && product.text === 'POS + Online');
-    const matchesStatus = filter === 'All'
-      ? true
-      : filter === 'Archived'
-        ? item.paidOut
-        : filter === 'Available'
-          ? item.status === 'Available' || item.status === 'Active'
-          : item.status === filter && !item.paidOut;
-    return matchesQuery && matchesConsignor && matchesProduct && matchesStatus;
+    if (!q) return true;
+    return (
+      `${c.firstName} ${c.lastName}`.toLowerCase().includes(q) ||
+      String(c.phone || '').includes(q) ||
+      String(c.number).includes(q)
+    );
   }).sort((a, b) => {
-    if (sort === 'oldest') return String(a.dateReceived || '').localeCompare(String(b.dateReceived || ''));
-    if (sort === 'consignor') {
-      const aName = `${consignorById[a.consignorId]?.lastName || ''} ${consignorById[a.consignorId]?.firstName || ''}`;
-      const bName = `${consignorById[b.consignorId]?.lastName || ''} ${consignorById[b.consignorId]?.firstName || ''}`;
-      return aName.localeCompare(bName) || a.itemNumber.localeCompare(b.itemNumber, undefined, { numeric: true });
+    if (sort === 'nameAsc') return `${a.lastName || ''} ${a.firstName || ''}`.localeCompare(`${b.lastName || ''} ${b.firstName || ''}`);
+    if (sort === 'nameDesc') return `${b.lastName || ''} ${b.firstName || ''}`.localeCompare(`${a.lastName || ''} ${a.firstName || ''}`);
+    if (sort === 'itemsHigh') {
+      const aCount = items.filter((item) => item.consignorId === a.id).length;
+      const bCount = items.filter((item) => item.consignorId === b.id).length;
+      return bCount - aCount || Number(a.number || 0) - Number(b.number || 0);
     }
-    if (sort === 'ticket') return a.itemNumber.localeCompare(b.itemNumber, undefined, { numeric: true });
-    if (sort === 'priceHigh') return Number(b.price || 0) - Number(a.price || 0);
-    if (sort === 'priceLow') return Number(a.price || 0) - Number(b.price || 0);
-    return String(b.dateReceived || '').localeCompare(String(a.dateReceived || '')) || b.itemNumber.localeCompare(a.itemNumber, undefined, { numeric: true });
+    return Number(a.number || 0) - Number(b.number || 0);
   });
-
-  const grouped = filtered.reduce((groups, item) => {
-    const key = item.consignorId || 'unassigned';
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(item);
-    return groups;
-  }, new Map());
-
-  const groupedEntries = Array.from(grouped.entries()).sort(([aId, aItems], [bId, bItems]) => {
-    if (sort !== 'consignor') return filtered.indexOf(aItems[0]) - filtered.indexOf(bItems[0]);
-    const a = consignorById[aId];
-    const b = consignorById[bId];
-    return `${a?.lastName || ''} ${a?.firstName || ''}`.localeCompare(`${b?.lastName || ''} ${b?.firstName || ''}`);
-  });
-
-  async function quickMarkSold(item) {
-    if (sellingItemId) return;
-    const amount = window.prompt(`Sale price for ${item.description || item.itemNumber}`, String(item.price ?? ''));
-    if (amount === null) return;
-    const salePrice = Number(amount);
-    if (!Number.isFinite(salePrice) || salePrice < 0) {
-      window.alert('Enter a valid sale price.');
-      return;
-    }
-    setSellingItemId(item.id);
-    try {
-      await onMarkSold(item.id, { salePrice, dateSold: new Date().toISOString().slice(0, 10) });
-    } finally {
-      setSellingItemId(null);
-    }
-  }
-
-  function toggleGroup(consignorId) {
-    setCollapsedGroups((current) => {
-      const next = new Set(current);
-      if (next.has(consignorId)) next.delete(consignorId);
-      else next.add(consignorId);
-      return next;
-    });
-  }
-
-  function ConsignorName({ consignor }) {
-    if (!consignor) return <span>Unassigned</span>;
-    return (
-      <button type="button" className="consignment-consignor-profile-link" onClick={() => onOpenConsignor(consignor.id)}>
-        {consignor.firstName} {consignor.lastName}
-      </button>
-    );
-  }
-
-  function ItemAction({ item, product, compact = false }) {
-    const isManualAvailable = product.className === 'manual' && (item.status === 'Available' || item.status === 'Active') && !item.paidOut;
-    if (isManualAvailable) {
-      return (
-        <button type="button" className="consignment-quick-sold-btn" disabled={sellingItemId === item.id} onClick={() => quickMarkSold(item)}>
-          {sellingItemId === item.id ? 'Saving…' : 'Mark sold'}
-        </button>
-      );
-    }
-    return (
-      <button type="button" className={compact ? 'consignment-grid-open-btn' : 'consignment-item-open-btn'} onClick={() => onOpenItem(item.id)}>
-        Open item
-      </button>
-    );
-  }
 
   return (
     <>
@@ -2680,129 +2484,91 @@ function HomeScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpe
         eyebrow="Accounts"
         title="Consignors"
         action={(
-          <div className="consignment-header-actions">
-            <details className="consignment-data-menu">
+          <div className="cm-header-actions">
+            <details className="cm-data-menu">
               <summary><FileUp size={16} /> Data</summary>
-              <div className="consignment-data-menu-popover">
+              <div className="cm-data-menu-popover">
                 <button type="button" onClick={onImport}><FileUp size={15} /> Import CSV</button>
                 <button type="button" onClick={onExport}><Download size={15} /> Export CSV</button>
               </div>
             </details>
-            <button className="consignment-btn secondary" type="button" onClick={onNewItem}><Plus size={16} /> New item</button>
-            <button className="consignment-btn" type="button" onClick={onNewConsignor}><Plus size={17} /> New consignor</button>
+            <button className="jatb-btn secondary" type="button" onClick={onNewItem}><Plus size={16} /> New item</button>
+            <button className="jatb-btn" type="button" onClick={onNewConsignor}><Plus size={17} /> New consignor</button>
           </div>
         )}
       />
-      <div className="consignment-body">
-        <div className="consignment-items-toolbar">
-          <details className="consignment-items-filter-details">
-            <summary className="consignment-items-filter-summary">
-              <span>Filters &amp; sorting</span>
-              <ChevronDown size={20} aria-hidden="true" />
-            </summary>
-            <div className="consignment-items-toolbar-top">
-            <label className="consignment-tool-field"><span>Consignor</span><select className="consignment-select consignment-filter-select" value={consignorFilter} onChange={(event) => setConsignorFilter(event.target.value)} aria-label="Filter by consignor">
-              <option value="All">All consignors</option>
-              {consignors.map((consignor) => <option key={consignor.id} value={consignor.id}>#{consignor.number} · {consignor.firstName} {consignor.lastName}</option>)}
-            </select></label>
-            <label className="consignment-tool-field"><span>Sort</span><select className="consignment-select consignment-filter-select" value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort items">
-              <option value="consignor">Consignor name</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="ticket">SKU / item number</option><option value="priceHigh">Price high to low</option><option value="priceLow">Price low to high</option>
-            </select></label>
-            <label className="consignment-tool-field"><span>Product type</span><select className="consignment-select consignment-filter-select" value={productFilter} onChange={(event) => setProductFilter(event.target.value)} aria-label="Filter by product type">
-              <option value="All">All product types</option><option value="Manual">Manual</option><option value="POS">POS</option><option value="Online">Online</option><option value="POS + Online">POS + Online</option>
-            </select></label>
-            <label className="consignment-tool-field"><span>Status</span><select id="consignor-status-filter" className="consignment-select consignment-filter-select" value={filter} onChange={(event) => setFilter(event.target.value)}>
-              {statuses.map((status) => {
-                const count = status === 'All' ? items.length : status === 'Archived' ? items.filter((item) => item.paidOut).length : items.filter((item) => item.status === status && !item.paidOut).length;
-                return <option key={status} value={status}>{statusLabel(status)} ({count})</option>;
-              })}
-            </select></label>
-            </div>
-          </details>
-          <div className="consignment-items-toolbar-bottom">
-            <div className="consignment-search">
-              <Search size={19} />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, SKU, brand, or consignor" />
-            </div>
-            <div className="consignment-tool-view"><span>View</span><div className="consignment-view-toggle consignment-finder-toggle" aria-label="Choose consignor view">
-              <button type="button" className={viewMode === 'grouped' ? 'active' : ''} onClick={() => setViewMode('grouped')} aria-pressed={viewMode === 'grouped'}><Users size={16} /> By consignor</button>
-              <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={16} /> Grid</button>
-            </div></div>
+      <div className="jatb-body">
+        <div className="cm-toolbar cm-page-toolbar cm-consignors-toolbar">
+          <div className="jatb-search">
+            <Search size={17} />
+            <input
+              placeholder="Search name, phone, or #"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
           </div>
+          <label className="cm-tool-field"><span>Sort</span><select className="jatb-select cm-filter-select" value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort consignors">
+            <option value="number">Consignor number</option>
+            <option value="nameAsc">Name A–Z</option>
+            <option value="nameDesc">Name Z–A</option>
+            <option value="itemsHigh">Most items</option>
+          </select></label>
+          <div className="cm-tool-view"><span>View</span><div className="cm-view-toggle cm-finder-toggle" aria-label="Choose consignor view">
+            <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={16} /> List</button>
+            <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={16} /> Grid</button>
+          </div></div>
         </div>
 
-        {groupedEntries.length === 0 && <section className="consignment-card"><div className="consignment-empty-small">No consignors match these filters.</div></section>}
+        {filtered.length === 0 && consignors.length === 0 && (
+          <div className="jatb-empty">
+            <h3>No consignors yet</h3>
+            <p>Add the first person who drops something off.</p>
+          </div>
+        )}
+        {filtered.length === 0 && consignors.length > 0 && (
+          <div className="jatb-empty">
+            <h3>No matches</h3>
+            <p>Try a different name, phone, or number.</p>
+          </div>
+        )}
 
-        {viewMode === 'grouped' && (
-          <div className="consignment-item-groups">
-            {groupedEntries.map(([consignorId, consignorItems]) => {
-              const consignor = consignorById[consignorId];
-              const availableCount = consignorItems.filter((item) => item.status === 'Available' || item.status === 'Active').length;
-              const soldCount = consignorItems.filter((item) => item.status === 'Sold' || item.dateSold).length;
-              const initials = consignor ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` : '—';
-              const collapsed = collapsedGroups.has(consignorId);
+        {viewMode === 'list' && (
+          <section className="jatb-card cm-consignor-list">
+            <div className="cm-consignor-list-row cm-list-head"><span>Consignor</span><span>Contact</span><span>Items</span><span>Commission</span><span></span></div>
+            {filtered.map((c) => {
+              const count = items.filter((item) => item.consignorId === c.id).length;
               return (
-                <section className="consignment-item-group" key={consignorId}>
-                  <div className="consignment-item-group-summary">
-                    <button type="button" className={`consignment-item-group-chevron ${collapsed ? '' : 'open'}`} onClick={() => toggleGroup(consignorId)} aria-label={collapsed ? 'Expand consignor items' : 'Collapse consignor items'}><ChevronRight size={16} /></button>
-                    <span className="consignment-avatar consignment-item-group-avatar">{initials}</span>
-                    <span className="consignment-item-group-person">
-                      <ConsignorName consignor={consignor} />
-                      <span className="consignment-item-group-meta"><strong className="consignment-item-group-number">#{consignor?.number || '—'}</strong><span className="consignment-item-group-count">· {consignorItems.length} item{consignorItems.length === 1 ? '' : 's'}</span></span>
-                    </span>
-                    <span className="consignment-item-group-stat"><strong>{availableCount}</strong><span>Available</span></span>
-                    <span className="consignment-item-group-stat"><strong>{soldCount}</strong><span>Sold</span></span>
-                  </div>
-                  {!collapsed && (
-                    <div className="consignment-item-group-items">
-                      <div className="consignment-grouped-item-row consignment-list-head"><span>Item</span><span>Price</span><span>Commission</span><span>Product</span><span>Status</span><span>Action</span></div>
-                      {consignorItems.map((item) => {
-                        const product = productLabel(item);
-                        return (
-                          <div className="consignment-grouped-item-row" key={item.id}>
-                            <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem(item.id)}><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span></button>
-                            <strong>{money(item.price)}</strong><span>{item.commissionPct}%</span><span className={`consignment-product-badge ${product.className}`}>{product.text}</span><span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span><span className="consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </section>
+                <button type="button" className="cm-consignor-list-row" key={c.id} onClick={() => onOpenConsignor(c.id)}>
+                  <span className="cm-consignor-identity"><span className="jatb-avatar">{c.firstName?.[0]}{c.lastName?.[0]}</span><span><strong>{c.firstName} {c.lastName}</strong><small>Consignor #{c.number}</small></span></span>
+                  <span className="cm-consignor-contact"><strong>{c.phone || 'No phone'}</strong><small>{c.email || 'No email'}</small></span>
+                  <strong>{count}</strong>
+                  <span>{c.commissionPct}%</span>
+                  <ChevronRight size={18} className="jatb-chev" />
+                </button>
               );
             })}
-          </div>
+          </section>
         )}
 
         {viewMode === 'grid' && (
-          <div className="consignment-consignor-card-grid">
-            {groupedEntries.map(([consignorId, consignorItems]) => {
-              const consignor = consignorById[consignorId];
-              const initials = consignor ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` : '—';
-              const availableCount = consignorItems.filter((item) => item.status === 'Available' || item.status === 'Active').length;
-              const soldCount = consignorItems.filter((item) => item.status === 'Sold' || item.dateSold).length;
-              const due = consignorItems
-                .filter((item) => (item.status === 'Sold' || item.dateSold) && !item.paidOut)
-                .reduce((sum, item) => sum + (Number(item.salePrice ?? item.price ?? 0) * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100, 0);
+          <div className="cm-consignor-grid">
+            {filtered.map((c) => {
+              const consignorItems = items.filter((item) => item.consignorId === c.id);
+              const available = consignorItems.filter((item) => item.status === 'Available' || item.status === 'Active').length;
               return (
-                <article className="consignment-consignor-card" key={consignorId}>
-                  <div className="consignment-consignor-card-top">
-                    <span className="consignment-avatar">{initials}</span>
-                    <span className="consignment-consignor-card-name">
-                      <strong>{consignor ? `${consignor.firstName} ${consignor.lastName}` : 'Unassigned'}</strong>
-                      <small>#{consignor?.number || '—'}</small>
-                    </span>
-                  </div>
-                  <div className="consignment-consignor-card-stats">
-                    <span><strong>{availableCount}</strong><small>Active</small></span>
-                    <span><strong>{soldCount}</strong><small>Sold</small></span>
-                  </div>
-                  <div className="consignment-consignor-card-due"><small>Amount due</small><strong>{money(due)}</strong></div>
-                  <button type="button" className="consignment-consignor-card-open" onClick={() => onOpenConsignor(consignorId)}>View consignor</button>
-                </article>
+                <button type="button" className="cm-consignor-card" key={c.id} onClick={() => onOpenConsignor(c.id)}>
+                  <span className="cm-consignor-card-top"><span className="jatb-avatar">{c.firstName?.[0]}{c.lastName?.[0]}</span><ChevronRight size={18} /></span>
+                  <strong className="cm-consignor-card-name">{c.firstName} {c.lastName}</strong>
+                  <small className="cm-consignor-card-number">Consignor #{c.number}</small>
+                  <span className="cm-consignor-card-contact">{c.phone || c.email || 'No contact information'}</span>
+                  <span className="cm-consignor-card-stats"><span><small>Items</small><strong>{consignorItems.length}</strong></span><span><small>Available</small><strong>{available}</strong></span><span><small>Commission</small><strong>{c.commissionPct}%</strong></span></span>
+                </button>
               );
             })}
           </div>
         )}
+
+        <div className="jatb-footnote">Live Shopify consignment data</div>
       </div>
     </>
   );
@@ -2810,6 +2576,7 @@ function HomeScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpe
 
 function ChooseConsignorScreen({ consignors, onBack, onChoose, onCreate }) {
   const [search, setSearch] = useState('');
+  const [viewMode, setViewMode] = useState('list');
   const filtered = consignors.filter((consignor) => {
     const query = search.trim().toLowerCase();
     return !query || `${consignor.firstName} ${consignor.lastName} ${consignor.number}`
@@ -2820,42 +2587,74 @@ function ChooseConsignorScreen({ consignors, onBack, onChoose, onCreate }) {
   return (
     <>
       <Header eyebrow="New item" title="Choose consignor" onBack={onBack} />
-      <div className="consignment-body">
-        <button type="button" className="consignment-quick-action primary" onClick={onCreate} style={{ width: '100%', marginBottom: 14 }}>
-          <span className="consignment-quick-action-icon"><Plus size={19} /></span>
-          <span className="consignment-quick-action-copy">
+      <div className="jatb-body">
+        <button type="button" className="cm-quick-action primary" onClick={onCreate} style={{ width: '100%', marginBottom: 14 }}>
+          <span className="cm-quick-action-icon"><Plus size={19} /></span>
+          <span className="cm-quick-action-copy">
             <strong>Create new consignor</strong>
             <span>Add their details, then continue directly to the item</span>
           </span>
         </button>
 
-        <div className="consignment-search">
-          <Search size={17} />
-          <input
-            placeholder="Search name or consignor number"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
+        <div className="cm-toolbar">
+          <div className="jatb-search">
+            <Search size={17} />
+            <input
+              placeholder="Search name or consignor number"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </div>
+          <div className="cm-view-toggle cm-finder-toggle" aria-label="Choose consignor view">
+            <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')}>
+              <List size={15} /> List
+            </button>
+            <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')}>
+              <Grid3X3 size={15} /> Grid
+            </button>
+          </div>
         </div>
 
-        {filtered.map((consignor) => (
+        {viewMode === 'list' && filtered.map((consignor) => (
           <button
             key={consignor.id}
             type="button"
-            className="consignment-row-btn"
+            className="jatb-row-btn"
             onClick={() => onChoose(consignor.id)}
           >
-            <div className="consignment-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</div>
-            <div className="consignment-row-main">
-              <div className="consignment-row-name">{consignor.firstName} {consignor.lastName}</div>
-              <div className="consignment-row-sub">Consignor #{consignor.number}</div>
+            <div className="jatb-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</div>
+            <div className="jatb-row-main">
+              <div className="jatb-row-name">{consignor.firstName} {consignor.lastName}</div>
+              <div className="jatb-row-sub">Consignor #{consignor.number}</div>
             </div>
-            <ChevronRight size={18} className="consignment-chev" />
+            <ChevronRight size={18} className="jatb-chev" />
           </button>
         ))}
 
+        {viewMode === 'grid' && (
+          <div className="cm-consignor-grid">
+            {filtered.map((consignor) => (
+              <button
+                key={consignor.id}
+                type="button"
+                className="cm-consignor-card"
+                style={{ minHeight: 160 }}
+                onClick={() => onChoose(consignor.id)}
+              >
+                <span className="cm-consignor-card-top">
+                  <span className="jatb-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</span>
+                  <ChevronRight size={18} />
+                </span>
+                <strong className="cm-consignor-card-name">{consignor.firstName} {consignor.lastName}</strong>
+                <small className="cm-consignor-card-number">Consignor #{consignor.number}</small>
+                <span className="cm-consignor-card-contact">{consignor.phone || consignor.email || 'Select consignor'}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
         {filtered.length === 0 && (
-          <div className="consignment-empty">
+          <div className="jatb-empty">
             <h3>No matching consignor</h3>
             <p>Create a new consignor to continue.</p>
           </div>
@@ -2978,33 +2777,33 @@ function ImportScreen({ kind, onBack, onImport, fixedConsignor = null }) {
   return (
     <>
       <Header eyebrow="Data import" title={isConsignors ? 'Import consignors and items' : fixedConsignor ? `Import items for ${fixedConsignor.firstName} ${fixedConsignor.lastName}` : 'Import items'} onBack={onBack} />
-      <div className="consignment-body">
-        <div className="consignment-card">
+      <div className="jatb-body">
+        <div className="jatb-card">
           <strong style={{ fontSize: 14 }}>Start with the template</strong>
-          <p className="consignment-import-help">Required columns: {required}. The app assigns consignor and item numbers automatically. Keep the headings unchanged, fill in your rows, then save as CSV.{fixedConsignor && !isConsignors ? ` Every row will be assigned to consignor #${fixedConsignor.number}.` : ''}</p>
-          <button className="consignment-btn secondary" onClick={downloadTemplate}><Download size={16} /> Download template</button>
+          <p className="cm-import-help">Required columns: {required}. The app assigns consignor and item numbers automatically. Keep the headings unchanged, fill in your rows, then save as CSV.{fixedConsignor && !isConsignors ? ` Every row will be assigned to consignor #${fixedConsignor.number}.` : ''}</p>
+          <button className="jatb-btn secondary" onClick={downloadTemplate}><Download size={16} /> Download template</button>
         </div>
-        <div className="consignment-import-drop">
+        <div className="cm-import-drop">
           <label>
             <FileUp size={24} />
             <span>{fileName || 'Choose CSV file'}</span>
             <input type="file" accept=".csv,text/csv" onChange={chooseFile} />
           </label>
-          <div className="consignment-import-help">Nothing is imported until you review the count and press Import.</div>
+          <div className="cm-import-help">Nothing is imported until you review the count and press Import.</div>
         </div>
-        {localError && <div className="consignment-card" style={{ color: 'var(--danger)' }}>{localError}</div>}
+        {localError && <div className="jatb-card" style={{ color: 'var(--danger)' }}>{localError}</div>}
         {rows.length > 0 && (
           <>
-            <div className="consignment-import-preview">
+            <div className="cm-import-preview">
               <div><span>File</span><strong style={{ fontSize: 12 }}>{fileName}</strong></div>
               <div><span>Rows ready</span><strong>{rows.length}</strong></div>
               <div><span>Importing</span><strong style={{ fontSize: 13 }}>{isConsignors ? 'Consignors + manual items' : 'Items'}</strong></div>
             </div>
-            <div className="consignment-import-actions">
-              <button className="consignment-btn" disabled={saving} onClick={async () => {
+            <div className="cm-import-actions">
+              <button className="jatb-btn" disabled={saving} onClick={async () => {
                 setSaving(true);
                 try { await onImport(kind, rows); } finally { setSaving(false); }
-              }}>{saving ? <Loader2 className="consignment-spin" size={16} /> : <FileUp size={16} />} Import {rows.length} row{rows.length === 1 ? '' : 's'}</button>
+              }}>{saving ? <Loader2 className="jatb-spin" size={16} /> : <FileUp size={16} />} Import {rows.length} row{rows.length === 1 ? '' : 's'}</button>
             </div>
           </>
         )}
@@ -3021,69 +2820,69 @@ function NewConsignorScreen({ onBack, onSave, nextNumber }) {
   return (
     <>
       <Header eyebrow="New" title="Add consignor" onBack={onBack} />
-      <div className="consignment-body">
-        <div className="consignment-field">
-          <label className="consignment-label">Consignor number</label>
-          <input className="consignment-input" type="number" inputMode="numeric" min="1" step="1" value={form.number} onChange={set('number')} />
-          <div className="consignment-row-sub" style={{ marginTop: 6 }}>Automatically assigned, but you can change it.</div>
+      <div className="jatb-body">
+        <div className="jatb-field">
+          <label className="jatb-label">Consignor number</label>
+          <input className="jatb-input" type="number" inputMode="numeric" min="1" step="1" value={form.number} onChange={set('number')} />
+          <div className="jatb-row-sub" style={{ marginTop: 6 }}>Automatically assigned, but you can change it.</div>
         </div>
-        <div className="consignment-row2">
-          <div className="consignment-field">
-            <label className="consignment-label">First name</label>
-            <input className="consignment-input" value={form.firstName} onChange={set('firstName')} placeholder="Sarah" />
+        <div className="jatb-row2">
+          <div className="jatb-field">
+            <label className="jatb-label">First name</label>
+            <input className="jatb-input" value={form.firstName} onChange={set('firstName')} placeholder="Sarah" />
           </div>
-          <div className="consignment-field">
-            <label className="consignment-label">Last name</label>
-            <input className="consignment-input" value={form.lastName} onChange={set('lastName')} placeholder="Lee" />
-          </div>
-        </div>
-        <div className="consignment-row2">
-          <div className="consignment-field">
-            <label className="consignment-label">Phone</label>
-            <input className="consignment-input" type="tel" inputMode="tel" value={form.phone} onChange={set('phone')} placeholder="(416) 555-0134" />
-          </div>
-          <div className="consignment-field">
-            <label className="consignment-label">Email</label>
-            <input className="consignment-input" type="email" value={form.email} onChange={set('email')} placeholder="sarah@email.com" />
+          <div className="jatb-field">
+            <label className="jatb-label">Last name</label>
+            <input className="jatb-input" value={form.lastName} onChange={set('lastName')} placeholder="Lee" />
           </div>
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Street address</label>
-          <input className="consignment-input" value={form.address} onChange={set('address')} placeholder="123 Main Street" autoComplete="street-address" />
-        </div>
-        <div className="consignment-row2">
-          <div className="consignment-field">
-            <label className="consignment-label">City</label>
-            <input className="consignment-input" value={form.city} onChange={set('city')} placeholder="Hamilton" autoComplete="address-level2" />
+        <div className="jatb-row2">
+          <div className="jatb-field">
+            <label className="jatb-label">Phone</label>
+            <input className="jatb-input" type="tel" inputMode="tel" value={form.phone} onChange={set('phone')} placeholder="(416) 555-0134" />
           </div>
-          <div className="consignment-field">
-            <label className="consignment-label">Province</label>
-            <input className="consignment-input" value={form.province} onChange={set('province')} placeholder="Ontario" autoComplete="address-level1" />
+          <div className="jatb-field">
+            <label className="jatb-label">Email</label>
+            <input className="jatb-input" type="email" value={form.email} onChange={set('email')} placeholder="sarah@email.com" />
           </div>
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Postal code</label>
-          <input className="consignment-input" value={form.postalCode} onChange={set('postalCode')} placeholder="L8E 1A1" autoCapitalize="characters" autoComplete="postal-code" />
+        <div className="jatb-field">
+          <label className="jatb-label">Street address</label>
+          <input className="jatb-input" value={form.address} onChange={set('address')} placeholder="123 Main Street" autoComplete="street-address" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Commission split &mdash; consignor gets</label>
-          <input className="consignment-input" type="number" inputMode="decimal" value={form.commissionPct} onChange={set('commissionPct')} placeholder="50" />
+        <div className="jatb-row2">
+          <div className="jatb-field">
+            <label className="jatb-label">City</label>
+            <input className="jatb-input" value={form.city} onChange={set('city')} placeholder="Hamilton" autoComplete="address-level2" />
+          </div>
+          <div className="jatb-field">
+            <label className="jatb-label">Province</label>
+            <input className="jatb-input" value={form.province} onChange={set('province')} placeholder="Ontario" autoComplete="address-level1" />
+          </div>
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Unsold items</label>
-          <select className="consignment-select" value={form.unsoldPreference} onChange={set('unsoldPreference')}>
+        <div className="jatb-field">
+          <label className="jatb-label">Postal code</label>
+          <input className="jatb-input" value={form.postalCode} onChange={set('postalCode')} placeholder="L8E 1A1" autoCapitalize="characters" autoComplete="postal-code" />
+        </div>
+        <div className="jatb-field">
+          <label className="jatb-label">Commission split &mdash; consignor gets</label>
+          <input className="jatb-input" type="number" inputMode="decimal" value={form.commissionPct} onChange={set('commissionPct')} placeholder="50" />
+        </div>
+        <div className="jatb-field">
+          <label className="jatb-label">Unsold items</label>
+          <select className="jatb-select" value={form.unsoldPreference} onChange={set('unsoldPreference')}>
             <option value="Please return">Please return</option>
             <option value="Donation okay">Donation okay</option>
             <option value="Ask me first">Ask me first</option>
           </select>
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Notes (optional)</label>
-          <textarea className="consignment-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Anything worth remembering" />
+        <div className="jatb-field">
+          <label className="jatb-label">Notes (optional)</label>
+          <textarea className="jatb-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Anything worth remembering" />
         </div>
       </div>
-      <div className="consignment-fab-wrap">
-        <button className="consignment-btn" disabled={!valid} onClick={() => onSave(form)}>
+      <div className="jatb-fab-wrap">
+        <button className="jatb-btn" disabled={!valid} onClick={() => onSave(form)}>
           <Check size={18} /> Save consignor
         </button>
       </div>
@@ -3112,68 +2911,68 @@ function EditConsignorScreen({ consignor, onBack, onSave }) {
   return (
     <>
       <Header eyebrow={`Consignor #${consignor.number}`} title="Edit consignor" onBack={onBack} />
-      <div className="consignment-body">
-        <div className="consignment-field">
-          <label className="consignment-label">Consignor number</label>
-          <input className="consignment-input" type="number" inputMode="numeric" min="1" step="1" value={form.number} onChange={set('number')} />
+      <div className="jatb-body">
+        <div className="jatb-field">
+          <label className="jatb-label">Consignor number</label>
+          <input className="jatb-input" type="number" inputMode="numeric" min="1" step="1" value={form.number} onChange={set('number')} />
         </div>
-        <div className="consignment-row2">
-          <div className="consignment-field">
-            <label className="consignment-label">First name</label>
-            <input className="consignment-input" value={form.firstName} onChange={set('firstName')} placeholder="Sarah" />
+        <div className="jatb-row2">
+          <div className="jatb-field">
+            <label className="jatb-label">First name</label>
+            <input className="jatb-input" value={form.firstName} onChange={set('firstName')} placeholder="Sarah" />
           </div>
-          <div className="consignment-field">
-            <label className="consignment-label">Last name</label>
-            <input className="consignment-input" value={form.lastName} onChange={set('lastName')} placeholder="Lee" />
-          </div>
-        </div>
-        <div className="consignment-row2">
-          <div className="consignment-field">
-            <label className="consignment-label">Phone</label>
-            <input className="consignment-input" type="tel" inputMode="tel" value={form.phone} onChange={set('phone')} placeholder="(416) 555-0134" />
-          </div>
-          <div className="consignment-field">
-            <label className="consignment-label">Email</label>
-            <input className="consignment-input" type="email" value={form.email} onChange={set('email')} placeholder="sarah@email.com" />
+          <div className="jatb-field">
+            <label className="jatb-label">Last name</label>
+            <input className="jatb-input" value={form.lastName} onChange={set('lastName')} placeholder="Lee" />
           </div>
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Street address</label>
-          <input className="consignment-input" value={form.address} onChange={set('address')} placeholder="123 Main Street" autoComplete="street-address" />
-        </div>
-        <div className="consignment-row2">
-          <div className="consignment-field">
-            <label className="consignment-label">City</label>
-            <input className="consignment-input" value={form.city} onChange={set('city')} placeholder="Hamilton" autoComplete="address-level2" />
+        <div className="jatb-row2">
+          <div className="jatb-field">
+            <label className="jatb-label">Phone</label>
+            <input className="jatb-input" type="tel" inputMode="tel" value={form.phone} onChange={set('phone')} placeholder="(416) 555-0134" />
           </div>
-          <div className="consignment-field">
-            <label className="consignment-label">Province</label>
-            <input className="consignment-input" value={form.province} onChange={set('province')} placeholder="Ontario" autoComplete="address-level1" />
+          <div className="jatb-field">
+            <label className="jatb-label">Email</label>
+            <input className="jatb-input" type="email" value={form.email} onChange={set('email')} placeholder="sarah@email.com" />
           </div>
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Postal code</label>
-          <input className="consignment-input" value={form.postalCode} onChange={set('postalCode')} placeholder="L8E 1A1" autoCapitalize="characters" autoComplete="postal-code" />
+        <div className="jatb-field">
+          <label className="jatb-label">Street address</label>
+          <input className="jatb-input" value={form.address} onChange={set('address')} placeholder="123 Main Street" autoComplete="street-address" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Commission split &mdash; consignor gets</label>
-          <input className="consignment-input" type="number" inputMode="decimal" value={form.commissionPct} onChange={set('commissionPct')} placeholder="50" />
+        <div className="jatb-row2">
+          <div className="jatb-field">
+            <label className="jatb-label">City</label>
+            <input className="jatb-input" value={form.city} onChange={set('city')} placeholder="Hamilton" autoComplete="address-level2" />
+          </div>
+          <div className="jatb-field">
+            <label className="jatb-label">Province</label>
+            <input className="jatb-input" value={form.province} onChange={set('province')} placeholder="Ontario" autoComplete="address-level1" />
+          </div>
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Unsold items</label>
-          <select className="consignment-select" value={form.unsoldPreference} onChange={set('unsoldPreference')}>
+        <div className="jatb-field">
+          <label className="jatb-label">Postal code</label>
+          <input className="jatb-input" value={form.postalCode} onChange={set('postalCode')} placeholder="L8E 1A1" autoCapitalize="characters" autoComplete="postal-code" />
+        </div>
+        <div className="jatb-field">
+          <label className="jatb-label">Commission split &mdash; consignor gets</label>
+          <input className="jatb-input" type="number" inputMode="decimal" value={form.commissionPct} onChange={set('commissionPct')} placeholder="50" />
+        </div>
+        <div className="jatb-field">
+          <label className="jatb-label">Unsold items</label>
+          <select className="jatb-select" value={form.unsoldPreference} onChange={set('unsoldPreference')}>
             <option value="Please return">Please return</option>
             <option value="Donation okay">Donation okay</option>
             <option value="Ask me first">Ask me first</option>
           </select>
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Notes (optional)</label>
-          <textarea className="consignment-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Anything worth remembering" />
+        <div className="jatb-field">
+          <label className="jatb-label">Notes (optional)</label>
+          <textarea className="jatb-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Anything worth remembering" />
         </div>
       </div>
-      <div className="consignment-fab-wrap">
-        <button className="consignment-btn" disabled={!valid} onClick={() => onSave(consignor.id, form)}>
+      <div className="jatb-fab-wrap">
+        <button className="jatb-btn" disabled={!valid} onClick={() => onSave(consignor.id, form)}>
           <Check size={18} /> Save changes
         </button>
       </div>
@@ -3205,15 +3004,15 @@ function ConsignorScreen({ consignor, items, onBack, onStartIntake, onOpenItem, 
         title={`${consignor.firstName} ${consignor.lastName}`}
         onBack={onBack}
         action={(
-          <div className="consignment-header-actions">
-            <button className="consignment-btn" onClick={onStartIntake}>
+          <div className="cm-header-actions">
+            <button className="jatb-btn" onClick={onStartIntake}>
               <Plus size={17} /> Add items
             </button>
-            <button className="consignment-btn secondary" onClick={onEditConsignor}>
+            <button className="jatb-btn secondary" onClick={onEditConsignor}>
               <Pencil size={17} /> Edit
             </button>
             <button
-              className="consignment-btn secondary"
+              className="jatb-btn secondary"
               style={{ color: 'var(--danger)', borderColor: 'var(--danger-soft)' }}
               onClick={() => setConfirmingDeleteConsignor(true)}
             >
@@ -3222,52 +3021,52 @@ function ConsignorScreen({ consignor, items, onBack, onStartIntake, onOpenItem, 
           </div>
         )}
       />
-      <div className="consignment-body">
-        <section className="consignment-card consignment-consignor-profile" aria-label="Consignor profile information">
-          <div className="consignment-profile-column">
-            <div className="consignment-profile-title">Contact</div>
-            <div className="consignment-profile-row">
-              <span className="consignment-profile-icon"><Phone size={17} /></span>
-              <span className="consignment-profile-copy">
-                <span className="consignment-profile-label">Phone</span>
-                {consignor.phone ? <a className="consignment-profile-value consignment-profile-link" href={`tel:${String(consignor.phone).replace(/[^\d+]/g, '')}`}>{consignor.phone}</a> : <span className="consignment-profile-value">—</span>}
+      <div className="jatb-body">
+        <section className="jatb-card cm-consignor-profile" aria-label="Consignor profile information">
+          <div className="cm-profile-column">
+            <div className="cm-profile-title">Contact</div>
+            <div className="cm-profile-row">
+              <span className="cm-profile-icon"><Phone size={17} /></span>
+              <span className="cm-profile-copy">
+                <span className="cm-profile-label">Phone</span>
+                {consignor.phone ? <a className="cm-profile-value cm-profile-link" href={`tel:${String(consignor.phone).replace(/[^\d+]/g, '')}`}>{consignor.phone}</a> : <span className="cm-profile-value">—</span>}
               </span>
             </div>
-            <div className="consignment-profile-row">
-              <span className="consignment-profile-icon"><Mail size={17} /></span>
-              <span className="consignment-profile-copy">
-                <span className="consignment-profile-label">Email</span>
-                {consignor.email ? <a className="consignment-profile-value consignment-profile-link" href={`mailto:${consignor.email}`}>{consignor.email}</a> : <span className="consignment-profile-value">—</span>}
+            <div className="cm-profile-row">
+              <span className="cm-profile-icon"><Mail size={17} /></span>
+              <span className="cm-profile-copy">
+                <span className="cm-profile-label">Email</span>
+                {consignor.email ? <a className="cm-profile-value cm-profile-link" href={`mailto:${consignor.email}`}>{consignor.email}</a> : <span className="cm-profile-value">—</span>}
               </span>
             </div>
-            <div className="consignment-profile-row">
-              <span className="consignment-profile-icon"><MapPin size={17} /></span>
-              <span className="consignment-profile-copy">
-                <span className="consignment-profile-label">Address</span>
-                {fullAddress ? <a className="consignment-profile-value consignment-profile-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noopener noreferrer">{fullAddress}</a> : <span className="consignment-profile-value">—</span>}
+            <div className="cm-profile-row">
+              <span className="cm-profile-icon"><MapPin size={17} /></span>
+              <span className="cm-profile-copy">
+                <span className="cm-profile-label">Address</span>
+                {fullAddress ? <a className="cm-profile-value cm-profile-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noopener noreferrer">{fullAddress}</a> : <span className="cm-profile-value">—</span>}
               </span>
             </div>
           </div>
-          <div className="consignment-profile-column">
-            <div className="consignment-profile-title">Account details</div>
-            <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Commission split</span><span className="consignment-profile-value">Consignor gets {consignor.commissionPct}%</span></span></div>
-            <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Joined</span><span className="consignment-profile-value">{consignor.dateJoined || '—'}</span></span></div>
-            <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Unsold items</span><span className="consignment-profile-value">{consignor.unsoldPreference || 'Please return'}</span></span></div>
+          <div className="cm-profile-column">
+            <div className="cm-profile-title">Account details</div>
+            <div className="cm-profile-row detail"><span className="cm-profile-copy"><span className="cm-profile-label">Commission split</span><span className="cm-profile-value">Consignor gets {consignor.commissionPct}%</span></span></div>
+            <div className="cm-profile-row detail"><span className="cm-profile-copy"><span className="cm-profile-label">Joined</span><span className="cm-profile-value">{consignor.dateJoined || '—'}</span></span></div>
+            <div className="cm-profile-row detail"><span className="cm-profile-copy"><span className="cm-profile-label">Unsold items</span><span className="cm-profile-value">{consignor.unsoldPreference || 'Please return'}</span></span></div>
           </div>
         </section>
 
-        <div className="consignment-consignor-stats">
-          <div className="consignment-consignor-stat"><span>Amount due</span><strong>{money(amountDue)}</strong></div>
-          <div className="consignment-consignor-stat"><span>Total sales</span><strong>{money(totalSales)}</strong></div>
-          <div className="consignment-consignor-stat"><span>Active items</span><strong>{activeCount}</strong></div>
-          <div className="consignment-consignor-stat"><span>Store credit</span><strong aria-label="Not available yet">&nbsp;</strong></div>
+        <div className="cm-consignor-stats">
+          <div className="cm-consignor-stat"><span>Amount due</span><strong>{money(amountDue)}</strong></div>
+          <div className="cm-consignor-stat"><span>Total sales</span><strong>{money(totalSales)}</strong></div>
+          <div className="cm-consignor-stat"><span>Active items</span><strong>{activeCount}</strong></div>
+          <div className="cm-consignor-stat"><span>Store credit</span><strong aria-label="Not available yet">&nbsp;</strong></div>
         </div>
 
-        <div className="consignment-consignor-items-head">
+        <div className="cm-consignor-items-head">
           <h3>Items on file</h3>
-          <div className="consignment-consignor-items-tools">
-            <span className="consignment-consignor-items-count">{consignorItems.length} total · {draftCount} draft</span>
-            <div className="consignment-consignor-view-toggle" aria-label="Choose item view">
+          <div className="cm-consignor-items-tools">
+            <span className="cm-consignor-items-count">{consignorItems.length} total · {draftCount} pending</span>
+            <div className="cm-consignor-view-toggle" aria-label="Choose item view">
               <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={14} /> List</button>
               <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={14} /> Grid</button>
             </div>
@@ -3275,36 +3074,36 @@ function ConsignorScreen({ consignor, items, onBack, onStartIntake, onOpenItem, 
         </div>
 
         {consignorItems.length === 0 && (
-          <div className="consignment-empty">
+          <div className="jatb-empty">
             <h3>No items yet</h3>
             <p>Add what they brought in today.</p>
           </div>
         )}
 
-        <div className={`consignment-consignor-item-list ${viewMode === 'grid' ? 'grid' : ''}`}>
+        <div className={`cm-consignor-item-list ${viewMode === 'grid' ? 'grid' : ''}`}>
           {consignorItems.map((item) => {
             const product = productLabel(item);
             const soldUnpaid = (item.status === 'Sold' || item.dateSold) && !item.paidOut;
             return (
-              <article key={item.id} className="consignment-card consignment-consignor-item">
-                <button type="button" className="consignment-consignor-item-open" onClick={() => onOpenItem(item.id)}>
-                  <span className="consignment-batch-thumb" style={{ width: 48, height: 48, borderRadius: 10 }}>
+              <article key={item.id} className="jatb-card cm-consignor-item">
+                <button type="button" className="cm-consignor-item-open" onClick={() => onOpenItem(item.id)}>
+                  <span className="jatb-batch-thumb" style={{ width: 48, height: 48, borderRadius: 10 }}>
                     {item.photo ? <img src={item.photo} alt="" /> : <Tag size={18} color="var(--green-dark)" />}
                   </span>
-                  <span className="consignment-consignor-item-copy">
-                    <span className="consignment-consignor-item-title">{item.description || item.category}</span>
-                    <span className="consignment-consignor-item-meta">{item.itemNumber} · {item.size ? `Size ${item.size} · ` : ''}{money(item.price)}</span>
-                    <span className="consignment-consignor-item-meta">Product type: {item.type || item.category || 'Not set'}</span>
-                    {item.paidOut && <span className="consignment-paid-detail">Paid {item.payoutDate || ''} · {item.payoutMethod || 'Method not recorded'} · {money(item.payoutAmount)}</span>}
+                  <span className="cm-consignor-item-copy">
+                    <span className="cm-consignor-item-title">{item.description || item.category}</span>
+                    <span className="cm-consignor-item-meta">{item.itemNumber} · {item.size ? `Size ${item.size} · ` : ''}{money(item.price)}</span>
+                    <span className="cm-consignor-item-meta">Product type: {item.type || item.category || 'Not set'}</span>
+                    {item.paidOut && <span className="cm-paid-detail">Paid {item.payoutDate || ''} · {item.payoutMethod || 'Method not recorded'} · {money(item.payoutAmount)}</span>}
                   </span>
                 </button>
-                <div className="consignment-consignor-item-actions">
-                  <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
-                  <span className={`consignment-badge ${item.paidOut ? 'paid' : item.status === 'Sold' ? 'unpaid' : statusClass(item.status)}`}>
+                <div className="cm-consignor-item-actions">
+                  <span className={`cm-product-badge ${product.className}`}>{product.text}</span>
+                  <span className={`jatb-badge ${item.paidOut ? 'paid' : item.status === 'Sold' ? 'unpaid' : statusClass(item.status)}`}>
                     {item.paidOut ? 'Paid' : item.status === 'Sold' ? 'Sold · unpaid' : statusLabel(item.status)}
                   </span>
                   {soldUnpaid ? (
-                    <button type="button" className="consignment-consignor-pay-btn" onClick={() => onStartPayout(consignor.id)}>Review &amp; pay</button>
+                    <button type="button" className="cm-consignor-pay-btn" onClick={() => onStartPayout(consignor.id)}>Review &amp; pay</button>
                   ) : <span aria-hidden="true" />}
                 </div>
               </article>
@@ -3313,11 +3112,11 @@ function ConsignorScreen({ consignor, items, onBack, onStartIntake, onOpenItem, 
         </div>
 
         {confirmingDeleteConsignor && (
-          <div className="consignment-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="jatb-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 13 }}>Delete {consignor.firstName} {consignor.lastName} for good?</span>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button className="consignment-btn secondary" style={{ padding: '8px 14px' }} onClick={() => setConfirmingDeleteConsignor(false)}>Cancel</button>
-              <button className="consignment-btn danger" style={{ padding: '8px 14px' }} onClick={() => onDeleteConsignor(consignor.id)}>Delete</button>
+              <button className="jatb-btn secondary" style={{ padding: '8px 14px' }} onClick={() => setConfirmingDeleteConsignor(false)}>Cancel</button>
+              <button className="jatb-btn danger" style={{ padding: '8px 14px' }} onClick={() => onDeleteConsignor(consignor.id)}>Delete</button>
             </div>
           </div>
         )}
@@ -3342,35 +3141,35 @@ function ConsignmentItemFields({ form, setForm }) {
   }
 
   return (
-    <div className="consignment-card consignment-detail-card">
-      <div className="consignment-section-heading">
-        <label className="consignment-label">Consignment item information</label>
-        <span className="consignment-row-sub">Manual metaobject record</span>
+    <div className="jatb-card jatb-detail-card">
+      <div className="jatb-section-heading">
+        <label className="jatb-label">Consignment item information</label>
+        <span className="jatb-row-sub">Manual metaobject record</span>
       </div>
-      <div className="consignment-detail-grid">
-        <div className="consignment-field">
-          <label className="consignment-label">Category</label>
-          <select className="consignment-select" value={form.category} onChange={(event) => setCategory(event.target.value)}>
+      <div className="jatb-detail-grid">
+        <div className="jatb-field">
+          <label className="jatb-label">Category</label>
+          <select className="jatb-select" value={form.category} onChange={(event) => setCategory(event.target.value)}>
             {CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}
           </select>
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Brand</label>
-          <input className="consignment-input" value={form.brand} onChange={set('brand')} placeholder="e.g. Gap" />
+        <div className="jatb-field">
+          <label className="jatb-label">Brand</label>
+          <input className="jatb-input" value={form.brand} onChange={set('brand')} placeholder="e.g. Gap" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Size</label>
-          <input className="consignment-input" value={form.size} onChange={set('size')} placeholder="Optional" />
+        <div className="jatb-field">
+          <label className="jatb-label">Size</label>
+          <input className="jatb-input" value={form.size} onChange={set('size')} placeholder="Optional" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Condition</label>
-          <select className="consignment-select" value={form.condition} onChange={set('condition')}>
+        <div className="jatb-field">
+          <label className="jatb-label">Condition</label>
+          <select className="jatb-select" value={form.condition} onChange={set('condition')}>
             {CONDITIONS.map((condition) => <option key={condition} value={condition}>{condition}</option>)}
           </select>
         </div>
-        <div className="consignment-field wide">
-          <label className="consignment-label">Internal notes</label>
-          <textarea className="consignment-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Notes about this consigned item" />
+        <div className="jatb-field wide">
+          <label className="jatb-label">Internal notes</label>
+          <textarea className="jatb-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Notes about this consigned item" />
         </div>
       </div>
     </div>
@@ -3404,28 +3203,28 @@ function ShopifyProductFields({ form, setForm }) {
   }));
 
   return (
-    <div className="consignment-shopify-fields">
-      <div className="consignment-detail-grid">
-        <div className="consignment-field wide">
-          <label className="consignment-label">Shopify title *</label>
-          <input className="consignment-input" value={form.shopifyTitle || ''} onChange={set('shopifyTitle')} placeholder="Required Shopify product title" />
+    <div className="jatb-shopify-fields">
+      <div className="jatb-detail-grid">
+        <div className="jatb-field wide">
+          <label className="jatb-label">Shopify title *</label>
+          <input className="jatb-input" value={form.shopifyTitle || ''} onChange={set('shopifyTitle')} placeholder="Required Shopify product title" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Shopify price</label>
-          <input className="consignment-input" type="number" inputMode="decimal" min="0" step="0.01" value={form.shopifyPrice ?? ''} onChange={set('shopifyPrice')} placeholder="Defaults to the manual item price" />
+        <div className="jatb-field">
+          <label className="jatb-label">Shopify price</label>
+          <input className="jatb-input" type="number" inputMode="decimal" min="0" step="0.01" value={form.shopifyPrice ?? ''} onChange={set('shopifyPrice')} placeholder="Defaults to the manual item price" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Vendor</label>
-          <input className="consignment-input" value={form.vendor} onChange={set('vendor')} placeholder="Defaults to store name" />
+        <div className="jatb-field">
+          <label className="jatb-label">Vendor</label>
+          <input className="jatb-input" value={form.vendor} onChange={set('vendor')} placeholder="Defaults to store name" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Tags</label>
-          <input className="consignment-input" value={form.tags} onChange={set('tags')} placeholder="summer, baby" />
+        <div className="jatb-field">
+          <label className="jatb-label">Tags</label>
+          <input className="jatb-input" value={form.tags} onChange={set('tags')} placeholder="summer, baby" />
         </div>
-        <div className="consignment-field wide">
-          <label className="consignment-label">Shopify product category</label>
+        <div className="jatb-field wide">
+          <label className="jatb-label">Shopify product category</label>
           <input
-            className="consignment-input"
+            className="jatb-input"
             value={categorySearch}
             onChange={(event) => {
               setCategorySearch(event.target.value);
@@ -3435,14 +3234,14 @@ function ShopifyProductFields({ form, setForm }) {
             }}
             placeholder="Search Shopify categories"
           />
-          {searchingCategories && <div className="consignment-row-sub" style={{ marginTop: 6 }}>Searching Shopify…</div>}
+          {searchingCategories && <div className="jatb-row-sub" style={{ marginTop: 6 }}>Searching Shopify…</div>}
           {categoryResults.length > 0 && (
-            <div className="consignment-category-results">
+            <div className="jatb-category-results">
               {categoryResults.map((category) => (
                 <button
                   key={category.id}
                   type="button"
-                  className="consignment-category-result"
+                  className="jatb-category-result"
                   onClick={() => {
                     setForm((current) => ({
                       ...current,
@@ -3459,11 +3258,11 @@ function ShopifyProductFields({ form, setForm }) {
             </div>
           )}
           {form.shopifyCategoryId && (
-            <div className="consignment-selected-category">
+            <div className="jatb-selected-category">
               <span>{form.shopifyCategoryName}</span>
               <button
                 type="button"
-                className="consignment-batch-remove"
+                className="jatb-batch-remove"
                 aria-label="Remove Shopify category"
                 onClick={() => {
                   setForm((current) => ({ ...current, shopifyCategoryId: '', shopifyCategoryName: '' }));
@@ -3475,17 +3274,17 @@ function ShopifyProductFields({ form, setForm }) {
             </div>
           )}
         </div>
-        <div className="consignment-field wide">
-          <label className="consignment-label">Product description</label>
-          <textarea className="consignment-textarea" rows={3} value={form.productDescription} onChange={set('productDescription')} placeholder="Shown to customers on Shopify" />
+        <div className="jatb-field wide">
+          <label className="jatb-label">Product description</label>
+          <textarea className="jatb-textarea" rows={3} value={form.productDescription} onChange={set('productDescription')} placeholder="Shown to customers on Shopify" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">SEO title</label>
-          <input className="consignment-input" value={form.seoTitle} onChange={set('seoTitle')} placeholder="Defaults to item title" />
+        <div className="jatb-field">
+          <label className="jatb-label">SEO title</label>
+          <input className="jatb-input" value={form.seoTitle} onChange={set('seoTitle')} placeholder="Defaults to item title" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">SEO description</label>
-          <textarea className="consignment-textarea" rows={2} value={form.seoDescription} onChange={set('seoDescription')} placeholder="Optional search description" />
+        <div className="jatb-field">
+          <label className="jatb-label">SEO description</label>
+          <textarea className="jatb-textarea" rows={2} value={form.seoDescription} onChange={set('seoDescription')} placeholder="Optional search description" />
         </div>
       </div>
     </div>
@@ -3504,48 +3303,48 @@ function ManualItemCore({
   const setCategory = (category) => setForm((current) => ({ ...current, category, type: '' }));
 
   return (
-    <div className="consignment-card">
-      <div className="consignment-intake-primary-fields">
-        <div className="consignment-field">
-          <label className="consignment-label">Item description *</label>
-          <input className="consignment-input" value={form.description} onChange={set('description')} placeholder="What is it?" />
+    <div className="jatb-card">
+      <div className="jatb-intake-primary-fields">
+        <div className="jatb-field">
+          <label className="jatb-label">Item description *</label>
+          <input className="jatb-input" value={form.description} onChange={set('description')} placeholder="What is it?" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Price *</label>
-          <input className="consignment-input" type="number" inputMode="decimal" min="0" step="0.01" value={form.price} onChange={set('price')} placeholder="0.00" />
+        <div className="jatb-field">
+          <label className="jatb-label">Price *</label>
+          <input className="jatb-input" type="number" inputMode="decimal" min="0" step="0.01" value={form.price} onChange={set('price')} placeholder="0.00" />
         </div>
       </div>
 
       <div style={{ height: 1, background: 'var(--line)', margin: '18px 0' }} />
 
-      <div className="consignment-section-heading">
-        <label className="consignment-label">Consignment item information</label>
-        <span className="consignment-row-sub">Manual metaobject record</span>
+      <div className="jatb-section-heading">
+        <label className="jatb-label">Consignment item information</label>
+        <span className="jatb-row-sub">Manual metaobject record</span>
       </div>
-      <div className="consignment-detail-grid">
-        <div className="consignment-field">
-          <label className="consignment-label">Category</label>
-          <select className="consignment-select" value={form.category} onChange={(event) => setCategory(event.target.value)}>
+      <div className="jatb-detail-grid">
+        <div className="jatb-field">
+          <label className="jatb-label">Category</label>
+          <select className="jatb-select" value={form.category} onChange={(event) => setCategory(event.target.value)}>
             {CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}
           </select>
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Brand</label>
-          <input className="consignment-input" value={form.brand} onChange={set('brand')} placeholder="e.g. Gap" />
+        <div className="jatb-field">
+          <label className="jatb-label">Brand</label>
+          <input className="jatb-input" value={form.brand} onChange={set('brand')} placeholder="e.g. Gap" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Size</label>
-          <input className="consignment-input" value={form.size} onChange={set('size')} placeholder="Optional" />
+        <div className="jatb-field">
+          <label className="jatb-label">Size</label>
+          <input className="jatb-input" value={form.size} onChange={set('size')} placeholder="Optional" />
         </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Condition</label>
-          <select className="consignment-select" value={form.condition} onChange={set('condition')}>
+        <div className="jatb-field">
+          <label className="jatb-label">Condition</label>
+          <select className="jatb-select" value={form.condition} onChange={set('condition')}>
             {CONDITIONS.map((condition) => <option key={condition} value={condition}>{condition}</option>)}
           </select>
         </div>
-        <div className="consignment-field wide">
-          <label className="consignment-label">Internal notes</label>
-          <textarea className="consignment-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Notes about this consigned item" />
+        <div className="jatb-field wide">
+          <label className="jatb-label">Internal notes</label>
+          <textarea className="jatb-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Notes about this consigned item" />
         </div>
       </div>
 
@@ -3553,9 +3352,9 @@ function ManualItemCore({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div>
           <strong style={{ display: 'block', fontSize: 14 }}>Manual consignment record</strong>
-          <span className="consignment-row-sub" style={{ display: 'block', marginTop: 3 }}>{helperText}</span>
+          <span className="jatb-row-sub" style={{ display: 'block', marginTop: 3 }}>{helperText}</span>
         </div>
-        <button className="consignment-btn" disabled={saveDisabled} onClick={onSave}>
+        <button className="jatb-btn" disabled={saveDisabled} onClick={onSave}>
           <Check size={18} /> {saveLabel}
         </button>
       </div>
@@ -3579,30 +3378,30 @@ function ShopifyProductSection({
 }) {
   const canSync = Boolean(onSync);
   return (
-    <details className="consignment-card consignment-shopify-section" open={Boolean(linkedProductId)}>
-      <summary className="consignment-shopify-summary">
+    <details className="jatb-card jatb-shopify-section" open={Boolean(linkedProductId)}>
+      <summary className="jatb-shopify-summary">
         <span>
           <ShoppingBag size={17} />
           <strong>Shopify product</strong>
         </span>
-        <span className="consignment-row-sub">{linkedProductId ? 'Connected' : 'Separate optional workflow'}</span>
+        <span className="jatb-row-sub">{linkedProductId ? 'Connected' : 'Separate optional workflow'}</span>
       </summary>
-      <div className="consignment-shopify-content">
-        <p className="consignment-shopify-help">
+      <div className="jatb-shopify-content">
+        <p className="jatb-shopify-help">
           This section only controls the linked Shopify product. Manual item saving never creates or updates a Shopify product.
         </p>
-        <div className="consignment-shopify-photo-row">
+        <div className="jatb-shopify-photo-row">
           <PhotoPicker value={shopifyForm.photo} onChange={(value) => setShopifyForm((current) => ({ ...current, photo: value }))} />
           <ShopifyProductFields form={shopifyForm} setForm={setShopifyForm} />
         </div>
-        <label className="consignment-product-choice">
+        <label className="jatb-product-choice">
           <input type="checkbox" checked={shopifyForm.publishToPos !== false} onChange={(event) => setShopifyForm((current) => ({ ...current, publishToPos: event.target.checked }))} />
           <span>
             <strong>Create Shopify product</strong>
             <span>Creates or updates an Active product with inventory of one and publishes it to Point of Sale.</span>
           </span>
         </label>
-        <label className="consignment-product-choice online">
+        <label className="jatb-product-choice online">
           <input type="checkbox" checked={shopifyForm.publishOnline === true} onChange={(event) => setShopifyForm((current) => ({ ...current, publishOnline: event.target.checked }))} />
           <span>
             <strong>Also publish to Online Store</strong>
@@ -3616,27 +3415,27 @@ function ShopifyProductSection({
           </p>
         )}
         {!linkedProductId ? (
-          <button className="consignment-btn" style={{ marginTop: 14 }} disabled={!canSync || disabled || syncing || shopifyForm.publishToPos === false || !String(shopifyForm.shopifyTitle || '').trim()} onClick={onSync}>
-            {syncing ? <Loader2 className="consignment-spin" size={16} /> : <ShoppingBag size={16} />}
+          <button className="jatb-btn" style={{ marginTop: 14 }} disabled={!canSync || disabled || syncing || shopifyForm.publishToPos === false || !String(shopifyForm.shopifyTitle || '').trim()} onClick={onSync}>
+            {syncing ? <Loader2 className="jatb-spin" size={16} /> : <ShoppingBag size={16} />}
             Create Shopify product
           </button>
         ) : (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
-            <button className="consignment-btn" disabled={!canSync || disabled || syncing || shopifyForm.publishToPos === false || !String(shopifyForm.shopifyTitle || '').trim()} onClick={onSync}>
-              {syncing ? <Loader2 className="consignment-spin" size={16} /> : <Check size={16} />}
+            <button className="jatb-btn" disabled={!canSync || disabled || syncing || shopifyForm.publishToPos === false || !String(shopifyForm.shopifyTitle || '').trim()} onClick={onSync}>
+              {syncing ? <Loader2 className="jatb-spin" size={16} /> : <Check size={16} />}
               Update Shopify product
             </button>
-            <a className="consignment-btn secondary" href={productAdminUrl(linkedProductId)} target="_top">
+            <a className="jatb-btn secondary" href={productAdminUrl(linkedProductId)} target="_top">
               <span aria-hidden="true">↗</span> Edit in Shopify
             </a>
           </div>
         )}
         {linkedProductId && (
-          <div className="consignment-row-sub" style={{ marginTop: 8 }}>
+          <div className="jatb-row-sub" style={{ marginTop: 8 }}>
             Changes made in Shopify are loaded back into this section whenever the app refreshes. Changes made here are sent to Shopify with “Update Shopify product”.
           </div>
         )}
-        {!canSync && <div className="consignment-row-sub" style={{ marginTop: 8 }}>Save the manual item first, then the Shopify product can be created and synced here.</div>}
+        {!canSync && <div className="jatb-row-sub" style={{ marginTop: 8 }}>Save the manual item first, then the Shopify product can be created and synced here.</div>}
       </div>
     </details>
   );
@@ -3671,25 +3470,25 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch }) {
   return (
     <>
       <Header eyebrow={`For ${consignor.firstName} ${consignor.lastName} · #${consignor.number}`} title="Add items" onBack={onBack} />
-      <div className="consignment-body">
+      <div className="jatb-body">
         {batch.length > 0 && (
           <div style={{ marginBottom: 18 }}>
-            <label className="consignment-label">Manual items ready to save ({batch.length})</label>
+            <label className="jatb-label">Manual items ready to save ({batch.length})</label>
             {batch.map((entry, index) => (
-              <div key={`${entry.description}-${index}`} className="consignment-batch-item">
-                <div className="consignment-batch-thumb"><Tag size={16} color="var(--green-dark)" /></div>
+              <div key={`${entry.description}-${index}`} className="jatb-batch-item">
+                <div className="jatb-batch-thumb"><Tag size={16} color="var(--green-dark)" /></div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: 13 }}>{entry.description}</div>
                   <div style={{ fontSize: 12, color: 'var(--muted)' }}>{entry.category} · {money(entry.price)}</div>
                 </div>
-                <button className="consignment-batch-remove" onClick={() => setBatch((current) => current.filter((_, itemIndex) => itemIndex !== index))} aria-label="Remove"><X size={14} /></button>
+                <button className="jatb-batch-remove" onClick={() => setBatch((current) => current.filter((_, itemIndex) => itemIndex !== index))} aria-label="Remove"><X size={14} /></button>
               </div>
             ))}
           </div>
         )}
-        <div className="consignment-section-heading">
-          <label className="consignment-label">{batch.length > 0 ? 'Next manual item' : 'Manual consignment item'}</label>
-          <span className="consignment-item-number">{nextItemNumber}</span>
+        <div className="jatb-section-heading">
+          <label className="jatb-label">{batch.length > 0 ? 'Next manual item' : 'Manual consignment item'}</label>
+          <span className="jatb-item-number">{nextItemNumber}</span>
         </div>
         <ManualItemCore
           form={form}
@@ -3698,7 +3497,7 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch }) {
           saveDisabled={saveCount === 0}
           saveLabel={saveCount === 1 ? 'Save manual item' : `Save ${saveCount} manual items`}
         />
-        <button className="consignment-btn secondary consignment-add-another" disabled={!canAdd} onClick={addToBatch}>
+        <button className="jatb-btn secondary jatb-add-another" disabled={!canAdd} onClick={addToBatch}>
           <Plus size={16} /> Add another manual item
         </button>
         <ShopifyProductSection shopifyForm={shopifyForm} setShopifyForm={setShopifyForm} />
@@ -3747,10 +3546,10 @@ function EditItemScreen({
   return (
     <>
       <Header eyebrow={`Item ${item.itemNumber}`} title="Edit item" onBack={onBack} />
-      <div className="consignment-body">
-        <div className="consignment-section-heading">
-          <label className="consignment-label">Manual consignment item</label>
-          <span className="consignment-item-number">{item.itemNumber}</span>
+      <div className="jatb-body">
+        <div className="jatb-section-heading">
+          <label className="jatb-label">Manual consignment item</label>
+          <span className="jatb-item-number">{item.itemNumber}</span>
         </div>
         <ManualItemCore
           form={form}
@@ -3761,18 +3560,18 @@ function EditItemScreen({
           helperText="Updates only the consignment item metaobject. Shopify product data and media are handled separately below."
         />
 
-        <div className="consignment-status-card">
+        <div className="jatb-status-card">
           {!isSold && (
-            <div className="consignment-manual-sale">
-              <div className="consignment-manual-sale-copy"><strong>Manual sale</strong><span>Only use for a sale outside Shopify.</span></div>
-              <div className="consignment-manual-sale-controls">
-                <div className="consignment-field"><label className="consignment-label">Sale price</label><input className="consignment-input" type="number" inputMode="decimal" min="0" step="0.01" value={salePrice} onChange={(event) => setSalePrice(event.target.value)} /></div>
-                <button className="consignment-btn consignment-sold-btn" disabled={statusSaving || salePrice === ''} onClick={async () => { setStatusSaving(true); try { await onUpdateStatus(item.id, 'Sold', { salePrice, dateSold }); } finally { setStatusSaving(false); } }}>Sold</button>
+            <div className="jatb-manual-sale">
+              <div className="jatb-manual-sale-copy"><strong>Manual sale</strong><span>Only use for a sale outside Shopify.</span></div>
+              <div className="jatb-manual-sale-controls">
+                <div className="jatb-field"><label className="jatb-label">Sale price</label><input className="jatb-input" type="number" inputMode="decimal" min="0" step="0.01" value={salePrice} onChange={(event) => setSalePrice(event.target.value)} /></div>
+                <button className="jatb-btn jatb-sold-btn" disabled={statusSaving || salePrice === ''} onClick={async () => { setStatusSaving(true); try { await onUpdateStatus(item.id, 'Sold', { salePrice, dateSold }); } finally { setStatusSaving(false); } }}>Sold</button>
               </div>
             </div>
           )}
-          {isSold && !isPaid && <div className="consignment-sold-status"><span className="consignment-badge unpaid">Sold · unpaid</span><span className="consignment-row-sub">Waiting in Payouts for payment.</span></div>}
-          {isPaid && <div className="consignment-status-actions"><span className="consignment-badge paid">Paid</span><span className="consignment-paid-detail">{item.payoutDate || ''} · {item.payoutMethod || 'Payment recorded'} · {money(item.payoutAmount)}</span></div>}
+          {isSold && !isPaid && <div className="jatb-sold-status"><span className="jatb-badge unpaid">Sold · unpaid</span><span className="jatb-row-sub">Waiting in Payouts for payment.</span></div>}
+          {isPaid && <div className="jatb-status-actions"><span className="jatb-badge paid">Paid</span><span className="cm-paid-detail">{item.payoutDate || ''} · {item.payoutMethod || 'Payment recorded'} · {money(item.payoutAmount)}</span></div>}
         </div>
 
         <ShopifyProductSection
@@ -3789,11 +3588,11 @@ function EditItemScreen({
         />
 
         {!confirmingDelete ? (
-          <button className="consignment-btn secondary" style={{ color: 'var(--danger)', borderColor: 'var(--danger-soft)' }} onClick={() => setConfirmingDelete(true)}><Trash2 size={16} /> Delete item</button>
+          <button className="jatb-btn secondary" style={{ color: 'var(--danger)', borderColor: 'var(--danger-soft)' }} onClick={() => setConfirmingDelete(true)}><Trash2 size={16} /> Delete item</button>
         ) : (
-          <div className="consignment-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="jatb-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 13 }}>Delete {item.itemNumber} and its linked Shopify product?</span>
-            <div style={{ display: 'flex', gap: 8 }}><button className="consignment-btn secondary" style={{ padding: '8px 14px' }} onClick={() => setConfirmingDelete(false)}>Cancel</button><button className="consignment-btn danger" style={{ padding: '8px 14px' }} onClick={() => onDelete(item.id)}>Delete</button></div>
+            <div style={{ display: 'flex', gap: 8 }}><button className="jatb-btn secondary" style={{ padding: '8px 14px' }} onClick={() => setConfirmingDelete(false)}>Cancel</button><button className="jatb-btn danger" style={{ padding: '8px 14px' }} onClick={() => onDelete(item.id)}>Delete</button></div>
           </div>
         )}
       </div>
@@ -3839,13 +3638,13 @@ export default function ConsignmentIntakeApp() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-    document.querySelector('.consignment-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.querySelector('.jatb-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     setShowBackToTop(false);
   }, [view]);
 
   useEffect(() => {
     if (!ready) return undefined;
-    const body = document.querySelector('.consignment-body');
+    const body = document.querySelector('.jatb-body');
     const updateBackToTop = () => {
       setShowBackToTop(window.scrollY > 280 || (body?.scrollTop || 0) > 280);
     };
@@ -3860,7 +3659,7 @@ export default function ConsignmentIntakeApp() {
 
   function scrollToTop() {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-    document.querySelector('.consignment-body')?.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    document.querySelector('.jatb-body')?.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   }
 
   function flash(msg) {
@@ -4050,19 +3849,19 @@ export default function ConsignmentIntakeApp() {
   }
 
   return (
-    <div className="consignment">
+    <div className="jatb">
       <GlobalStyle />
       {ready && <AppNavigation view={navigationView} onNavigate={navigate} />}
-      {toast && <div className="consignment-toast"><Check size={14} /> {toast}</div>}
+      {toast && <div className="jatb-toast"><Check size={14} /> {toast}</div>}
       {error && (
-        <div className="consignment-toast" style={{ background: 'var(--danger)', top: 12 }}>
+        <div className="jatb-toast" style={{ background: 'var(--danger)', top: 12 }}>
           <X size={14} /> {error}
         </div>
       )}
 
       {!ready && (
-        <div className="consignment-loading">
-          <Loader2 className="consignment-spin" size={22} />
+        <div className="jatb-loading">
+          <Loader2 className="jatb-spin" size={22} />
         </div>
       )}
 
@@ -4084,8 +3883,6 @@ export default function ConsignmentIntakeApp() {
           query={query}
           setQuery={setQuery}
           onOpenConsignor={openConsignor}
-          onOpenItem={openItem}
-          onMarkSold={(itemId, details) => handleUpdateItemStatus(itemId, 'Sold', details)}
           onNewConsignor={() => startNewConsignor('consignor', 'home')}
           onNewItem={startNewItem}
           onImport={() => startImport('consignors', 'home')}
@@ -4207,7 +4004,7 @@ export default function ConsignmentIntakeApp() {
       )}
 
       {ready && showBackToTop && (
-        <button className="consignment-back-to-top" type="button" onClick={scrollToTop} aria-label="Back to top" title="Back to top">
+        <button className="jatb-back-to-top" type="button" onClick={scrollToTop} aria-label="Back to top" title="Back to top">
           <ArrowUp size={20} aria-hidden="true" />
         </button>
       )}
