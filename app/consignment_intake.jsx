@@ -3576,8 +3576,9 @@ function ShopifyProductSection({
   disabled = false,
   onSync = null,
   syncing = false,
+  tier2Enabled = true,
 }) {
-  const canSync = Boolean(onSync);
+  const canSync = Boolean(onSync) && tier2Enabled;
   return (
     <details className="consignment-card consignment-shopify-section" open={Boolean(linkedProductId)}>
       <summary className="consignment-shopify-summary">
@@ -3585,9 +3586,25 @@ function ShopifyProductSection({
           <ShoppingBag size={17} />
           <strong>Shopify product</strong>
         </span>
-        <span className="consignment-row-sub">{linkedProductId ? 'Connected' : 'Separate optional workflow'}</span>
+        <span className="consignment-row-sub">
+          {!tier2Enabled ? 'Requires Manual + Shopify Sync plan' : linkedProductId ? 'Connected' : 'Separate optional workflow'}
+        </span>
       </summary>
       <div className="consignment-shopify-content">
+        {!tier2Enabled && (
+          <div className="consignment-shopify-upsell" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+            marginBottom: 14, padding: '10px 12px', borderRadius: 8,
+            background: 'var(--surface-muted, #f5f5f5)', border: '1px solid var(--border, #e2e2e2)',
+          }}>
+            <span style={{ fontSize: 13 }}>
+              Creating and syncing Shopify products is part of the <strong>Manual + Shopify Sync</strong> plan.
+            </span>
+            <a className="consignment-btn" style={{ flexShrink: 0 }} href="/app/plans" target="_top">
+              Upgrade plan
+            </a>
+          </div>
+        )}
         <p className="consignment-shopify-help">
           This section only controls the linked Shopify product. Manual item saving never creates or updates a Shopify product.
         </p>
@@ -3636,13 +3653,13 @@ function ShopifyProductSection({
             Changes made in Shopify are loaded back into this section whenever the app refreshes. Changes made here are sent to Shopify with “Update Shopify product”.
           </div>
         )}
-        {!canSync && <div className="consignment-row-sub" style={{ marginTop: 8 }}>Save the manual item first, then the Shopify product can be created and synced here.</div>}
+        {tier2Enabled && !canSync && <div className="consignment-row-sub" style={{ marginTop: 8 }}>Save the manual item first, then the Shopify product can be created and synced here.</div>}
       </div>
     </details>
   );
 }
 
-function IntakeScreen({ consignor, items, onBack, onSaveBatch }) {
+function IntakeScreen({ consignor, items, onBack, onSaveBatch, tier2Enabled = false }) {
   const emptyForm = {
     category: 'Clothing', type: '', description: '', size: '', condition: 'Good',
     price: '', brand: '', notes: '',
@@ -3701,7 +3718,7 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch }) {
         <button className="consignment-btn secondary consignment-add-another" disabled={!canAdd} onClick={addToBatch}>
           <Plus size={16} /> Add another manual item
         </button>
-        <ShopifyProductSection shopifyForm={shopifyForm} setShopifyForm={setShopifyForm} />
+        <ShopifyProductSection shopifyForm={shopifyForm} setShopifyForm={setShopifyForm} tier2Enabled={tier2Enabled} />
       </div>
     </>
   );
@@ -3715,6 +3732,7 @@ function EditItemScreen({
   onDelete,
   onSyncProduct,
   onUpdateStatus,
+  tier2Enabled = false,
 }) {
   const [form, setForm] = useState({
     category: item.category || 'Other', type: '', description: item.description || '',
@@ -3782,6 +3800,7 @@ function EditItemScreen({
           linkedStatus={item.shopifyProductStatus}
           disabled={isSold}
           syncing={syncing}
+          tier2Enabled={tier2Enabled}
           onSync={async () => {
             setSyncing(true);
             try { await onSyncProduct(item.id, shopifyForm); } finally { setSyncing(false); }
@@ -3803,7 +3822,8 @@ function EditItemScreen({
 
 /* ---------- app ---------- */
 
-export default function ConsignmentIntakeApp() {
+export default function ConsignmentIntakeApp({ activePlan = null }) {
+  const tier2Enabled = activePlan === 'TIER2';
   const [ready, setReady] = useState(false);
   const [consignors, setConsignors] = useState([]);
   const [items, setItems] = useState([]);
@@ -4192,6 +4212,7 @@ export default function ConsignmentIntakeApp() {
           items={items}
           onBack={() => setView('consignor')}
           onSaveBatch={handleSaveBatch}
+          tier2Enabled={tier2Enabled}
         />
       )}
 
@@ -4203,6 +4224,7 @@ export default function ConsignmentIntakeApp() {
           onDelete={handleDeleteItemFromEdit}
           onSyncProduct={handleSyncProduct}
           onUpdateStatus={handleUpdateItemStatus}
+          tier2Enabled={tier2Enabled}
         />
       )}
 

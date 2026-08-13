@@ -7,6 +7,6 @@ import ConsignmentIntakeApp from './consignment_intake';
  * changes must be implemented inside consignment_intake.jsx so navigation,
  * form state, image saving, and Shopify actions remain reliable.
  */
-export default function TierOneConsignmentApp() {
-  return <ConsignmentIntakeApp />;
+export default function TierOneConsignmentApp({ activePlan = null }) {
+  return <ConsignmentIntakeApp activePlan={activePlan} />;
 }

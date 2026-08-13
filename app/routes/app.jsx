@@ -3,6 +3,7 @@ import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
 import { authenticate } from "../shopify.server";
 import { ensureMetaobjectsInstalled } from "../metaobjects.server";
+import { getActivePlan } from "../billing.server";
 
 export const loader = async ({ request }) => {
   const { admin, session } = await authenticate.admin(request);
@@ -13,6 +14,17 @@ export const loader = async ({ request }) => {
     // registration on this shop. Reads/writes to existing entries still work.
     // Visit /app/setup to retry manually if a genuinely new field is needed.
     console.warn(`Metaobject setup skipped for ${session.shop}:`, setup.errors);
+  }
+
+  // Send merchants with no active subscription to the plan picker before
+  // they see anything else. Skip the check on /app/plans itself to avoid a
+  // redirect loop.
+  const url = new URL(request.url);
+  if (url.pathname !== "/app/plans") {
+    const activePlan = await getActivePlan(admin);
+    if (!activePlan) {
+      throw new Response(null, { status: 302, headers: { Location: "/app/plans" } });
+    }
   }
 
   // eslint-disable-next-line no-undef
