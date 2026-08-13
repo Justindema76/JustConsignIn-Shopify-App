@@ -1,4 +1,6 @@
 import { authenticate } from '../shopify.server';
+import { ensureMetaobjectsInstalled } from '../metaobjects.server';
+import { requireTier2 } from '../billing.server';
 
 const DATA_QUERY = `#graphql
   query ConsignmentData {
@@ -255,6 +257,82 @@ const METAFIELDS_SET_MUTATION = `#graphql
   }
 `;
 
+const METAOBJECT_DEFINITION_QUERY = `#graphql
+  query ConsignmentItemDefinition($type: String!) {
+    metaobjectDefinitionByType(type: $type) {
+      id
+      fieldDefinitions {
+        key
+        type { name }
+      }
+    }
+  }
+`;
+
+const METAOBJECT_DEFINITION_UPDATE_MUTATION = `#graphql
+  mutation AddConsignmentItemField(
+    $id: ID!
+    $definition: MetaobjectDefinitionUpdateInput!
+  ) {
+    metaobjectDefinitionUpdate(id: $id, definition: $definition) {
+      metaobjectDefinition { id }
+      userErrors { field message code }
+    }
+  }
+`;
+
+const METAOBJECT_DEFINITION_CREATE_MUTATION = `#graphql
+  mutation CreateConsignmentItemDefinition(
+    $definition: MetaobjectDefinitionCreateInput!
+  ) {
+    metaobjectDefinitionCreate(definition: $definition) {
+      metaobjectDefinition {
+        id
+        type
+        fieldDefinitions {
+          key
+          type { name }
+        }
+      }
+      userErrors { field message code }
+    }
+  }
+`;
+
+const CONSIGNMENT_ITEM_FIELDS = [
+  { key: 'item_number', name: 'Item Number', type: 'single_line_text_field' },
+  { key: 'consignor', name: 'Consignor', type: 'metaobject_reference' },
+  { key: 'date_received', name: 'Date Received', type: 'date' },
+  { key: 'category', name: 'Category', type: 'single_line_text_field' },
+  { key: 'item_type', name: 'Item Type', type: 'single_line_text_field' },
+  { key: 'description', name: 'Item Description', type: 'multi_line_text_field' },
+  { key: 'size', name: 'Size', type: 'single_line_text_field' },
+  { key: 'condition', name: 'Condition', type: 'single_line_text_field' },
+  { key: 'price', name: 'Price', type: 'number_decimal' },
+  { key: 'commission_pct', name: 'Commission Percentage', type: 'number_decimal' },
+  { key: 'status', name: 'Status', type: 'single_line_text_field' },
+  { key: 'brand', name: 'Brand', type: 'single_line_text_field' },
+  { key: 'photo', name: 'Photo', type: 'file_reference' },
+  { key: 'shopify_product', name: 'Shopify Product', type: 'product_reference' },
+  { key: 'shopify_title', name: 'Shopify Title', type: 'single_line_text_field' },
+  { key: 'shopify_price', name: 'Shopify Price', type: 'number_decimal' },
+  { key: 'shopify_description', name: 'Shopify Description', type: 'multi_line_text_field' },
+  { key: 'shopify_vendor', name: 'Shopify Vendor', type: 'single_line_text_field' },
+  { key: 'shopify_tags', name: 'Shopify Tags', type: 'single_line_text_field' },
+  { key: 'shopify_category_id', name: 'Shopify Category ID', type: 'single_line_text_field' },
+  { key: 'shopify_category_name', name: 'Shopify Category Name', type: 'single_line_text_field' },
+  { key: 'publish_to_pos', name: 'Publish to POS', type: 'boolean' },
+  { key: 'publish_online', name: 'Publish Online', type: 'boolean' },
+  { key: 'seo_title', name: 'SEO Title', type: 'single_line_text_field' },
+  { key: 'seo_description', name: 'SEO Description', type: 'multi_line_text_field' },
+  { key: 'notes', name: 'Notes', type: 'multi_line_text_field' },
+  { key: 'sale_price', name: 'Sale Price', type: 'number_decimal' },
+  { key: 'date_sold', name: 'Date Sold', type: 'date' },
+  { key: 'order_name', name: 'Order Name', type: 'single_line_text_field' },
+  { key: 'order_id', name: 'Order ID', type: 'single_line_text_field' },
+  { key: 'paid_out', name: 'Paid Out', type: 'boolean' },
+];
+
 function values(node) {
   return Object.fromEntries(node.fields.map((field) => [field.key, field.jsonValue]));
 }
@@ -481,6 +559,56 @@ async function adminGraphql(admin, query, variables = {}) {
   return payload.data;
 }
 
+async function ensureConsignmentItemDefinition(admin) {
+  const data = await adminGraphql(admin, METAOBJECT_DEFINITION_QUERY, {
+    type: 'consignment_item',
+  });
+  let definition = data.metaobjectDefinitionByType;
+  if (!definition?.id) {
+    const createData = await adminGraphql(
+      admin,
+      METAOBJECT_DEFINITION_CREATE_MUTATION,
+      {
+        definition: {
+          type: 'consignment_item',
+          name: 'Consignment Item',
+          fieldDefinitions: CONSIGNMENT_ITEM_FIELDS,
+        },
+      },
+    );
+    assertNoErrors(
+      createData.metaobjectDefinitionCreate,
+      'Could not create the Consignment Item definition',
+    );
+    definition = createData.metaobjectDefinitionCreate.metaobjectDefinition;
+  }
+
+  const existingFields = new Map(
+    (definition.fieldDefinitions || []).map((entry) => [entry.key, entry.type?.name]),
+  );
+
+  // Add fields one at a time. Shopify rejects an entire batched update when one
+  // operation fails, which can leave every later field missing.
+  for (const requiredField of CONSIGNMENT_ITEM_FIELDS) {
+    if (existingFields.has(requiredField.key)) continue;
+    const updateData = await adminGraphql(
+      admin,
+      METAOBJECT_DEFINITION_UPDATE_MUTATION,
+      {
+        id: definition.id,
+        definition: {
+          fieldDefinitions: [{ create: requiredField }],
+        },
+      },
+    );
+    assertNoErrors(
+      updateData.metaobjectDefinitionUpdate,
+      `Could not add the ${requiredField.name} field`,
+    );
+    existingFields.set(requiredField.key, requiredField.type);
+  }
+}
+
 async function recordProductPayoutAudit(admin, {
   item,
   consignor,
@@ -522,14 +650,14 @@ async function recordProductPayoutAudit(admin, {
 
   const data = await adminGraphql(admin, METAFIELDS_SET_MUTATION, {
     metafields: [
-      { ownerId: item.shopifyProductId, key: 'consignment_payout_status', value: 'Paid' },
-      { ownerId: item.shopifyProductId, key: 'consignment_payout_amount', value: moneyValue },
-      { ownerId: item.shopifyProductId, key: 'consignment_payout_method', value: method },
-      { ownerId: item.shopifyProductId, key: 'consignment_payout_date', value: payoutDate },
-      { ownerId: item.shopifyProductId, key: 'consignment_payout_reference', value: paymentReference },
-      { ownerId: item.shopifyProductId, key: 'consignment_payout_consignor', value: `${consignorName} (#${consignor.number})` },
-      { ownerId: item.shopifyProductId, key: 'consignment_store_credit_amount', value: storeCreditValue },
-      { ownerId: item.shopifyProductId, key: 'consignment_payout_details', value: details },
+      { ownerId: item.shopifyProductId, namespace: 'consignment', key: 'consignment_payout_status', type: 'single_line_text_field', value: 'Paid' },
+      { ownerId: item.shopifyProductId, namespace: 'consignment', key: 'consignment_payout_amount', type: 'money', value: moneyValue },
+      { ownerId: item.shopifyProductId, namespace: 'consignment', key: 'consignment_payout_method', type: 'single_line_text_field', value: method },
+      { ownerId: item.shopifyProductId, namespace: 'consignment', key: 'consignment_payout_date', type: 'date', value: payoutDate },
+      { ownerId: item.shopifyProductId, namespace: 'consignment', key: 'consignment_payout_reference', type: 'single_line_text_field', value: paymentReference },
+      { ownerId: item.shopifyProductId, namespace: 'consignment', key: 'consignment_payout_consignor', type: 'single_line_text_field', value: `${consignorName} (#${consignor.number})` },
+      { ownerId: item.shopifyProductId, namespace: 'consignment', key: 'consignment_store_credit_amount', type: 'money', value: storeCreditValue },
+      { ownerId: item.shopifyProductId, namespace: 'consignment', key: 'consignment_payout_details', type: 'multi_line_text_field', value: details },
     ],
   });
   assertNoErrors(data.metafieldsSet, 'Could not record payout details on the Shopify product');
@@ -868,6 +996,10 @@ export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
 
   try {
+    const setup = await ensureMetaobjectsInstalled(admin);
+    if (!setup.ok) {
+      throw new Error(setup.errors.map((error) => error.message).join(', '));
+    }
     const taxonomySearch = new URL(request.url).searchParams.get('taxonomy')?.trim();
     if (taxonomySearch) {
       const taxonomyData = await adminGraphql(admin, TAXONOMY_SEARCH_QUERY, {
@@ -893,6 +1025,10 @@ export async function action({ request }) {
   const { admin } = await authenticate.admin(request);
 
   try {
+    const setup = await ensureMetaobjectsInstalled(admin);
+    if (!setup.ok) {
+      throw new Error(setup.errors.map((error) => error.message).join(', '));
+    }
     const body = await request.json();
     const current = await loadData(admin);
 
@@ -1278,6 +1414,7 @@ export async function action({ request }) {
     }
 
     if (request.method === 'POST' && body.operation === 'syncProduct') {
+      await requireTier2(admin);
       const existing = current.items.find((entry) => entry.id === body.itemId);
       if (!existing) {
         return Response.json({ error: 'Consignment item not found' }, { status: 404 });
@@ -1311,6 +1448,14 @@ export async function action({ request }) {
           { status: 400 },
         );
       }
+      const sellPrice = Number(productSource.shopifyPrice ?? productSource.price);
+      if (!Number.isFinite(sellPrice) || sellPrice <= 0) {
+        return Response.json(
+          { error: 'Enter a Shopify price greater than $0.00 before creating or updating the product.' },
+          { status: 400 },
+        );
+      }
+      productSource.shopifyPrice = sellPrice;
       const product = await syncPosProduct(admin, productSource, consignor, current.shop?.name);
       const saved = await upsert(
         admin,
