@@ -3,6 +3,7 @@
 // Plan picker screen. Merchants land here after install if they have no
 // active subscription, or any time they want to upgrade/downgrade.
 
+import { useEffect } from 'react';
 import { Form, useLoaderData, useNavigation, useActionData } from 'react-router';
 import { authenticate } from '../shopify.server';
 import { PLANS, getActivePlan, createSubscription } from '../billing.server';
@@ -44,7 +45,16 @@ export const action = async ({ request }) => {
       return { error: `createSubscription returned an invalid confirmationUrl: ${JSON.stringify(confirmationUrl)}` };
     }
 
-    return Response.redirect(confirmationUrl, 302);
+    // IMPORTANT: do NOT Response.redirect() here. This runs inside an
+    // embedded app's iframe, and a server-side 3xx redirect gets followed
+    // by the iframe's own document load — landing on
+    // admin.shopify.com/.../confirm_recurring_application_charge INSIDE the
+    // iframe, which Shopify's own anti-framing protection blocks outright
+    // ("admin.shopify.com refused to connect"). The confirmation screen has
+    // to load in the full top-level browser tab instead. So we hand the URL
+    // back as normal data, and the client breaks out of the iframe itself
+    // using target="_top" (Shopify's documented pattern for this exact case).
+    return { confirmationUrl };
   } catch (error) {
     // Catches literally anything: GraphQL client errors, network failures,
     // authenticate.admin() failures, thrown Errors from billing.server.js,
@@ -61,7 +71,16 @@ export default function PlansScreen() {
   const { activePlan, plans } = useLoaderData();
   const actionData = useActionData();
   const navigation = useNavigation();
-  const submitting = navigation.state === 'submitting';
+  const submitting = navigation.state === 'submitting' || Boolean(actionData?.confirmationUrl);
+
+  // Escape the app's iframe to load Shopify's billing confirmation screen
+  // in the full top-level browser tab. A server-side redirect can't do this
+  // — it gets blocked by admin.shopify.com's own anti-framing protection.
+  useEffect(() => {
+    if (actionData?.confirmationUrl) {
+      window.open(actionData.confirmationUrl, '_top');
+    }
+  }, [actionData?.confirmationUrl]);
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: '48px 24px 80px', fontFamily: '-apple-system, "Segoe UI", Helvetica, Arial, sans-serif' }}>
