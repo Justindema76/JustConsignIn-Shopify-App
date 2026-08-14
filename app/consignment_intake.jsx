@@ -1379,6 +1379,8 @@ function DashboardScreen({
   onNavigate,
   onNewConsignor,
   onNewItem,
+  onImport,
+  onExport,
 }) {
   const soldItems = items.filter((item) => item.status === 'Sold' || item.dateSold);
   const activeItems = items.filter((item) => ['Available', 'Active'].includes(item.status));
@@ -1388,6 +1390,31 @@ function DashboardScreen({
     (sum, item) => sum + (Number(item.salePrice ?? item.price ?? 0) * Number(item.commissionPct ?? 0)) / 100,
     0,
   );
+
+  // Consignment term / expiry tracking — expiryDate comes straight from the
+  // consignment_item metaobject's expiry_date field (already computed and
+  // stored on create/update in api.consignment.jsx). Only active,
+  // not-yet-paid-out items are counted — a sold or paid-out item's term is
+  // no longer relevant.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const in7 = new Date(today);
+  in7.setDate(in7.getDate() + 7);
+  const in30 = new Date(today);
+  in30.setDate(in30.getDate() + 30);
+
+  const itemsWithExpiry = items.filter(
+    (item) => item.expiryDate && !item.paidOut && (item.status === 'Available' || item.status === 'Active'),
+  );
+  const expiredItems = itemsWithExpiry.filter((item) => new Date(`${item.expiryDate}T00:00:00`) < today);
+  const expiring7Items = itemsWithExpiry.filter((item) => {
+    const d = new Date(`${item.expiryDate}T00:00:00`);
+    return d >= today && d <= in7;
+  });
+  const expiring30Items = itemsWithExpiry.filter((item) => {
+    const d = new Date(`${item.expiryDate}T00:00:00`);
+    return d >= today && d <= in30;
+  });
 
   const consignorBalances = consignors
     .map((consignor) => {
@@ -1436,6 +1463,13 @@ function DashboardScreen({
               <span>Choose or create a consignor</span>
             </span>
           </button>
+          <details className="consignment-data-menu">
+            <summary><FileUp size={16} /> Import / Export</summary>
+            <div className="consignment-data-menu-popover">
+              <button type="button" onClick={onImport}><FileUp size={15} /> Import CSV</button>
+              <button type="button" onClick={onExport}><Download size={15} /> Export CSV</button>
+            </div>
+          </details>
         </div>
 
         <div className="consignment-dashboard-grid">
@@ -1444,6 +1478,48 @@ function DashboardScreen({
           <MetricCard icon={TrendingUp} label="Consignment sales" value={money(totalSales)} note={`${soldItems.length} sold items`} onClick={() => onNavigate('sales')} />
           <MetricCard icon={CircleDollarSign} label="Payouts due" value={money(amountDue)} note={`${unpaidSales.length} unpaid sales`} onClick={() => onNavigate('payouts')} />
         </div>
+
+        <section className="consignment-card" style={{ marginBottom: 20 }}>
+          <div className="consignment-section-title">
+            <h2>Consignment Expiry</h2>
+          </div>
+          <p style={{ margin: '0 0 16px', color: 'var(--muted)', fontSize: 13 }}>
+            Optional term tracking. Expired items stay in inventory until you choose an action.
+          </p>
+          <div className="consignment-dashboard-grid">
+            <button
+              type="button"
+              className="consignment-expiry-stat"
+              onClick={() => onNavigate('items')}
+              style={{ textAlign: 'left', background: 'var(--card-bg, #fff)', border: '1px solid var(--line)', borderRadius: 10, padding: '16px 18px', cursor: 'pointer' }}
+            >
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--muted)' }}>Expiring in 7 days</div>
+              <div style={{ fontSize: 28, fontWeight: 700, margin: '6px 0' }}>{expiring7Items.length}</div>
+              <span className="consignment-link-button">View items →</span>
+            </button>
+            <button
+              type="button"
+              className="consignment-expiry-stat"
+              onClick={() => onNavigate('items')}
+              style={{ textAlign: 'left', background: 'var(--card-bg, #fff)', border: '1px solid var(--line)', borderRadius: 10, padding: '16px 18px', cursor: 'pointer' }}
+            >
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--muted)' }}>Expiring in 30 days</div>
+              <div style={{ fontSize: 28, fontWeight: 700, margin: '6px 0' }}>{expiring30Items.length}</div>
+              <span className="consignment-link-button">View items →</span>
+            </button>
+            <button
+              type="button"
+              className="consignment-expiry-stat"
+              onClick={() => onNavigate('items')}
+              style={{ textAlign: 'left', background: 'var(--card-bg, #fff)', border: '1px solid var(--line)', borderRadius: 10, padding: '16px 18px', cursor: 'pointer' }}
+            >
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--muted)' }}>Expired</div>
+              <div style={{ fontSize: 28, fontWeight: 700, margin: '6px 0', color: expiredItems.length > 0 ? '#c0392b' : undefined }}>{expiredItems.length}</div>
+              <span className="consignment-link-button">{expiredItems.length > 0 ? 'Action required →' : 'View items →'}</span>
+            </button>
+          </div>
+        </section>
+
 
         <div className="consignment-section-grid">
           <section className="consignment-card">
@@ -2628,7 +2704,7 @@ function HomeScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpe
       if (consignorFilter !== 'All' && consignor.id !== consignorFilter) continue;
       const matchesQuery = !q || `${consignor.firstName || ''} ${consignor.lastName || ''} ${consignor.number || ''}`.toLowerCase().includes(q);
       if (!matchesQuery) continue;
-      groups.set(consignor.id, []);
+      grouped.set(consignor.id, []);
     }
   }
 
@@ -4110,6 +4186,8 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
           onNavigate={navigate}
           onNewConsignor={() => startNewConsignor('consignor', 'dashboard')}
           onNewItem={startNewItem}
+          onImport={() => startImport('consignors', 'dashboard')}
+          onExport={() => exportConsignors(consignors)}
         />
       )}
 
