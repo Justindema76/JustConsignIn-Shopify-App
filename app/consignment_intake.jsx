@@ -3635,6 +3635,15 @@ function ManualItemCore({
             {CONDITIONS.map((condition) => <option key={condition} value={condition}>{condition}</option>)}
           </select>
         </div>
+        <div className="consignment-field">
+          <label className="consignment-label">Consignment term</label>
+          <select className="consignment-select" value={form.consignmentTerm || ''} onChange={set('consignmentTerm')}>
+            <option value="">No term</option>
+            <option value="30">30 days</option>
+            <option value="60">60 days</option>
+            <option value="90">90 days</option>
+          </select>
+        </div>
         <div className="consignment-field wide">
           <label className="consignment-label">Internal notes</label>
           <textarea className="consignment-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Notes about this consigned item" />
@@ -3754,7 +3763,7 @@ function ShopifyProductSection({
 function IntakeScreen({ consignor, items, onBack, onSaveBatch, tier2Enabled = false }) {
   const emptyForm = {
     category: 'Clothing', type: '', description: '', size: '', condition: 'Good',
-    price: '', brand: '', notes: '',
+    price: '', brand: '', notes: '', consignmentTerm: '',
   };
   const emptyShopifyForm = {
     photo: null, shopifyTitle: '', shopifyPrice: '', tags: '', vendor: '', productDescription: '', shopifyCategoryId: '',
@@ -3829,7 +3838,7 @@ function EditItemScreen({
   const [form, setForm] = useState({
     category: item.category || 'Other', type: '', description: item.description || '',
     size: item.size || '', condition: item.condition || 'Good', price: item.price ?? '',
-    brand: item.brand || '', notes: item.notes || '',
+    brand: item.brand || '', notes: item.notes || '', consignmentTerm: item.consignmentTerm || '',
   });
   const [shopifyForm, setShopifyForm] = useState({
     photo: item.shopifyPhoto || item.photo || null,

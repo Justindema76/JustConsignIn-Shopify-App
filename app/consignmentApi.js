@@ -97,6 +97,7 @@ export function createConsignmentItems(consignorId, items) {
     price: item.price,
     brand: item.brand,
     notes: item.notes,
+    consignmentTerm: item.consignmentTerm,
   }));
   return request('POST', { operation: 'createItems', consignorId, items: manualItems });
 }
@@ -114,6 +115,7 @@ export function updateConsignmentItem(itemId, item) {
       price: item.price,
       brand: item.brand,
       notes: item.notes,
+      consignmentTerm: item.consignmentTerm,
     },
   });
 }
