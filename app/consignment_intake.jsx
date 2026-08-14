@@ -3750,13 +3750,13 @@ function ShopifyProductSection({
             Changes made in Shopify are loaded back into this section whenever the app refreshes. Changes made here are sent to Shopify with “Update Shopify product”.
           </div>
         )}
-        {tier2Enabled && !canSync && <div className="consignment-row-sub" style={{ marginTop: 8 }}>Save the manual item first, then the Shopify product can be created and synced here.</div>}
+        {tier2Enabled && !canSync && <div className="consignment-row-sub" style={{ marginTop: 8 }}>Fill in the item description and price above — the manual record saves automatically when you create the Shopify product here.</div>}
       </div>
     </details>
   );
 }
 
-function IntakeScreen({ consignor, items, onBack, onSaveBatch, tier2Enabled = false }) {
+function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, tier2Enabled = false }) {
   const emptyForm = {
     category: 'Clothing', type: '', description: '', size: '', condition: 'Good',
     price: '', brand: '', notes: '', consignmentTerm: '',
@@ -3769,6 +3769,7 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, tier2Enabled = fa
   const [form, setForm] = useState(emptyForm);
   const [shopifyForm, setShopifyForm] = useState(emptyShopifyForm);
   const [batch, setBatch] = useState([]);
+  const [syncing, setSyncing] = useState(false);
   const canAdd = form.description.trim() && form.price !== '';
   const saveCount = batch.length + (canAdd ? 1 : 0);
   const savedSequence = items
@@ -3815,7 +3816,25 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, tier2Enabled = fa
         <button className="consignment-btn secondary consignment-add-another" disabled={!canAdd} onClick={addToBatch}>
           <Plus size={16} /> Add another manual item
         </button>
-        <ShopifyProductSection shopifyForm={shopifyForm} setShopifyForm={setShopifyForm} tier2Enabled={tier2Enabled} />
+        <ShopifyProductSection
+          shopifyForm={shopifyForm}
+          setShopifyForm={setShopifyForm}
+          tier2Enabled={tier2Enabled}
+          syncing={syncing}
+          onSync={canAdd ? async () => {
+            setSyncing(true);
+            try {
+              // Creates the Shopify product independently of the manual
+              // "Save manual item" button — clicking this saves the manual
+              // consignment record (this item, plus anything already
+              // queued in the batch) AND creates the Shopify product in
+              // one action. You do not need to save manually first.
+              await onSaveAndSync(form, batch, shopifyForm);
+            } finally {
+              setSyncing(false);
+            }
+          } : null}
+        />
       </div>
     </>
   );
@@ -4031,6 +4050,26 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
       setView('consignor');
     } catch (e) {
       setError(errorMessage(e, 'Could not save items'));
+    }
+  }
+
+  // Lets "Create Shopify product" work standalone on the Add Items screen,
+  // without requiring "Save manual item" to have been clicked first. Saves
+  // the manual consignment record(s) — the current form entry plus anything
+  // already queued in the batch, so nothing queued gets silently lost — and
+  // creates the Shopify product for the current item, in one action.
+  async function handleSaveAndSync(currentEntry, queuedBatch, shopifyForm) {
+    try {
+      setError('');
+      const saved = await createConsignmentItems(activeId, [...queuedBatch, currentEntry]);
+      const newItem = saved[saved.length - 1];
+      await syncShopifyProduct(newItem.id, shopifyForm);
+      await refreshData();
+      flash(`${saved.length} item${saved.length === 1 ? '' : 's'} saved · Shopify product created`);
+      setView('consignor');
+    } catch (e) {
+      setError(errorMessage(e, 'Could not save the item and create the Shopify product'));
+      throw e;
     }
   }
 
@@ -4311,6 +4350,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
           items={items}
           onBack={() => setView('consignor')}
           onSaveBatch={handleSaveBatch}
+          onSaveAndSync={handleSaveAndSync}
           tier2Enabled={tier2Enabled}
         />
       )}
