@@ -38,7 +38,14 @@ export const action = async ({ request }) => {
 
     const confirmationUrl = await createSubscription(admin, planKey, {
       returnUrl,
-      isTest: process.env.NODE_ENV !== 'production',
+      // Do NOT derive this from NODE_ENV — Render sets NODE_ENV=production
+      // on every Node web service by default, whether or not you're really
+      // in production. That silently sent test: false to Shopify, which a
+      // Developer Preview / dev store can't accept ("The shop cannot accept
+      // the provided charge"). Use an explicit, deliberate flag instead —
+      // set BILLING_LIVE_MODE=true on Render only once you're ready to
+      // charge real merchants for real.
+      isTest: process.env.BILLING_LIVE_MODE !== 'true',
     });
 
     if (!confirmationUrl || typeof confirmationUrl !== 'string') {
