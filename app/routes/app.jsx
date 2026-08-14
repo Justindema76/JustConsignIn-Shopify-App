@@ -23,7 +23,13 @@ export const loader = async ({ request }) => {
   if (url.pathname !== "/app/plans") {
     const activePlan = await getActivePlan(admin);
     if (!activePlan) {
-      throw new Response(null, { status: 302, headers: { Location: "/app/plans" } });
+      // Preserve the embedded-app query params (shop, host, id_token, etc.)
+      // on the redirect. Dropping them breaks App Bridge's initialization on
+      // the destination route ("missing required configuration fields: shop").
+      throw new Response(null, {
+        status: 302,
+        headers: { Location: `/app/plans${url.search}` },
+      });
     }
   }
 
