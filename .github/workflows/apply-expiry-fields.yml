@@ -1,9 +1,9 @@
 name: Apply expiry metaobject fields
 
 on:
-  push:
-    paths:
-      - '.github/workflows/apply-expiry-fields.yml'
+  pull_request:
+    branches: [main]
+    types: [opened]
 
 permissions:
   contents: write
@@ -14,6 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - uses: actions/setup-node@v4
@@ -33,7 +34,6 @@ jobs:
                   raise SystemExit(f'{label}: expected exactly 1 match, found {count}')
               return text.replace(old, new, 1)
 
-          # 1) Metaobject definition
           path = Path('app/metaobjects.server.js')
           text = path.read_text()
           old = '      { key: "date_received", name: "Date Received", type: "date" },\n      { key: "category", name: "Category", type: "single_line_text_field" },'
@@ -41,7 +41,6 @@ jobs:
           text = replace_once(text, old, new, 'metaobjects fields')
           path.write_text(text)
 
-          # 2) API/metaobject read + write mapping
           path = Path('app/routes/api.consignment.jsx')
           text = path.read_text()
 
@@ -68,10 +67,8 @@ jobs:
           old = "        itemFields(existing, {\n          category: input.category,\n          description: input.description?.trim(),"
           new = "        itemFields(existing, {\n          dateReceived: input.dateReceived || existing.dateReceived || today(),\n          consignmentTerm: input.consignmentTerm || '',\n          expiryDate: calculateExpiryDate(input.dateReceived || existing.dateReceived || today(), input.consignmentTerm || ''),\n          expiryAction: input.expiryAction || '',\n          category: input.category,\n          description: input.description?.trim(),"
           text = replace_once(text, old, new, 'api update item expiry fields')
-
           path.write_text(text)
 
-          # 3) Current React intake/edit UI
           path = Path('app/consignment_intake.jsx')
           text = path.read_text()
 
@@ -101,7 +98,6 @@ jobs:
           old = "    size: item.size || '', condition: item.condition || 'Good', price: item.price ?? '',\n    brand: item.brand || '', notes: item.notes || '',\n  });"
           new = "    size: item.size || '', condition: item.condition || 'Good', price: item.price ?? '',\n    brand: item.brand || '', notes: item.notes || '',\n    dateReceived: item.dateReceived || currentDate(),\n    consignmentTerm: item.consignmentTerm || '',\n    expiryDate: item.expiryDate || calculateExpiryDate(item.dateReceived || currentDate(), item.consignmentTerm || ''),\n    expiryAction: item.expiryAction || '',\n  });"
           text = replace_once(text, old, new, 'ui edit defaults')
-
           path.write_text(text)
           PY
 
