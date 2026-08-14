@@ -1,3 +1,4 @@
+
 // app/billing.server.js
 //
 // Central plan definitions + helpers for JustConsignIn's two-tier pricing:
@@ -18,9 +19,13 @@ export const PLANS = {
     interval: 'EVERY_30_DAYS',
     trialDays: 14,
     features: [
-      'Unlimited consignors',
-      'Manual item intake',
-      'Payout tracking',
+      'Consignors',
+      'Items',
+      'Manual sales',
+      'Payouts',
+      'Transactions',
+      'Reports',
+      'CSV import / export',
     ],
   },
   TIER2: {
@@ -32,8 +37,11 @@ export const PLANS = {
     trialDays: 14,
     features: [
       'Everything in Manual',
-      'Sync consignment items to real Shopify products',
-      'Publish to POS and Online Store',
+      'Real Shopify products, not just line items',
+      "Snap or upload a photo — it's on the listing instantly",
+      'POS sync, so in-store sales update inventory everywhere',
+      'Publish to your Online Store with one click',
+      'Sold anywhere, marked sold everywhere — automatically',
     ],
   },
 };
