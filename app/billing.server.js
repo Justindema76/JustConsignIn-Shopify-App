@@ -1,4 +1,3 @@
-
 // app/billing.server.js
 //
 // Central plan definitions + helpers for JustConsignIn's two-tier pricing:
@@ -14,9 +13,10 @@ export const PLANS = {
   TIER1: {
     key: 'TIER1',
     name: 'JustConsignIn — Manual',
-    amount: 9,
+    amount: 19,
     currencyCode: 'USD',
     interval: 'EVERY_30_DAYS',
+    trialDays: 14,
     features: [
       'Unlimited consignors',
       'Manual item intake',
@@ -29,6 +29,7 @@ export const PLANS = {
     amount: 29,
     currencyCode: 'USD',
     interval: 'EVERY_30_DAYS',
+    trialDays: 14,
     features: [
       'Everything in Manual',
       'Sync consignment items to real Shopify products',
@@ -43,12 +44,14 @@ const CREATE_SUBSCRIPTION_MUTATION = `#graphql
     $lineItems: [AppSubscriptionLineItemInput!]!
     $returnUrl: URL!
     $test: Boolean
+    $trialDays: Int
   ) {
     appSubscriptionCreate(
       name: $name
       returnUrl: $returnUrl
       lineItems: $lineItems
       test: $test
+      trialDays: $trialDays
     ) {
       confirmationUrl
       userErrors {
@@ -101,6 +104,7 @@ export async function createSubscription(admin, planKey, { returnUrl, isTest = f
       name: plan.name,
       returnUrl,
       test: isTest,
+      trialDays: plan.trialDays || 0,
       lineItems: [
         {
           plan: {
