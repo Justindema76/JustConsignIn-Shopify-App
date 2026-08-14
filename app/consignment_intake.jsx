@@ -56,6 +56,25 @@ const CATEGORIES = [
   'Pet Supplies', 'Outdoor & Garden', 'Art', 'Automotive', 'Other',
 ];
 const CONDITIONS = ['New with tags', 'Like new', 'Good', 'Fair'];
+const CONSIGNMENT_TERMS = [
+  { value: '', label: 'No term tracking' },
+  { value: '30', label: '30 days' },
+  { value: '60', label: '60 days' },
+  { value: '90', label: '90 days' },
+  { value: '120', label: '120 days' },
+  { value: 'none', label: 'No Expiry' },
+];
+const EXPIRY_ACTIONS = ['', 'Return to Consignor', 'Extend', 'Reduce Price', 'Donate'];
+const currentDate = () => new Date().toISOString().slice(0, 10);
+function calculateExpiryDate(receivedDate, term) {
+  if (!receivedDate || !term || term === 'none') return '';
+  const days = Number(term);
+  if (!Number.isFinite(days) || days <= 0) return '';
+  const date = new Date(`${receivedDate}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return '';
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 
 function productLabel(item) {
@@ -3502,6 +3521,22 @@ function ManualItemCore({
 }) {
   const set = (key) => (event) => setForm((current) => ({ ...current, [key]: event.target.value }));
   const setCategory = (category) => setForm((current) => ({ ...current, category, type: '' }));
+  const setReceivedDate = (event) => {
+    const dateReceived = event.target.value;
+    setForm((current) => ({
+      ...current,
+      dateReceived,
+      expiryDate: calculateExpiryDate(dateReceived, current.consignmentTerm),
+    }));
+  };
+  const setConsignmentTerm = (event) => {
+    const consignmentTerm = event.target.value;
+    setForm((current) => ({
+      ...current,
+      consignmentTerm,
+      expiryDate: calculateExpiryDate(current.dateReceived, consignmentTerm),
+    }));
+  };
 
   return (
     <div className="consignment-card">
@@ -3541,6 +3576,29 @@ function ManualItemCore({
           <label className="consignment-label">Condition</label>
           <select className="consignment-select" value={form.condition} onChange={set('condition')}>
             {CONDITIONS.map((condition) => <option key={condition} value={condition}>{condition}</option>)}
+          </select>
+        </div>
+        <div className="consignment-field wide" style={{ borderTop: '1px solid var(--line)', paddingTop: 14 }}>
+          <label className="consignment-label">Consignment term &amp; expiry</label>
+        </div>
+        <div className="consignment-field">
+          <label className="consignment-label">Received date</label>
+          <input className="consignment-input" type="date" value={form.dateReceived || ''} onChange={setReceivedDate} />
+        </div>
+        <div className="consignment-field">
+          <label className="consignment-label">Consignment term</label>
+          <select className="consignment-select" value={form.consignmentTerm || ''} onChange={setConsignmentTerm}>
+            {CONSIGNMENT_TERMS.map((term) => <option key={term.value || 'blank'} value={term.value}>{term.label}</option>)}
+          </select>
+        </div>
+        <div className="consignment-field">
+          <label className="consignment-label">Expiry date</label>
+          <input className="consignment-input" type="date" value={form.expiryDate || ''} readOnly />
+        </div>
+        <div className="consignment-field">
+          <label className="consignment-label">Expiry action</label>
+          <select className="consignment-select" value={form.expiryAction || ''} onChange={set('expiryAction')}>
+            {EXPIRY_ACTIONS.map((action) => <option key={action || 'blank'} value={action}>{action || 'No action selected'}</option>)}
           </select>
         </div>
         <div className="consignment-field wide">
@@ -3662,7 +3720,8 @@ function ShopifyProductSection({
 function IntakeScreen({ consignor, items, onBack, onSaveBatch, tier2Enabled = false }) {
   const emptyForm = {
     category: 'Clothing', type: '', description: '', size: '', condition: 'Good',
-    price: '', brand: '', notes: '',
+    price: '', brand: '', notes: '', dateReceived: currentDate(),
+    consignmentTerm: '', expiryDate: '', expiryAction: '',
   };
   const emptyShopifyForm = {
     photo: null, shopifyTitle: '', shopifyPrice: '', tags: '', vendor: '', productDescription: '', shopifyCategoryId: '',
@@ -3738,6 +3797,10 @@ function EditItemScreen({
     category: item.category || 'Other', type: '', description: item.description || '',
     size: item.size || '', condition: item.condition || 'Good', price: item.price ?? '',
     brand: item.brand || '', notes: item.notes || '',
+    dateReceived: item.dateReceived || currentDate(),
+    consignmentTerm: item.consignmentTerm || '',
+    expiryDate: item.expiryDate || calculateExpiryDate(item.dateReceived || currentDate(), item.consignmentTerm || ''),
+    expiryAction: item.expiryAction || '',
   });
   const [shopifyForm, setShopifyForm] = useState({
     photo: item.shopifyPhoto || item.photo || null,

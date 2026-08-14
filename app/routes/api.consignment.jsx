@@ -303,6 +303,9 @@ const CONSIGNMENT_ITEM_FIELDS = [
   { key: 'item_number', name: 'Item Number', type: 'single_line_text_field' },
   { key: 'consignor', name: 'Consignor', type: 'metaobject_reference' },
   { key: 'date_received', name: 'Date Received', type: 'date' },
+  { key: 'consignment_term', name: 'Consignment Term', type: 'single_line_text_field' },
+  { key: 'expiry_date', name: 'Expiry Date', type: 'date' },
+  { key: 'expiry_action', name: 'Expiry Action', type: 'single_line_text_field' },
   { key: 'category', name: 'Category', type: 'single_line_text_field' },
   { key: 'item_type', name: 'Item Type', type: 'single_line_text_field' },
   { key: 'description', name: 'Item Description', type: 'multi_line_text_field' },
@@ -409,6 +412,9 @@ function mapItem(node) {
     itemNumber: field.item_number || node.handle,
     consignorId: field.consignor || '',
     dateReceived: field.date_received || '',
+    consignmentTerm: field.consignment_term || '',
+    expiryDate: field.expiry_date || '',
+    expiryAction: field.expiry_action || '',
     category: field.category || '',
     type: field.item_type || '',
     description: field.description || '',
@@ -533,6 +539,16 @@ function cleanFields(fields) {
 
 function today() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function calculateExpiryDate(receivedDate, term) {
+  if (!receivedDate || !term || term === 'none') return null;
+  const days = Number(term);
+  if (!Number.isFinite(days) || days <= 0) return null;
+  const date = new Date(`${receivedDate}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return null;
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
 }
 
 function safeHandle(value) {
@@ -678,6 +694,9 @@ function itemFields(item, overrides = {}) {
     field('item_number', value.itemNumber),
     field('consignor', value.consignorId),
     field('date_received', value.dateReceived),
+    field('consignment_term', value.consignmentTerm),
+    field('expiry_date', value.expiryDate),
+    field('expiry_action', value.expiryAction),
     field('category', value.category),
     field('item_type', value.type),
     field('description', value.description),
@@ -1324,10 +1343,16 @@ export async function action({ request }) {
       for (const input of body.items) {
         sequence += 1;
         const itemNumber = `${consignor.number}-${String(sequence).padStart(3, '0')}`;
+        const dateReceived = input.dateReceived || today();
+        const consignmentTerm = input.consignmentTerm || '';
+        const expiryDate = calculateExpiryDate(dateReceived, consignmentTerm);
         let saved = await upsert(admin, 'consignment_item', itemNumber, [
           field('item_number', itemNumber),
           field('consignor', consignor.id),
-          field('date_received', today()),
+          field('date_received', dateReceived),
+          field('consignment_term', consignmentTerm),
+          field('expiry_date', expiryDate),
+          field('expiry_action', input.expiryAction || ''),
           field('category', input.category),
           field('item_type', ''),
           field('description', input.description?.trim()),
@@ -1355,6 +1380,13 @@ export async function action({ request }) {
         'consignment_item',
         existing.handle,
         itemFields(existing, {
+          dateReceived: input.dateReceived || existing.dateReceived || today(),
+          consignmentTerm: input.consignmentTerm || '',
+          expiryDate: calculateExpiryDate(
+            input.dateReceived || existing.dateReceived || today(),
+            input.consignmentTerm || '',
+          ),
+          expiryAction: input.expiryAction || '',
           category: input.category,
           description: input.description?.trim(),
           size: input.size?.trim(),
