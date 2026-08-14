@@ -7,6 +7,26 @@ import { getActivePlan } from "../billing.server";
 
 export const loader = async ({ request }) => {
   const { admin, session } = await authenticate.admin(request);
+
+  // After a merchant approves a billing charge, Shopify redirects the
+  // browser straight to our returnUrl (?charge_id=...) as a bare top-level
+  // page load — completely outside the Shopify admin iframe, with no
+  // host/embedded params. Rendering the embedded shell here crashes App
+  // Bridge exactly like our very first bug ("missing required configuration
+  // fields: shop"), because there's nothing to embed into. Detect that
+  // specific case and bounce the top-level browser back into the real
+  // embedded admin URL — Shopify re-embeds it there with all the right
+  // context, and this loader runs again normally on the next request.
+  const url = new URL(request.url);
+  const isEmbeddedRequest = url.searchParams.get("embedded") === "1" || url.searchParams.get("host");
+  if (!isEmbeddedRequest && url.searchParams.get("charge_id")) {
+    const apiKey = process.env.SHOPIFY_API_KEY || "";
+    throw new Response(null, {
+      status: 302,
+      headers: { Location: `https://${session.shop}/admin/apps/${apiKey}${url.search}` },
+    });
+  }
+
   const setup = await ensureMetaobjectsInstalled(admin, session.shop);
   if (!setup.ok) {
     // Do not crash the whole app over a metaobject repair failure — this can
@@ -19,7 +39,6 @@ export const loader = async ({ request }) => {
   // Send merchants with no active subscription to the plan picker before
   // they see anything else. Skip the check on /app/plans itself to avoid a
   // redirect loop.
-  const url = new URL(request.url);
   if (url.pathname !== "/app/plans") {
     const activePlan = await getActivePlan(admin);
     if (!activePlan) {
