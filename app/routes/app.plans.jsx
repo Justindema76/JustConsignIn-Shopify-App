@@ -19,6 +19,9 @@ export const action = async ({ request }) => {
   const planKey = formData.get('plan');
 
   const appUrl = process.env.SHOPIFY_APP_URL || '';
+  if (!appUrl) {
+    throw new Error('SHOPIFY_APP_URL is not set — required to build an absolute returnUrl for billing.');
+  }
   const returnUrl = `${appUrl}/app`;
 
   const confirmationUrl = await createSubscription(admin, planKey, {

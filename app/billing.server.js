@@ -1,3 +1,4 @@
+
 // app/billing.server.js
 //
 // Central plan definitions + helpers for JustConsignIn's two-tier pricing:
@@ -114,8 +115,17 @@ export async function createSubscription(admin, planKey, { returnUrl, isTest = f
   });
 
   const data = await response.json();
+  if (data?.errors?.length) {
+    // Top-level GraphQL errors (bad input types, auth issues, etc.) land
+    // here, separate from userErrors. A common cause: returnUrl wasn't a
+    // valid absolute URL — check that SHOPIFY_APP_URL is set correctly.
+    throw new Error(data.errors.map((error) => error.message).join(', '));
+  }
   const result = data?.data?.appSubscriptionCreate;
-  const errors = result?.userErrors || [];
+  if (!result) {
+    throw new Error('appSubscriptionCreate returned no data — check SHOPIFY_APP_URL is a full absolute URL.');
+  }
+  const errors = result.userErrors || [];
   if (errors.length) {
     throw new Error(errors.map((error) => error.message).join(', '));
   }
