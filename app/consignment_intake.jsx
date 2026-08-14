@@ -1434,7 +1434,27 @@ function DashboardScreen({
 
   return (
     <>
-      <Header eyebrow="Overview" title="Consignment dashboard" />
+      <Header
+        eyebrow="Overview"
+        title="Consignment dashboard"
+        action={(
+          <div className="consignment-header-actions">
+            <button type="button" className="consignment-btn" onClick={onNewConsignor}>
+              <Plus size={16} /> Add consignor
+            </button>
+            <button type="button" className="consignment-btn secondary" onClick={onNewItem}>
+              <Plus size={16} /> Add item
+            </button>
+            <details className="consignment-data-menu">
+              <summary className="consignment-btn secondary"><FileUp size={16} /> Import / Export</summary>
+              <div className="consignment-data-menu-popover">
+                <button type="button" onClick={onImport}><FileUp size={15} /> Import CSV</button>
+                <button type="button" onClick={onExport}><Download size={15} /> Export CSV</button>
+              </div>
+            </details>
+          </div>
+        )}
+      />
       <div className="consignment-body">
         <div className="consignment-toolbar" style={{ justifyContent: 'space-between' }}>
           <p style={{ margin: 0, color: 'var(--muted)', fontSize: 13 }}>
@@ -1446,30 +1466,6 @@ function DashboardScreen({
             <button type="button">Year</button>
             <button type="button">All time</button>
           </div>
-        </div>
-
-        <div className="consignment-quick-actions" aria-label="Quick actions">
-          <button type="button" className="consignment-quick-action" onClick={onNewConsignor}>
-            <span className="consignment-quick-action-icon"><Users size={19} /></span>
-            <span className="consignment-quick-action-copy">
-              <strong>Add consignor</strong>
-              <span>Create a new account</span>
-            </span>
-          </button>
-          <button type="button" className="consignment-quick-action primary" onClick={onNewItem}>
-            <span className="consignment-quick-action-icon"><Plus size={19} /></span>
-            <span className="consignment-quick-action-copy">
-              <strong>Add new item</strong>
-              <span>Choose or create a consignor</span>
-            </span>
-          </button>
-          <details className="consignment-data-menu">
-            <summary><FileUp size={16} /> Import / Export</summary>
-            <div className="consignment-data-menu-popover">
-              <button type="button" onClick={onImport}><FileUp size={15} /> Import CSV</button>
-              <button type="button" onClick={onExport}><Download size={15} /> Export CSV</button>
-            </div>
-          </details>
         </div>
 
         <div className="consignment-dashboard-grid">
