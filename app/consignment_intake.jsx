@@ -3035,11 +3035,12 @@ function ImportScreen({ kind, onBack, onImport, fixedConsignor = null }) {
     ? 'consignor_import_key, first_name, last_name; item_description and price when the row contains an item'
     : fixedConsignor ? 'item_description, price' : 'consignor_import_key (or email/phone), item_description, price';
   const templateConsignorNumber = fixedConsignor?.number || 1;
+  const itemColumns = 'item_import_key,item_description,price,category,item_type,brand,size,condition,item_notes,status,date_received,consignment_term,expiry_action,create_shopify_product,shopify_title,shopify_price,shopify_description,shopify_vendor,shopify_tags,publish_to_pos,publish_online,seo_title,seo_description,sale_price,sale_date,payout_status';
   const template = isConsignors
-    ? 'consignor_import_key,first_name,last_name,phone,email,address,city,province,postal_code,date_joined,commission_pct,unsold_preference,consignor_notes,item_import_key,item_description,price,category,brand,size,condition,item_notes,status,sale_price,sale_date,payout_status\njane-smith-9055550100,Jane,Smith,905-555-0100,jane@example.com,123 Main Street,Hamilton,Ontario,L8E 1A1,2026-07-30,50,Please return,,jane-001,Blue winter coat,45.00,Clothing,Gap,Medium,Like new,,Available,,,'
+    ? `consignor_import_key,first_name,last_name,phone,email,address,city,province,postal_code,date_joined,commission_pct,unsold_preference,consignor_notes,${itemColumns}\njane-smith-9055550100,Jane,Smith,905-555-0100,jane@example.com,123 Main Street,Hamilton,Ontario,L8E 1A1,2026-07-30,50,Please return,,jane-001,Blue winter coat,45.00,Clothing,Jacket,Gap,Medium,Like new,,Available,2026-07-30,90,Please return,true,Blue winter coat,45.00,Warm blue winter coat,Gap,winter|coat,true,true,Blue winter coat,Warm blue winter coat for sale,,,`
     : fixedConsignor
-      ? `item_import_key,item_description,price,category,brand,size,condition,item_notes,status,sale_price,sale_date,payout_status,consignor_number\nitem-001,Blue baby sweater,18.00,Clothing,Gap,12M,Good,,Available,,,,${templateConsignorNumber}`
-      : 'consignor_import_key,email,phone,item_import_key,item_description,price,category,brand,size,condition,item_notes,status,sale_price,sale_date,payout_status\njane-smith-9055550100,jane@example.com,905-555-0100,jane-001,Blue winter coat,45.00,Clothing,Gap,Medium,Like new,,Available,,,';
+      ? `${itemColumns},consignor_number\nitem-001,Blue baby sweater,18.00,Clothing,Sweater,Gap,12M,Good,,Available,2026-07-30,60,Please return,true,Blue baby sweater,18.00,Soft blue baby sweater,Gap,baby|sweater,true,false,Blue baby sweater,Soft blue baby sweater,,,${templateConsignorNumber}`
+      : `consignor_import_key,email,phone,${itemColumns}\njane-smith-9055550100,jane@example.com,905-555-0100,jane-001,Blue winter coat,45.00,Clothing,Jacket,Gap,Medium,Like new,,Available,2026-07-30,90,Please return,true,Blue winter coat,45.00,Warm blue winter coat,Gap,winter|coat,true,true,Blue winter coat,Warm blue winter coat for sale,,,`;
 
   function downloadTemplate() {
     const blob = new Blob([template], { type: 'text/csv;charset=utf-8' });
@@ -3086,7 +3087,7 @@ function ImportScreen({ kind, onBack, onImport, fixedConsignor = null }) {
             <div className="consignment-import-preview">
               <div><span>File</span><strong style={{ fontSize: 12 }}>{fileName}</strong></div>
               <div><span>Rows ready</span><strong>{rows.length}</strong></div>
-              <div><span>Importing</span><strong style={{ fontSize: 13 }}>{isConsignors ? 'Consignors + manual items' : 'Items'}</strong></div>
+              <div><span>Importing</span><strong style={{ fontSize: 13 }}>{isConsignors ? 'Consignors + items · Shopify supported' : 'Items · Shopify supported'}</strong></div>
             </div>
             <div className="consignment-import-actions">
               <button className="consignment-btn" disabled={saving} onClick={async () => {
@@ -4023,9 +4024,10 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
       const result = await importConsignmentData(kind, rows);
       await refreshData();
       if (kind === 'consignors') {
-        flash(`${result.consignorsCreated || 0} created, ${result.consignorsUpdated || 0} matched/updated, ${result.itemsImported || 0} items imported`);
+        flash(`${result.consignorsCreated || 0} created, ${result.consignorsUpdated || 0} matched/updated, ${result.itemsImported || 0} items imported, ${result.shopifyProductsCreated || 0} Shopify products created`);
       } else {
-        flash(`${result.itemsImported ?? result.imported} item${(result.itemsImported ?? result.imported) === 1 ? '' : 's'} imported`);
+        const importedCount = result.itemsImported ?? result.imported;
+        flash(`${importedCount} item${importedCount === 1 ? '' : 's'} imported, ${result.shopifyProductsCreated || 0} Shopify products created`);
       }
       setView(importBack);
     } catch (e) {

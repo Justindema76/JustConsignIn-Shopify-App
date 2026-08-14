@@ -1118,10 +1118,66 @@ export async function action({ request }) {
         const number = Number(value);
         return Number.isFinite(number) ? number : null;
       };
+      const parseTags = (value) => text(value).split(/[|,]/).map((tag) => tag.trim()).filter(Boolean);
+      const shopifyImportFields = (row, description, price) => {
+        const createShopifyProduct = asBoolean(row.create_shopify_product ?? row.createShopifyProduct ?? row.shopify_product ?? row.shopifyProduct);
+        const requestedShopifyPrice = optionalNumber(row.shopify_price ?? row.shopifyPrice);
+        const publishToPosRaw = text(row.publish_to_pos ?? row.publishToPos);
+        return {
+          createShopifyProduct,
+          shopifyTitle: text(row.shopify_title || row.shopifyTitle) || (createShopifyProduct ? description : ''),
+          shopifyPrice: requestedShopifyPrice ?? (createShopifyProduct ? price : null),
+          productDescription: text(row.shopify_description || row.product_description || row.productDescription),
+          vendor: text(row.shopify_vendor || row.vendor),
+          tags: parseTags(row.shopify_tags || row.tags),
+          shopifyCategoryId: text(row.shopify_category_id || row.shopifyCategoryId),
+          shopifyCategoryName: text(row.shopify_category_name || row.shopifyCategoryName),
+          seoTitle: text(row.seo_title || row.seoTitle),
+          seoDescription: text(row.seo_description || row.seoDescription),
+          publishToPos: createShopifyProduct && (publishToPosRaw === '' ? true : asBoolean(publishToPosRaw)),
+          publishOnline: createShopifyProduct && asBoolean(row.publish_online ?? row.publishOnline),
+        };
+      };
+      let importTier2Verified = false;
+      const ensureImportTier2 = async () => {
+        if (!importTier2Verified) {
+          await requireTier2(admin);
+          importTier2Verified = true;
+        }
+      };
+      const saveImportedItem = async ({ value, consignor, rowNumber }) => {
+        let saved = null;
+        let product = null;
+        try {
+          saved = await upsert(admin, 'consignment_item', safeHandle(value.itemNumber), itemFields(value));
+          if (value.createShopifyProduct) {
+            if (value.status === 'Sold' || value.paidOut) throw new Error(`Row ${rowNumber}: sold or paid items cannot create an active Shopify product.`);
+            if (!value.shopifyTitle) throw new Error(`Row ${rowNumber}: Shopify title is required.`);
+            const sellPrice = Number(value.shopifyPrice ?? value.price);
+            if (!Number.isFinite(sellPrice) || sellPrice <= 0) throw new Error(`Row ${rowNumber}: Shopify price must be greater than $0.00.`);
+            value.shopifyPrice = sellPrice;
+            await ensureImportTier2();
+            product = await syncPosProduct(admin, value, consignor, current.shop?.name);
+            value.shopifyProductId = product.id;
+            value.status = 'Available';
+            saved = await upsert(admin, 'consignment_item', safeHandle(value.itemNumber), itemFields(value));
+          }
+          return { saved, product };
+        } catch (error) {
+          if (product?.id) {
+            try { await adminGraphql(admin, PRODUCT_DELETE_MUTATION, { input: { id: product.id } }); }
+            catch (cleanupError) { console.error('Could not clean up imported Shopify product', cleanupError); }
+          }
+          if (saved?.id) {
+            try { await remove(admin, saved.id); }
+            catch (cleanupError) { console.error('Could not clean up imported consignment item', cleanupError); }
+          }
+          throw error;
+        }
+      };
 
-      // The combined consignor import creates/matches the consignor first, then
-      // attaches every manual item using the returned metaobject ID. It never
-      // relies on a CSV consignor number and never creates Shopify products.
+      // Combined imports can create manual-only items or Shopify products using
+      // the same syncPosProduct() workflow as the normal item screen.
       if (kind === 'consignors') {
         const grouped = new Map();
         rows.forEach((row, index) => {
@@ -1192,6 +1248,7 @@ export async function action({ request }) {
 
         let itemsImported = 0;
         let itemsSkipped = 0;
+        let shopifyProductsCreated = 0;
         for (const [importKey, entries] of grouped) {
           const consignor = resolvedConsignors.get(importKey);
           for (const entry of entries) {
@@ -1224,8 +1281,11 @@ export async function action({ request }) {
               itemNumber,
               consignorId: consignor.id,
               dateReceived: text(row.date_received || row.dateReceived) || today(),
+              consignmentTerm: text(row.consignment_term || row.consignmentTerm),
+              expiryDate: text(row.expiry_date || row.expiryDate) || calculateExpiryDate(text(row.date_received || row.dateReceived) || today(), text(row.consignment_term || row.consignmentTerm)),
+              expiryAction: text(row.expiry_action || row.expiryAction),
               category: text(row.category),
-              type: '',
+              type: text(row.item_type || row.type),
               description,
               size: text(row.size),
               condition: text(row.condition) || 'Good',
@@ -1235,7 +1295,7 @@ export async function action({ request }) {
               brand: text(row.brand),
               notes: text(row.item_notes || row.notes),
               importKey: itemImportKey,
-              tags: [], vendor: '', productDescription: '', shopifyTitle: '',
+              ...shopifyImportFields(row, description, price),
               salePrice: sold ? (salePrice ?? price) : null,
               dateSold: sold ? (text(row.sale_date || row.date_sold || row.dateSold) || today()) : null,
               orderName: null, orderId: null,
@@ -1246,7 +1306,8 @@ export async function action({ request }) {
               payoutReference: '', payoutNote: '', payoutAmount,
               payoutTotal: payoutAmount, payoutAdjustment: 0,
             };
-            await upsert(admin, 'consignment_item', safeHandle(itemNumber), itemFields(value));
+            const imported = await saveImportedItem({ value, consignor, rowNumber: entry.index + 2 });
+            if (imported.product) shopifyProductsCreated += 1;
             itemsImported += 1;
           }
         }
@@ -1257,6 +1318,7 @@ export async function action({ request }) {
           consignorsUpdated,
           itemsImported,
           itemsSkipped,
+          shopifyProductsCreated,
         });
       }
 
@@ -1276,6 +1338,7 @@ export async function action({ request }) {
         sequences.set(consignor.id, max);
       }
       let itemsImported = 0;
+      let shopifyProductsCreated = 0;
       for (const [index, row] of rows.entries()) {
         const consignor = consignorByKey.get(normalizeKey(row.consignor_import_key || row.consignorImportKey))
           || consignorByEmail.get(normalizeEmail(row.email || row.consignor_email))
@@ -1296,21 +1359,27 @@ export async function action({ request }) {
         const status = text(row.status || 'Available');
         const sold = status === 'Sold' || Boolean(text(row.sale_date || row.date_sold));
         const paidOut = text(row.payout_status).toLowerCase() === 'paid';
-        await upsert(admin, 'consignment_item', safeHandle(itemNumber), itemFields({
-          itemNumber, consignorId: consignor.id, dateReceived: text(row.date_received) || today(),
-          category: text(row.category), type: '', description, size: text(row.size),
+        const dateReceived = text(row.date_received || row.dateReceived) || today();
+        const consignmentTerm = text(row.consignment_term || row.consignmentTerm);
+        const value = {
+          itemNumber, consignorId: consignor.id, dateReceived, consignmentTerm,
+          expiryDate: text(row.expiry_date || row.expiryDate) || calculateExpiryDate(dateReceived, consignmentTerm),
+          expiryAction: text(row.expiry_action || row.expiryAction),
+          category: text(row.category), type: text(row.item_type || row.type), description, size: text(row.size),
           condition: text(row.condition) || 'Good', price,
           commissionPct: Number(row.commission_pct || consignor.commissionPct || 50),
           status: sold ? 'Sold' : status, brand: text(row.brand), notes: text(row.item_notes || row.notes),
-          importKey: itemImportKey, tags: [], vendor: '', productDescription: '', shopifyTitle: '',
+          importKey: itemImportKey, ...shopifyImportFields(row, description, price),
           salePrice: sold ? (optionalNumber(row.sale_price) ?? price) : null,
           dateSold: sold ? (text(row.sale_date || row.date_sold) || today()) : null,
           paidOut, payoutId: paidOut ? `imported-${itemNumber}` : '', payoutDate: paidOut ? today() : '',
           payoutMethod: paidOut ? 'Imported payment' : '', payoutAmount: 0, payoutTotal: 0, payoutAdjustment: 0,
-        }));
+        };
+        const imported = await saveImportedItem({ value, consignor, rowNumber: index + 2 });
+        if (imported.product) shopifyProductsCreated += 1;
         itemsImported += 1;
       }
-      return Response.json({ imported: itemsImported, itemsImported });
+      return Response.json({ imported: itemsImported, itemsImported, shopifyProductsCreated });
     }
 
     if (request.method === 'DELETE' && body.operation === 'deleteConsignor') {
