@@ -3,7 +3,7 @@
 // Plan picker screen. Merchants land here after install if they have no
 // active subscription, or any time they want to upgrade/downgrade.
 
-import { Form, useLoaderData, useNavigation } from 'react-router';
+import { Form, useLoaderData, useNavigation, useActionData } from 'react-router';
 import { authenticate } from '../shopify.server';
 import { PLANS, getActivePlan, createSubscription } from '../billing.server';
 
@@ -14,26 +14,41 @@ export const loader = async ({ request }) => {
 };
 
 export const action = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
-  const formData = await request.formData();
-  const planKey = formData.get('plan');
+  try {
+    const { admin } = await authenticate.admin(request);
+    const formData = await request.formData();
+    const planKey = formData.get('plan');
 
-  const appUrl = process.env.SHOPIFY_APP_URL || '';
-  if (!appUrl) {
-    throw new Error('SHOPIFY_APP_URL is not set — required to build an absolute returnUrl for billing.');
+    if (!planKey || !PLANS[planKey]) {
+      return { error: `Invalid or missing plan key: ${JSON.stringify(planKey)}` };
+    }
+
+    const appUrl = process.env.SHOPIFY_APP_URL || '';
+    if (!appUrl) {
+      return { error: 'SHOPIFY_APP_URL is not set on the server — required to build an absolute returnUrl for billing.' };
+    }
+
+    const returnUrl = `${appUrl}/app`;
+    const confirmationUrl = await createSubscription(admin, planKey, {
+      returnUrl,
+      isTest: process.env.NODE_ENV !== 'production',
+    });
+
+    if (!confirmationUrl || typeof confirmationUrl !== 'string') {
+      return { error: `createSubscription returned an invalid confirmationUrl: ${JSON.stringify(confirmationUrl)}` };
+    }
+
+    return Response.redirect(confirmationUrl, 302);
+  } catch (error) {
+    const message = error instanceof Error ? (error.stack || error.message) : String(error);
+    console.error('[app.plans action] failed:', message);
+    return { error: message };
   }
-  const returnUrl = `${appUrl}/app`;
-
-  const confirmationUrl = await createSubscription(admin, planKey, {
-    returnUrl,
-    isTest: process.env.NODE_ENV !== 'production',
-  });
-
-  return Response.redirect(confirmationUrl, 302);
 };
 
 export default function PlansScreen() {
   const { activePlan, plans } = useLoaderData();
+  const actionData = useActionData();
   const navigation = useNavigation();
   const submitting = navigation.state === 'submitting';
 
@@ -43,9 +58,30 @@ export default function PlansScreen() {
         <label className="jatb-label">Choose your plan</label>
       </div>
 
+      {actionData?.error && (
+        <div
+          className="jatb-card"
+          style={{ marginBottom: 16, border: '2px solid #c0392b', background: '#fdecea' }}
+        >
+          <p style={{ margin: 0, fontWeight: 700, fontSize: 13 }}>Couldn't start that plan:</p>
+          <pre
+            style={{
+              margin: '8px 0 0',
+              fontSize: 12,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              fontFamily: 'monospace',
+            }}
+          >
+            {actionData.error}
+          </pre>
+        </div>
+      )}
+
       {Object.values(plans).map((plan) => {
         const isActive = activePlan === plan.key;
         const shortName = plan.name.split('—')[1]?.trim() || plan.name;
+
         return (
           <div
             key={plan.key}
