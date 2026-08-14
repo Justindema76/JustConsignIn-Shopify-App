@@ -3,8 +3,7 @@
 // Plan picker screen. Merchants land here after install if they have no
 // active subscription, or any time they want to upgrade/downgrade.
 
-import { Form, useLoaderData, useNavigation, useRouteError, isRouteErrorResponse } from 'react-router';
-import { boundary } from '@shopify/shopify-app-react-router/server';
+import { Form, useLoaderData, useNavigation, useActionData } from 'react-router';
 import { authenticate } from '../shopify.server';
 import { PLANS, getActivePlan, createSubscription } from '../billing.server';
 
@@ -15,26 +14,52 @@ export const loader = async ({ request }) => {
 };
 
 export const action = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
-  const formData = await request.formData();
-  const planKey = formData.get('plan');
+  // IMPORTANT: this action never throws on purpose. React Router strips the
+  // real message off thrown errors before they reach the browser in a
+  // production build ("Unexpected Server Error" is all you'll ever see) —
+  // so any failure here is caught and returned as normal action data
+  // instead, which is NOT stripped. That's the only way to see what's
+  // actually going wrong without pulling server logs.
+  try {
+    const { admin } = await authenticate.admin(request);
+    const formData = await request.formData();
+    const planKey = formData.get('plan');
 
-  const appUrl = process.env.SHOPIFY_APP_URL || '';
-  if (!appUrl) {
-    throw new Error('SHOPIFY_APP_URL is not set — required to build an absolute returnUrl for billing.');
+    if (!planKey || !PLANS[planKey]) {
+      return { error: `Invalid or missing plan key: ${JSON.stringify(planKey)}` };
+    }
+
+    const appUrl = process.env.SHOPIFY_APP_URL || '';
+    if (!appUrl) {
+      return { error: 'SHOPIFY_APP_URL is not set on the server — required to build an absolute returnUrl for billing.' };
+    }
+    const returnUrl = `${appUrl}/app`;
+
+    const confirmationUrl = await createSubscription(admin, planKey, {
+      returnUrl,
+      isTest: process.env.NODE_ENV !== 'production',
+    });
+
+    if (!confirmationUrl || typeof confirmationUrl !== 'string') {
+      return { error: `createSubscription returned an invalid confirmationUrl: ${JSON.stringify(confirmationUrl)}` };
+    }
+
+    return Response.redirect(confirmationUrl, 302);
+  } catch (error) {
+    // Catches literally anything: GraphQL client errors, network failures,
+    // authenticate.admin() failures, thrown Errors from billing.server.js,
+    // bad URL construction in Response.redirect, all of it.
+    const message = error instanceof Error ? (error.stack || error.message) : String(error);
+    // Still goes to Render's logs for a permanent record...
+    console.error('[app.plans action] failed:', message);
+    // ...and also comes straight back to the browser, unstripped.
+    return { error: message };
   }
-  const returnUrl = `${appUrl}/app`;
-
-  const confirmationUrl = await createSubscription(admin, planKey, {
-    returnUrl,
-    isTest: process.env.NODE_ENV !== 'production',
-  });
-
-  return Response.redirect(confirmationUrl, 302);
 };
 
 export default function PlansScreen() {
   const { activePlan, plans } = useLoaderData();
+  const actionData = useActionData();
   const navigation = useNavigation();
   const submitting = navigation.state === 'submitting';
 
@@ -43,6 +68,26 @@ export default function PlansScreen() {
       <div className="jatb-section-heading">
         <label className="jatb-label">Choose your plan</label>
       </div>
+
+      {actionData?.error && (
+        <div
+          className="jatb-card"
+          style={{ marginBottom: 16, border: '2px solid #c0392b', background: '#fdecea' }}
+        >
+          <p style={{ margin: 0, fontWeight: 700, fontSize: 13 }}>Couldn't start that plan:</p>
+          <pre
+            style={{
+              margin: '8px 0 0',
+              fontSize: 12,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              fontFamily: 'monospace',
+            }}
+          >
+            {actionData.error}
+          </pre>
+        </div>
+      )}
 
       {Object.values(plans).map((plan) => {
         const isActive = activePlan === plan.key;
@@ -79,38 +124,3 @@ export default function PlansScreen() {
     </div>
   );
 }
-
-// Shopify's shared boundary.error() helper only renders content for thrown
-// Response objects (redirects, the 402s in billing.server.js) — for a plain
-// JS Error it just re-throws, which falls through to React Router's generic
-// blank "Application Error" page with no message at all. Define our own
-// boundary here so a real failure (bad returnUrl, missing env var, GraphQL
-// error, etc.) actually shows its message instead of going dark.
-export function ErrorBoundary() {
-  const error = useRouteError();
-
-  // Auth/redirect responses (expired session, exit-iframe bounce, etc.)
-  // should still go through Shopify's normal handling, not our message box.
-  if (isRouteErrorResponse(error)) {
-    return boundary.error(error);
-  }
-
-  const message = error instanceof Error ? error.message : String(error);
-
-  return (
-    <div className="jatb-body" style={{ maxWidth: 640, margin: '0 auto' }}>
-      <div className="jatb-section-heading">
-        <label className="jatb-label">Couldn't start that plan</label>
-      </div>
-      <div className="jatb-card" style={{ borderColor: '#c0392b' }}>
-        <p style={{ margin: 0, fontFamily: 'monospace', fontSize: 13, whiteSpace: 'pre-wrap' }}>
-          {message}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export const headers = (headersArgs) => {
-  return boundary.headers(headersArgs);
-};
