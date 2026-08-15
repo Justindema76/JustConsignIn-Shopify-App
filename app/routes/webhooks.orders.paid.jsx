@@ -80,6 +80,67 @@ function saleDate(payload) {
     : parsed.toISOString().slice(0, 10);
 }
 
+function saleSource(payload) {
+  const source = String(payload.source_name || payload.sourceName || "").trim().toLowerCase();
+
+  if (source === "pos" || source.includes("point_of_sale") || source.includes("point of sale")) {
+    return "POS";
+  }
+  if (source === "web" || source === "online_store" || source.includes("online")) {
+    return "Online";
+  }
+
+  // Keep unknown Shopify mechanisms honest rather than incorrectly calling
+  // them POS or Online.
+  return "Shopify";
+}
+
+function itemDetailsWithSaleSource(rawValue, source) {
+  const fallback = {
+    schema: "consignment-product-details-v1",
+    notes: "",
+    tags: [],
+    vendor: "",
+    brand: "",
+    productDescription: "",
+    shopifyTitle: "",
+    shopifyPrice: null,
+    shopifyCategoryId: "",
+    shopifyCategoryName: "",
+    seoTitle: "",
+    seoDescription: "",
+    publishOnline: false,
+    payoutId: "",
+    payoutDate: "",
+    payoutMethod: "",
+    payoutReference: "",
+    payoutNote: "",
+    payoutAmount: 0,
+    payoutTotal: 0,
+    payoutAdjustment: 0,
+    importKey: "",
+  };
+
+  if (!rawValue) {
+    return JSON.stringify({ ...fallback, saleSource: source });
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue);
+    if (parsed?.schema === "consignment-product-details-v1") {
+      return JSON.stringify({ ...fallback, ...parsed, saleSource: source });
+    }
+  } catch {
+    // Older plain-text notes are preserved below.
+  }
+
+  return JSON.stringify({
+    ...fallback,
+    notes: String(rawValue),
+    saleSource: source,
+  });
+}
+
 function assertUserErrors(result, operation) {
   if (result?.userErrors?.length) {
     throw new Error(
@@ -115,6 +176,7 @@ async function recordSoldItem(admin, payload, lineItem) {
   const field = values(data.item.fields);
   const reference = references(data.item.fields);
   const orderId = String(payload.admin_graphql_api_id || payload.id || "");
+  const source = saleSource(payload);
 
   const alreadyRecorded =
     field.status === "Sold" && String(field.order_id || "") === orderId;
@@ -129,6 +191,7 @@ async function recordSoldItem(admin, payload, lineItem) {
           { key: "date_sold", value: saleDate(payload) },
           { key: "order_name", value: String(payload.name || payload.order_number || "") },
           { key: "order_id", value: orderId },
+          { key: "notes", value: itemDetailsWithSaleSource(field.notes, source) },
           { key: "paid_out", value: "false" },
         ],
       },
@@ -152,7 +215,11 @@ async function recordSoldItem(admin, payload, lineItem) {
     assertUserErrors(retired.productUpdate, `Could not archive product for ${ticket}`);
   }
 
-  return { status: alreadyRecorded ? "already-recorded" : "sold", ticket };
+  return {
+    status: alreadyRecorded ? "already-recorded" : "sold",
+    ticket,
+    saleSource: source,
+  };
 }
 
 export const action = async ({ request }) => {
@@ -172,6 +239,7 @@ export const action = async ({ request }) => {
 
   console.log(`Processed ${topic} webhook for ${shop}`, {
     order: payload.name || payload.id,
+    source: saleSource(payload),
     results,
   });
 

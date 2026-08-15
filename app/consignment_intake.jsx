@@ -72,6 +72,29 @@ function productLabel(item) {
     : { text: 'POS', className: 'pos' };
 }
 
+function saleSourceLabel(item) {
+  if (!(item?.status === 'Sold' || item?.dateSold)) return null;
+
+  const source = String(item.saleSource || '').trim().toLowerCase();
+  if (source === 'pos' || source.includes('point of sale')) {
+    return { text: 'Sold via POS', className: 'pos' };
+  }
+  if (source === 'online' || source === 'web' || source.includes('online')) {
+    return { text: 'Sold Online', className: 'online' };
+  }
+  if (source === 'manual') {
+    return { text: 'Manual Sale', className: 'manual' };
+  }
+
+  // Older sales recorded before sale-source tracking:
+  // no Shopify order means it was marked sold manually in JustConsignIn.
+  if (!item.orderId && !item.orderName) {
+    return { text: 'Manual Sale', className: 'manual' };
+  }
+
+  return { text: 'Shopify Sale', className: 'draft' };
+}
+
 /* ---------- shared styles ---------- */
 
 function GlobalStyle() {
@@ -1200,15 +1223,19 @@ function GlobalStyle() {
       .consignment-consignor-item-title { display: block; overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
       .consignment-consignor-item-meta { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.35; }
       .consignment-consignor-item-actions {
-        display: grid; grid-template-columns: minmax(76px, auto) minmax(96px, auto) minmax(106px, auto);
-        align-items: center; justify-content: end; gap: 6px;
+        display: grid; grid-template-columns: minmax(92px, auto) minmax(104px, auto) minmax(112px, auto);
+        align-items: center; justify-content: end; gap: 7px;
       }
       .consignment-consignor-item-actions .consignment-product-badge,
-      .consignment-consignor-item-actions .consignment-badge { width: 100%; min-width: 0; box-sizing: border-box; }
+      .consignment-consignor-item-actions .consignment-badge {
+        width: 100%; min-width: 0; min-height: 28px; box-sizing: border-box;
+        justify-content: center; text-align: center;
+      }
       .consignment-consignor-pay-btn {
-        height: 32px; padding: 0 10px; border: 0; border-radius: 8px;
+        height: 34px; padding: 0 11px; border: 0; border-radius: 8px;
         background: var(--blue); color: white; font-size: 11px; font-weight: 750; white-space: nowrap;
       }
+      .consignment-consignor-action-spacer { display: block; min-height: 1px; }
       .consignment-consignor-item-list.grid {
         grid-template-columns: repeat(4, minmax(0, 1fr));
       }
@@ -1240,19 +1267,58 @@ function GlobalStyle() {
         .consignment-consignor-items-head { align-items: flex-start; flex-direction: column; }
         .consignment-consignor-items-tools { width: 100%; justify-content: space-between; }
         .consignment-consignor-view-toggle { margin-left: auto; }
-        .consignment-consignor-item-list.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-        .consignment-consignor-item-list.grid .consignment-consignor-item { min-height: 224px; padding: 10px; gap: 8px; }
-        .consignment-consignor-item-list.grid .consignment-consignor-item-open { grid-template-columns: 38px minmax(0, 1fr); gap: 8px; }
+        .consignment-consignor-item-list.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+        .consignment-consignor-item-list.grid .consignment-consignor-item {
+          min-width: 0; min-height: 218px; padding: 10px; gap: 8px; overflow: hidden;
+        }
+        .consignment-consignor-item-list.grid .consignment-consignor-item-open {
+          grid-template-columns: 36px minmax(0, 1fr); gap: 8px; align-items: start;
+        }
+        .consignment-consignor-item-list.grid .consignment-batch-thumb {
+          width: 36px !important; height: 36px !important; border-radius: 8px !important;
+        }
+        .consignment-consignor-item-list.grid .consignment-consignor-item-title {
+          font-size: 12px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .consignment-consignor-item-list.grid .consignment-consignor-item-meta {
+          font-size: 10px; line-height: 1.35; overflow: hidden; text-overflow: ellipsis;
+        }
+        .consignment-consignor-item-list.grid .consignment-consignor-item-actions {
+          grid-template-columns: 1fr; gap: 6px; width: 100%; margin-top: auto;
+        }
+        .consignment-consignor-item-list.grid .consignment-consignor-item-actions .consignment-product-badge,
+        .consignment-consignor-item-list.grid .consignment-consignor-item-actions .consignment-badge,
+        .consignment-consignor-item-list.grid .consignment-consignor-pay-btn {
+          width: 100%; min-width: 0;
+        }
+
         .consignment-consignor-item-list:not(.grid) .consignment-consignor-item {
-          grid-template-columns: minmax(0, 1fr); align-items: stretch;
+          display: grid; grid-template-columns: minmax(0, 1fr); align-items: stretch;
+          gap: 10px; padding: 12px; overflow: hidden;
+        }
+        .consignment-consignor-item-list:not(.grid) .consignment-consignor-item-open {
+          grid-template-columns: 44px minmax(0, 1fr); gap: 10px; width: 100%;
+        }
+        .consignment-consignor-item-list:not(.grid) .consignment-batch-thumb {
+          width: 44px !important; height: 44px !important; border-radius: 9px !important;
         }
         .consignment-consignor-item-list:not(.grid) .consignment-consignor-item-actions {
-          grid-template-columns: minmax(72px, 82px) minmax(92px, 106px) minmax(104px, 112px);
-          justify-content: start; padding-left: 60px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          justify-content: stretch; padding-left: 0; width: 100%; gap: 7px;
+        }
+        .consignment-consignor-item-list:not(.grid) .consignment-consignor-item-actions .consignment-product-badge,
+        .consignment-consignor-item-list:not(.grid) .consignment-consignor-item-actions .consignment-badge {
+          width: 100%; min-width: 0; min-height: 30px;
+        }
+        .consignment-consignor-item-list:not(.grid) .consignment-consignor-pay-btn {
+          grid-column: 1 / -1; width: 100%; height: 36px;
+        }
+        .consignment-consignor-item-list:not(.grid) .consignment-consignor-action-spacer {
+          display: none;
         }
         .consignment-consignor-item-title { font-size: 13px; }
-        .consignment-consignor-item-meta { font-size: 11px; overflow-wrap: anywhere; }
-        .consignment-consignor-pay-btn { padding: 0 7px; font-size: 10px; }
+        .consignment-consignor-item-meta { font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+        .consignment-consignor-pay-btn { padding: 0 8px; font-size: 10px; }
       }
     `}</style>
   );
@@ -3375,6 +3441,7 @@ function ConsignorScreen({ consignor, items, onBack, onStartIntake, onOpenItem, 
         <div className={`consignment-consignor-item-list ${viewMode === 'grid' ? 'grid' : ''}`}>
           {consignorItems.map((item) => {
             const product = productLabel(item);
+            const saleSource = saleSourceLabel(item);
             const soldUnpaid = (item.status === 'Sold' || item.dateSold) && !item.paidOut;
             return (
               <article key={item.id} className="consignment-card consignment-consignor-item">
@@ -3390,13 +3457,15 @@ function ConsignorScreen({ consignor, items, onBack, onStartIntake, onOpenItem, 
                   </span>
                 </button>
                 <div className="consignment-consignor-item-actions">
-                  <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
+                  <span className={`consignment-product-badge ${(saleSource || product).className}`}>
+                    {(saleSource || product).text}
+                  </span>
                   <span className={`consignment-badge ${item.paidOut ? 'paid' : item.status === 'Sold' ? 'unpaid' : statusClass(item.status)}`}>
                     {item.paidOut ? 'Paid' : item.status === 'Sold' ? 'Sold · unpaid' : statusLabel(item.status)}
                   </span>
                   {soldUnpaid ? (
                     <button type="button" className="consignment-consignor-pay-btn" onClick={() => onStartPayout(consignor.id)}>Review &amp; pay</button>
-                  ) : <span aria-hidden="true" />}
+                  ) : <span className="consignment-consignor-action-spacer" aria-hidden="true" />}
                 </div>
               </article>
             );
