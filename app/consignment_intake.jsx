@@ -71,6 +71,41 @@ function productLabel(item) {
     : { text: 'POS', className: 'pos' };
 }
 
+function expiryInfo(item) {
+  if (!item?.expiryDate) return { label: 'No expiry', className: 'none', days: null };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiry = new Date(`${item.expiryDate}T00:00:00`);
+  if (Number.isNaN(expiry.getTime())) return { label: item.expiryDate, className: 'none', days: null };
+
+  const days = Math.round((expiry.getTime() - today.getTime()) / 86400000);
+  if (days < 0) return { label: `Expired ${Math.abs(days)} day${Math.abs(days) === 1 ? '' : 's'} ago`, className: 'expired', days };
+  if (days === 0) return { label: 'Expires today', className: 'urgent', days };
+  if (days <= 7) return { label: `${days} day${days === 1 ? '' : 's'} left`, className: 'urgent', days };
+  if (days <= 30) return { label: `${days} days left`, className: 'soon', days };
+  return { label: `${days} days left`, className: 'normal', days };
+}
+
+function expiryMatches(item, filter) {
+  if (!filter || filter === 'all') return true;
+  const info = expiryInfo(item);
+  if (filter === 'expired') return info.days !== null && info.days < 0;
+  if (filter === '7') return info.days !== null && info.days >= 0 && info.days <= 7;
+  if (filter === '30') return info.days !== null && info.days >= 0 && info.days <= 30;
+  if (filter === 'none') return !item?.expiryDate;
+  return true;
+}
+
+function ExpiryValue({ item, countdown = true }) {
+  const info = expiryInfo(item);
+  return (
+    <span className={`consignment-expiry-value ${info.className}`}>
+      {countdown ? info.label : (item?.expiryDate || '—')}
+    </span>
+  );
+}
+
 /* ---------- shared styles ---------- */
 
 function GlobalStyle() {
@@ -585,10 +620,13 @@ function GlobalStyle() {
       .consignment-item-group-stat span { color: var(--muted); font-size: 10px; margin-top: 2px; }
       .consignment-item-group-items { border-top: 1px solid var(--line); }
       .consignment-grouped-item-row {
-        display: grid; grid-template-columns: minmax(220px, 2fr) 90px 90px 112px 92px 112px;
+        display: grid; grid-template-columns: minmax(220px, 2fr) 90px 90px 112px 92px 108px 112px;
         gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px;
       }
       .consignment-grouped-item-row:last-child { border-bottom: 0; }
+      .consignment-consignor-expiry-row {
+        grid-template-columns: minmax(220px, 2fr) 108px 108px 90px 90px 112px 92px 112px;
+      }
       .consignment-grouped-item-open {
         display: flex; align-items: center; gap: 10px; min-width: 0; border: 0; background: transparent;
         color: inherit; padding: 0; text-align: left; font: inherit;
@@ -618,9 +656,9 @@ function GlobalStyle() {
       .consignment-item-group-chevron.open { transform: rotate(90deg); }
       .consignment-item-open-btn, .consignment-grid-open-btn { border: 1px solid #9EBFE4; border-radius: 8px; background: #fff; color: var(--green-dark); padding: 8px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; }
       .consignment-all-items-card { padding: 0; overflow: hidden; }
-      .consignment-all-item-row { display: grid; grid-template-columns: minmax(210px, 2fr) 82px minmax(120px, 1fr) 84px 88px 108px 90px 108px; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px; }
+      .consignment-all-item-row { display: grid; grid-template-columns: minmax(210px, 2fr) 82px minmax(120px, 1fr) 84px 88px 108px 90px 108px 108px; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px; }
       .consignment-all-item-row:last-child { border-bottom: 0; }
-      .consignment-all-items-card > .consignment-list-head { grid-template-columns: minmax(210px, 2fr) 82px minmax(120px, 1fr) 84px 88px 108px 90px 108px; }
+      .consignment-all-items-card > .consignment-list-head { grid-template-columns: minmax(210px, 2fr) 82px minmax(120px, 1fr) 84px 88px 108px 90px 108px 108px; }
       .consignment-items-grid { display: grid; grid-template-columns: repeat(auto-fill, 148px); gap: 8px; justify-content: start; align-items: start; }
       .consignment-item-grid-card { width: 148px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); overflow: hidden; min-width: 0; }
       .consignment-grid-image { width: 100%; height: 78px; border: 0; border-bottom: 1px solid var(--line); background: #F4F6F8; display: block; padding: 0; overflow: hidden; cursor: pointer; }
@@ -872,6 +910,68 @@ function GlobalStyle() {
       }
       .consignment-footnote button { background: none; border: none; color: var(--muted); text-decoration: underline; font-size: 12px; }
 
+      /* Shared data layout used by Items, Consignors and Sales. */
+      .consignment-data-row {
+        display: grid;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        font-size: 13px;
+      }
+      .consignment-data-row:last-child { border-bottom: 0; }
+      .consignment-data-head {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .consignment-cell-center {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .consignment-cell-action {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .consignment-badge,
+      .consignment-product-badge {
+        justify-content: center;
+        text-align: center;
+        vertical-align: middle;
+      }
+      .consignment-expiry-value {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 24px;
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+        white-space: nowrap;
+      }
+      .consignment-expiry-value.none { color: var(--muted); font-weight: 600; }
+      .consignment-expiry-value.soon { color: #8A5D14; }
+      .consignment-expiry-value.urgent,
+      .consignment-expiry-value.expired { color: var(--danger); }
+      .consignment-readable-card-details > span:first-child {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .consignment-readable-card-details .consignment-expiry-value {
+        justify-content: flex-start;
+        text-align: left;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .consignment-row-btn, .consignment-btn, .consignment-back { transition: none; }
         .consignment-spin { animation: none; }
@@ -1021,6 +1121,21 @@ function GlobalStyle() {
         .consignment-history-card-summary > .consignment-badge { grid-area: paid; justify-self: start; }
         .consignment-history-card-summary > svg { grid-area: arrow; }
         .consignment-history-meta { grid-template-columns: 1fr; }
+      }
+
+      @media (max-width: 900px) {
+        .consignment-consignor-expiry-row { min-width: 980px; }
+      }
+      @media (max-width: 640px) {
+        .consignment-consignor-expiry-row {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          min-width: 0;
+        }
+        .consignment-consignor-expiry-row > :nth-child(2),
+        .consignment-consignor-expiry-row > :nth-child(3),
+        .consignment-consignor-expiry-row > :nth-child(5),
+        .consignment-consignor-expiry-row > :nth-child(6) { display: none; }
       }
 
       /* Shared readable card layout — used by both the Items grid and the
@@ -1486,7 +1601,7 @@ function DashboardScreen({
             <button
               type="button"
               className="consignment-expiry-stat"
-              onClick={() => onNavigate('items')}
+              onClick={() => onNavigate('items', '7')}
               style={{ textAlign: 'left', background: 'var(--card-bg, #fff)', border: '1px solid var(--line)', borderRadius: 10, padding: '16px 18px', cursor: 'pointer' }}
             >
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--muted)' }}>Expiring in 7 days</div>
@@ -1496,7 +1611,7 @@ function DashboardScreen({
             <button
               type="button"
               className="consignment-expiry-stat"
-              onClick={() => onNavigate('items')}
+              onClick={() => onNavigate('items', '30')}
               style={{ textAlign: 'left', background: 'var(--card-bg, #fff)', border: '1px solid var(--line)', borderRadius: 10, padding: '16px 18px', cursor: 'pointer' }}
             >
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--muted)' }}>Expiring in 30 days</div>
@@ -1506,7 +1621,7 @@ function DashboardScreen({
             <button
               type="button"
               className="consignment-expiry-stat"
-              onClick={() => onNavigate('items')}
+              onClick={() => onNavigate('items', 'expired')}
               style={{ textAlign: 'left', background: 'var(--card-bg, #fff)', border: '1px solid var(--line)', borderRadius: 10, padding: '16px 18px', cursor: 'pointer' }}
             >
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--muted)' }}>Expired</div>
@@ -1566,17 +1681,22 @@ function DashboardScreen({
   );
 }
 
-function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSold, onNewItem }) {
+function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSold, onNewItem, initialExpiryFilter = 'all' }) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('Current');
   const [consignorFilter, setConsignorFilter] = useState('All');
   const [productFilter, setProductFilter] = useState('All');
+  const [expiryFilter, setExpiryFilter] = useState(initialExpiryFilter || 'all');
   const [sort, setSort] = useState('consignor');
   const [viewMode, setViewMode] = useState('list');
   const [sellingItemId, setSellingItemId] = useState(null);
   const [collapsedGroups, setCollapsedGroups] = useState(() => new Set());
   const statuses = ['Current', 'Draft', 'Available', 'Sold', 'Archived', 'Returned', 'Donated'];
   const consignorById = Object.fromEntries(consignors.map((entry) => [entry.id, entry]));
+
+  useEffect(() => {
+    setExpiryFilter(initialExpiryFilter || 'all');
+  }, [initialExpiryFilter]);
 
   const filtered = items.filter((item) => {
     const q = query.trim().toLowerCase();
@@ -1596,7 +1716,7 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
         : filter === 'Available'
           ? item.status === 'Available' || item.status === 'Active'
           : item.status === filter && !item.paidOut;
-    return matchesQuery && matchesConsignor && matchesProduct && matchesStatus;
+    return matchesQuery && matchesConsignor && matchesProduct && matchesStatus && expiryMatches(item, expiryFilter);
   }).sort((a, b) => {
     if (sort === 'oldest') return String(a.dateReceived || '').localeCompare(String(b.dateReceived || ''));
     if (sort === 'consignor') {
@@ -1710,6 +1830,9 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
                 return <option key={status} value={status}>{statusLabel(status)} ({count})</option>;
               })}
             </select></label>
+            <label className="consignment-tool-field"><span>Expiry</span><select className="consignment-select consignment-filter-select" value={expiryFilter} onChange={(event) => setExpiryFilter(event.target.value)} aria-label="Filter by expiry">
+              <option value="all">All expiry dates</option><option value="7">Expiring in 7 days</option><option value="30">Expiring in 30 days</option><option value="expired">Expired</option><option value="none">No expiry</option>
+            </select></label>
             </div>
           </details>
           <div className="consignment-items-toolbar-bottom">
@@ -1750,13 +1873,13 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
                   </div>
                   {!collapsed && (
                     <div className="consignment-item-group-items">
-                      <div className="consignment-grouped-item-row consignment-list-head"><span>Item</span><span>Price</span><span>Commission</span><span>Product</span><span>Status</span><span>Action</span></div>
+                      <div className="consignment-data-row consignment-grouped-item-row consignment-data-head consignment-list-head"><span>Item</span><span className="consignment-cell-center">Price</span><span className="consignment-cell-center">Commission</span><span className="consignment-cell-center">Product</span><span className="consignment-cell-center">Status</span><span className="consignment-cell-center">Expiry</span><span className="consignment-cell-center">Action</span></div>
                       {consignorItems.map((item) => {
                         const product = productLabel(item);
                         return (
-                          <div className="consignment-grouped-item-row" key={item.id}>
+                          <div className="consignment-data-row consignment-grouped-item-row" key={item.id}>
                             <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem(item.id)}><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span></button>
-                            <strong>{money(item.price)}</strong><span>{item.commissionPct}%</span><span className={`consignment-product-badge ${product.className}`}>{product.text}</span><span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span><span className="consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
+                            <strong className="consignment-cell-center">{money(item.price)}</strong><span className="consignment-cell-center">{item.commissionPct}%</span><span className="consignment-cell-center"><span className={`consignment-product-badge ${product.className}`}>{product.text}</span></span><span className="consignment-cell-center"><span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span></span><span className="consignment-cell-center"><ExpiryValue item={item} /></span><span className="consignment-cell-action consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
                           </div>
                         );
                       })}
@@ -1770,14 +1893,14 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
 
         {viewMode === 'list' && (
           <section className="consignment-card consignment-all-items-card">
-            <div className="consignment-list-row consignment-list-head"><span>Item</span><span>SKU</span><span>Consignor</span><span>Price</span><span>Commission</span><span>Product</span><span>Status</span><span>Action</span></div>
+            <div className="consignment-data-row consignment-all-item-row consignment-data-head consignment-list-head"><span>Item</span><span className="consignment-cell-center">SKU</span><span>Consignor</span><span className="consignment-cell-center">Price</span><span className="consignment-cell-center">Commission</span><span className="consignment-cell-center">Product</span><span className="consignment-cell-center">Status</span><span className="consignment-cell-center">Expiry</span><span className="consignment-cell-center">Action</span></div>
             {filtered.map((item) => {
               const consignor = consignorById[item.consignorId];
               const product = productLabel(item);
               return (
-                <div className="consignment-all-item-row" key={item.id}>
+                <div className="consignment-data-row consignment-all-item-row" key={item.id}>
                   <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem(item.id)}><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span></button>
-                  <strong>{item.itemNumber || '—'}</strong><ConsignorName consignor={consignor} /><strong>{money(item.price)}</strong><span>{item.commissionPct}%</span><span className={`consignment-product-badge ${product.className}`}>{product.text}</span><span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span><span className="consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
+                  <strong className="consignment-cell-center">{item.itemNumber || '—'}</strong><ConsignorName consignor={consignor} /><strong className="consignment-cell-center">{money(item.price)}</strong><span className="consignment-cell-center">{item.commissionPct}%</span><span className="consignment-cell-center"><span className={`consignment-product-badge ${product.className}`}>{product.text}</span></span><span className="consignment-cell-center"><span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span></span><span className="consignment-cell-center"><ExpiryValue item={item} /></span><span className="consignment-cell-action consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
                 </div>
               );
             })}
@@ -1822,7 +1945,7 @@ function ItemsScreen({ items, consignors, onOpenItem, onOpenConsignor, onMarkSol
                   </div>
 
                   <div className="consignment-readable-card-details">
-                    <span><small>Status</small></span>
+                    <span><small>Expiry</small><ExpiryValue item={item} /></span>
                     <span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid' : statusLabel(item.status)}</span>
                   </div>
 
@@ -1970,13 +2093,13 @@ function SalesScreen({ items, consignors, onStartPayout, onOpenConsignor }) {
           <>
             <div className="consignment-sales-scroll-hint" aria-hidden="true">Swipe to see more <span>→</span></div>
             <section className="consignment-card consignment-sales-table-card">
-            <div className="consignment-sales-multi-row consignment-list-head"><span>Sale</span><span>SKU</span><span>Consignor</span><span>Source</span><span>Sale price</span><span>Consignor due</span><span>Payout</span><span>Action</span></div>
+            <div className="consignment-data-row consignment-sales-multi-row consignment-data-head consignment-list-head"><span>Sale</span><span>SKU</span><span>Consignor</span><span>Source</span><span>Sale price</span><span>Consignor due</span><span>Payout</span><span>Action</span></div>
             {filteredSales.map((item) => {
               const consignor = consignorById[item.consignorId];
               const salePrice = Number(item.salePrice ?? item.price ?? 0);
               const due = (salePrice * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100;
               const source = sourceLabel(item);
-              return <div className="consignment-sales-multi-row" key={item.id}><span className="consignment-item-primary"><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <ReceiptText size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || (source.text === 'Manual' ? 'Manual sale' : 'Shopify order')} · {item.dateSold || 'Paid'}</span></span></span><strong>{item.itemNumber || '—'}</strong><ConsignorLink consignor={consignor} /><span className={`consignment-product-badge ${source.className}`}>{source.text}</span><strong>{money(salePrice)}</strong><strong>{money(due)}</strong><span className={`consignment-badge ${item.paidOut ? 'available' : 'draft'}`}>{item.paidOut ? 'Paid' : 'Unpaid'}</span><span className="consignment-sales-action"><PayoutAction item={item} consignor={consignor} /></span></div>;
+              return <div className="consignment-data-row consignment-sales-multi-row" key={item.id}><span className="consignment-item-primary"><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <ReceiptText size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || (source.text === 'Manual' ? 'Manual sale' : 'Shopify order')} · {item.dateSold || 'Paid'}</span></span></span><strong>{item.itemNumber || '—'}</strong><ConsignorLink consignor={consignor} /><span className={`consignment-product-badge ${source.className}`}>{source.text}</span><strong>{money(salePrice)}</strong><strong>{money(due)}</strong><span className={`consignment-badge ${item.paidOut ? 'available' : 'draft'}`}>{item.paidOut ? 'Paid' : 'Unpaid'}</span><span className="consignment-sales-action"><PayoutAction item={item} consignor={consignor} /></span></div>;
             })}
             </section>
           </>
@@ -2002,12 +2125,12 @@ function SalesScreen({ items, consignors, onStartPayout, onOpenConsignor }) {
                   </summary>
                   <div className="consignment-sales-scroll-hint" aria-hidden="true">Swipe to see more <span>→</span></div>
                   <div className="consignment-sales-group-list consignment-sales-table-card">
-                    <div className="consignment-sales-multi-row consignment-list-head"><span>Sale</span><span>SKU</span><span>Consignor</span><span>Source</span><span>Sale price</span><span>Consignor due</span><span>Payout</span><span>Action</span></div>
+                    <div className="consignment-data-row consignment-sales-multi-row consignment-data-head consignment-list-head"><span>Sale</span><span>SKU</span><span>Consignor</span><span>Source</span><span>Sale price</span><span>Consignor due</span><span>Payout</span><span>Action</span></div>
                     {sales.map((item) => {
                       const salePrice = Number(item.salePrice ?? item.price ?? 0);
                       const due = (salePrice * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100;
                       const source = sourceLabel(item);
-                      return <div className="consignment-sales-multi-row" key={item.id}><span className="consignment-item-primary"><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <ReceiptText size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || (source.text === 'Manual' ? 'Manual sale' : 'Shopify order')} · {item.dateSold || 'Paid'}</span></span></span><strong>{item.itemNumber || '—'}</strong><ConsignorLink consignor={consignor} /><span className={`consignment-product-badge ${source.className}`}>{source.text}</span><strong>{money(salePrice)}</strong><strong>{money(due)}</strong><span className={`consignment-badge ${item.paidOut ? 'available' : 'draft'}`}>{item.paidOut ? 'Paid' : 'Unpaid'}</span><span className="consignment-sales-action"><PayoutAction item={item} consignor={consignor} /></span></div>;
+                      return <div className="consignment-data-row consignment-sales-multi-row" key={item.id}><span className="consignment-item-primary"><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <ReceiptText size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || (source.text === 'Manual' ? 'Manual sale' : 'Shopify order')} · {item.dateSold || 'Paid'}</span></span></span><strong>{item.itemNumber || '—'}</strong><ConsignorLink consignor={consignor} /><span className={`consignment-product-badge ${source.className}`}>{source.text}</span><strong>{money(salePrice)}</strong><strong>{money(due)}</strong><span className={`consignment-badge ${item.paidOut ? 'available' : 'draft'}`}>{item.paidOut ? 'Paid' : 'Unpaid'}</span><span className="consignment-sales-action"><PayoutAction item={item} consignor={consignor} /></span></div>;
                     })}
                   </div>
                 </details>
@@ -2095,6 +2218,12 @@ function SalesScreen({ items, consignors, onStartPayout, onOpenConsignor }) {
         .consignment-sales-table-card { padding:0; overflow:hidden; }
         .consignment-sales-multi-row { display:grid; grid-template-columns:minmax(210px,1.35fr) 85px minmax(130px,1fr) 95px 95px 110px 85px 120px; gap:12px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--border); font-size:12px; }
         .consignment-sales-multi-row:last-child { border-bottom:0; }
+        .consignment-sales-multi-row > :nth-child(2),
+        .consignment-sales-multi-row > :nth-child(4),
+        .consignment-sales-multi-row > :nth-child(5),
+        .consignment-sales-multi-row > :nth-child(6),
+        .consignment-sales-multi-row > :nth-child(7),
+        .consignment-sales-multi-row > :nth-child(8) { text-align:center; justify-self:center; }
         .consignment-sales-consignor-link { padding:0; border:0; background:none; color:var(--green); font:inherit; font-weight:700; text-align:left; cursor:pointer; }
         .consignment-sales-consignor-link:hover { text-decoration:underline; }
         .consignment-sales-pay-btn { border:0; border-radius:8px; background:var(--green); color:#fff; padding:8px 10px; font-size:11px; font-weight:700; white-space:nowrap; cursor:pointer; }
@@ -2843,13 +2972,13 @@ function HomeScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpe
                   </div>
                   {!collapsed && (
                     <div className="consignment-item-group-items">
-                      <div className="consignment-grouped-item-row consignment-list-head"><span>Item</span><span>Price</span><span>Commission</span><span>Product</span><span>Status</span><span>Action</span></div>
+                      <div className="consignment-data-row consignment-consignor-expiry-row consignment-data-head consignment-list-head"><span>Item</span><span className="consignment-cell-center">Received</span><span className="consignment-cell-center">Expiry</span><span className="consignment-cell-center">Price</span><span className="consignment-cell-center">Commission</span><span className="consignment-cell-center">Product</span><span className="consignment-cell-center">Status</span><span className="consignment-cell-center">Action</span></div>
                       {consignorItems.map((item) => {
                         const product = productLabel(item);
                         return (
-                          <div className="consignment-grouped-item-row" key={item.id}>
+                          <div className="consignment-data-row consignment-consignor-expiry-row" key={item.id}>
                             <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem(item.id)}><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span></button>
-                            <strong>{money(item.price)}</strong><span>{item.commissionPct}%</span><span className={`consignment-product-badge ${product.className}`}>{product.text}</span><span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span><span className="consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
+                            <span className="consignment-cell-center">{item.dateReceived || '—'}</span><span className="consignment-cell-center"><ExpiryValue item={item} countdown={false} /></span><strong className="consignment-cell-center">{money(item.price)}</strong><span className="consignment-cell-center">{item.commissionPct}%</span><span className="consignment-cell-center"><span className={`consignment-product-badge ${product.className}`}>{product.text}</span></span><span className="consignment-cell-center"><span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span></span><span className="consignment-cell-action consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
                           </div>
                         );
                       })}
@@ -3384,6 +3513,7 @@ function ConsignorScreen({ consignor, items, onBack, onStartIntake, onOpenItem, 
                     <span className="consignment-consignor-item-title">{item.description || item.category}</span>
                     <span className="consignment-consignor-item-meta">{item.itemNumber} · {item.size ? `Size ${item.size} · ` : ''}{money(item.price)}</span>
                     <span className="consignment-consignor-item-meta">Product type: {item.type || item.category || 'Not set'}</span>
+                    <span className="consignment-consignor-item-meta">Received: {item.dateReceived || '—'} · Expiry: {item.expiryDate || '—'}</span>
                     {item.paidOut && <span className="consignment-paid-detail">Paid {item.payoutDate || ''} · {item.payoutMethod || 'Method not recorded'} · {money(item.payoutAmount)}</span>}
                   </span>
                 </button>
@@ -3956,6 +4086,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
   const [toast, setToast] = useState('');
   const [error, setError] = useState('');
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [itemsExpiryFilter, setItemsExpiryFilter] = useState('all');
 
   function errorMessage(value, fallback) {
     return value instanceof Error ? value.message : fallback;
@@ -4176,8 +4307,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         ? 'payouts'
         : view;
 
-  function navigate(viewName) {
+  function navigate(viewName, expiryFilter = null) {
     setError('');
+    if (viewName === 'items') setItemsExpiryFilter(expiryFilter || 'all');
     setView(viewName);
   }
 
@@ -4261,6 +4393,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
           onOpenConsignor={openConsignor}
           onMarkSold={(itemId, details) => handleUpdateItemStatus(itemId, 'Sold', details)}
           onNewItem={startNewItem}
+          initialExpiryFilter={itemsExpiryFilter}
         />
       )}
 
