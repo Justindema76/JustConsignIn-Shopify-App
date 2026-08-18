@@ -884,7 +884,7 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
       'No active Shopify location was found. Check Settings → Locations.',
     );
   }
-  if (!posPublication?.id) {
+  if (item.publishToPos !== false && !posPublication?.id) {
     throw new Error(
       'The Point of Sale sales channel is not available. Add Shopify POS, then try again.',
     );
@@ -895,9 +895,14 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
     );
   }
   const publications = [
-    posPublication,
+    ...(item.publishToPos !== false ? [posPublication] : []),
     ...(item.publishOnline ? [onlineStorePublication] : []),
   ];
+  if (!publications.length) {
+    throw new Error(
+      'Choose at least one Shopify sales channel: Point of Sale or Online Store.',
+    );
+  }
   const collection = await ensureConsignmentCollection(admin, publications);
 
   const files = item.photoId ? [{ id: item.photoId }] : undefined;
@@ -1121,10 +1126,29 @@ export async function action({ request }) {
         const number = Number(value);
         return Number.isFinite(number) ? number : null;
       };
+      const wantsShopifyProduct = (row) => asBoolean(
+        row.create_shopify_product ?? row.createShopifyProduct,
+      );
+      const importedShopifyFields = (row, fallbackPrice) => {
+        const rawTags = text(row.shopify_tags ?? row.shopifyTags);
+        return {
+          shopifyTitle: text(row.shopify_title ?? row.shopifyTitle),
+          shopifyPrice: optionalNumber(row.shopify_price ?? row.shopifyPrice) ?? Number(fallbackPrice || 0),
+          productDescription: text(row.shopify_description ?? row.shopifyDescription),
+          vendor: text(row.shopify_vendor ?? row.shopifyVendor),
+          tags: rawTags.split(/[|,]/).map((tag) => tag.trim()).filter(Boolean),
+          shopifyCategoryId: text(row.shopify_category_id ?? row.shopifyCategoryId),
+          shopifyCategoryName: text(row.shopify_category_name ?? row.shopifyCategoryName),
+          seoTitle: text(row.seo_title ?? row.seoTitle),
+          seoDescription: text(row.seo_description ?? row.seoDescription),
+          publishToPos: asBoolean(row.publish_to_pos ?? row.publishToPos),
+          publishOnline: asBoolean(row.publish_online ?? row.publishOnline),
+        };
+      };
 
-      // The combined consignor import creates/matches the consignor first, then
-      // attaches every manual item using the returned metaobject ID. It never
-      // relies on a CSV consignor number and never creates Shopify products.
+      // Combined imports always create/match consignors and consignment items.
+      // Tier 1 remains manual-only. Tier 2 can additionally create and link
+      // Shopify products when create_shopify_product is true.
       if (kind === 'consignors') {
         const grouped = new Map();
         rows.forEach((row, index) => {
@@ -1223,12 +1247,40 @@ export async function action({ request }) {
             const salePrice = optionalNumber(row.sale_price ?? row.salePrice);
             const commissionPct = Number(row.commission_pct || row.commissionPct || consignor.commissionPct || 50);
             const payoutAmount = sold ? ((salePrice ?? price) * commissionPct) / 100 : 0;
+            const createShopifyProduct = wantsShopifyProduct(row);
+            const shopify = importedShopifyFields(row, price);
+
+            if (createShopifyProduct) {
+              await requireTier2(admin);
+              if (!shopify.shopifyTitle) {
+                throw new Error(
+                  `Row ${entry.index + 2}: shopify_title is required when create_shopify_product is true.`,
+                );
+              }
+              if (!Number.isFinite(Number(shopify.shopifyPrice)) || Number(shopify.shopifyPrice) <= 0) {
+                throw new Error(
+                  `Row ${entry.index + 2}: shopify_price must be greater than 0 when create_shopify_product is true.`,
+                );
+              }
+              if (!shopify.publishToPos && !shopify.publishOnline) {
+                throw new Error(
+                  `Row ${entry.index + 2}: set publish_to_pos or publish_online to true when create_shopify_product is true.`,
+                );
+              }
+            }
+
             const value = {
               itemNumber,
               consignorId: consignor.id,
               dateReceived: text(row.date_received || row.dateReceived) || today(),
+              consignmentTerm: text(row.consignment_term || row.consignmentTerm) || '',
+              expiryDate: calculateExpiryDate(
+                text(row.date_received || row.dateReceived) || today(),
+                text(row.consignment_term || row.consignmentTerm) || '',
+              ),
+              expiryAction: text(row.expiry_action || row.expiryAction),
               category: text(row.category),
-              type: '',
+              type: text(row.item_type || row.itemType),
               description,
               size: text(row.size),
               condition: text(row.condition) || 'Good',
@@ -1238,18 +1290,66 @@ export async function action({ request }) {
               brand: text(row.brand),
               notes: text(row.item_notes || row.notes),
               importKey: itemImportKey,
-              tags: [], vendor: '', productDescription: '', shopifyTitle: '',
+              ...(createShopifyProduct ? shopify : {
+                tags: [],
+                vendor: '',
+                productDescription: '',
+                shopifyTitle: '',
+                shopifyPrice: null,
+                shopifyCategoryId: '',
+                shopifyCategoryName: '',
+                seoTitle: '',
+                seoDescription: '',
+                publishToPos: false,
+                publishOnline: false,
+              }),
               salePrice: sold ? (salePrice ?? price) : null,
               dateSold: sold ? (text(row.sale_date || row.date_sold || row.dateSold) || today()) : null,
-              orderName: null, orderId: null,
+              orderName: null,
+              orderId: null,
               paidOut,
               payoutId: paidOut ? `imported-${itemNumber}` : '',
               payoutDate: paidOut ? (text(row.payout_date || row.payoutDate) || today()) : '',
               payoutMethod: paidOut ? (text(row.payout_method || row.payoutMethod) || 'Imported payment') : '',
-              payoutReference: '', payoutNote: '', payoutAmount,
-              payoutTotal: payoutAmount, payoutAdjustment: 0,
+              payoutReference: '',
+              payoutNote: '',
+              payoutAmount,
+              payoutTotal: payoutAmount,
+              payoutAdjustment: 0,
             };
-            await upsert(admin, 'consignment_item', safeHandle(itemNumber), itemFields(value));
+
+            const itemHandle = safeHandle(itemNumber);
+            let saved = await upsert(
+              admin,
+              'consignment_item',
+              itemHandle,
+              itemFields(value),
+            );
+
+            if (createShopifyProduct && !sold) {
+              const productSource = {
+                ...value,
+                id: saved.id,
+                handle: saved.handle,
+                shopifyProductId: null,
+              };
+              const product = await syncPosProduct(
+                admin,
+                productSource,
+                consignor,
+                current.shop?.name,
+              );
+              saved = await upsert(
+                admin,
+                'consignment_item',
+                itemHandle,
+                itemFields(value, {
+                  shopifyProductId: product.id,
+                  status: 'Available',
+                }),
+              );
+            }
+
             itemsImported += 1;
           }
         }
