@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import { money, productLabel, statusClass, statusLabel, productAdminUrl } from '../../lib/consignmentHelpers';
+import { money, productLabel, statusClass, statusLabel } from '../../lib/consignmentHelpers';
 import '../../styles/by-consignor-container.css';
 
 // Ported from the TESTING app's ByConsignorContainer.jsx, renamed
-// AllConsignorView per Justin's request. Behavior is unchanged — same
-// props, same per-item action logic (Pay / Mark sold / View Product /
-// Archived), same stats header. Used across Consignors, Items, Sales, and
-// Payouts in TESTING; not yet wired into any page here.
+// AllConsignorView per Justin's request. Per-item actions: Pay (sold,
+// unpaid), Mark sold (manual, available), Archived label (paid out).
+// No "View Product" link out to Shopify admin — item titles open the
+// item's own page in-app instead, since edits made directly in Shopify
+// don't sync back automatically. Used across Consignors and Items so far.
 
 export default function AllConsignorView({
   consignor,
@@ -63,7 +64,6 @@ export default function AllConsignorView({
     const isSold = item.status === 'Sold' || Boolean(item.dateSold);
     const isPaid = item.paidOut === true;
     const isManualAvailable = product.className === 'manual' && !isSold && !isPaid && (item.status === 'Available' || item.status === 'Active');
-    const hasShopifyProduct = Boolean(item.shopifyProductId);
 
     if (isPaid) return <span className="consignment-archive-note">Archived</span>;
     if (isSold && consignor && onStartPayout) {
@@ -71,9 +71,6 @@ export default function AllConsignorView({
     }
     if (isManualAvailable && onMarkSold) {
       return <button type="button" className="consignment-quick-sold-btn" disabled={sellingItemId === item.id} onClick={() => quickMarkSold(item)}>{sellingItemId === item.id ? 'Saving…' : 'Mark sold'}</button>;
-    }
-    if (!isSold && hasShopifyProduct) {
-      return <a className="consignment-sales-pay-btn" href={productAdminUrl(item.shopifyProductId)} target="_top" rel="noreferrer">View Product</a>;
     }
     return null;
   }
