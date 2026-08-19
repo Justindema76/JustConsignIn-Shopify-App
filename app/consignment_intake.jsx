@@ -23,6 +23,7 @@ import {
 import ReportsScreen from './reports';
 import DashboardScreen from './pages/consignment/DashboardScreen';
 import { Header, MetricCard } from './components/consignment/SharedPieces';
+import AllConsignorView from './components/consignment/AllConsignorView';
 import { money } from './lib/consignmentHelpers';
 
 /* ---------- image helper ---------- */
@@ -2482,14 +2483,12 @@ function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
 
 /* ---------- screens ---------- */
 
-function HomeScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpenItem, onMarkSold, onNewConsignor, onNewItem, onImport, onExport }) {
+function HomeScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpenItem, onMarkSold, onStartPayout, onNewConsignor, onNewItem, onImport, onExport }) {
   const [filter, setFilter] = useState('All');
   const [consignorFilter, setConsignorFilter] = useState('All');
   const [productFilter, setProductFilter] = useState('All');
   const [sort, setSort] = useState('consignor');
   const [viewMode, setViewMode] = useState('grouped');
-  const [sellingItemId, setSellingItemId] = useState(null);
-  const [collapsedGroups, setCollapsedGroups] = useState(() => new Set());
   const statuses = ['All', 'Draft', 'Available', 'Sold', 'Archived', 'Returned', 'Donated'];
   const consignorById = Object.fromEntries(consignors.map((entry) => [entry.id, entry]));
 
@@ -2555,57 +2554,6 @@ function HomeScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpe
     return `${a?.lastName || ''} ${a?.firstName || ''}`.localeCompare(`${b?.lastName || ''} ${b?.firstName || ''}`);
   });
 
-  async function quickMarkSold(item) {
-    if (sellingItemId) return;
-    const amount = window.prompt(`Sale price for ${item.description || item.itemNumber}`, String(item.price ?? ''));
-    if (amount === null) return;
-    const salePrice = Number(amount);
-    if (!Number.isFinite(salePrice) || salePrice < 0) {
-      window.alert('Enter a valid sale price.');
-      return;
-    }
-    setSellingItemId(item.id);
-    try {
-      await onMarkSold(item.id, { salePrice, dateSold: new Date().toISOString().slice(0, 10) });
-    } finally {
-      setSellingItemId(null);
-    }
-  }
-
-  function toggleGroup(consignorId) {
-    setCollapsedGroups((current) => {
-      const next = new Set(current);
-      if (next.has(consignorId)) next.delete(consignorId);
-      else next.add(consignorId);
-      return next;
-    });
-  }
-
-  function ConsignorName({ consignor }) {
-    if (!consignor) return <span>Unassigned</span>;
-    return (
-      <button type="button" className="consignment-consignor-profile-link" onClick={() => onOpenConsignor(consignor.id)}>
-        {consignor.firstName} {consignor.lastName}
-      </button>
-    );
-  }
-
-  function ItemAction({ item, product, compact = false }) {
-    const isManualAvailable = product.className === 'manual' && (item.status === 'Available' || item.status === 'Active') && !item.paidOut;
-    if (isManualAvailable) {
-      return (
-        <button type="button" className="consignment-quick-sold-btn" disabled={sellingItemId === item.id} onClick={() => quickMarkSold(item)}>
-          {sellingItemId === item.id ? 'Saving…' : 'Mark sold'}
-        </button>
-      );
-    }
-    return (
-      <button type="button" className={compact ? 'consignment-grid-open-btn' : 'consignment-item-open-btn'} onClick={() => onOpenItem(item.id)}>
-        Open item
-      </button>
-    );
-  }
-
   return (
     <>
       <Header
@@ -2667,41 +2615,17 @@ function HomeScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpe
 
         {viewMode === 'grouped' && (
           <div className="consignment-item-groups">
-            {groupedEntries.map(([consignorId, consignorItems]) => {
-              const consignor = consignorById[consignorId];
-              const availableCount = consignorItems.filter((item) => item.status === 'Available' || item.status === 'Active').length;
-              const soldCount = consignorItems.filter((item) => item.status === 'Sold' || item.dateSold).length;
-              const initials = consignor ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` : '—';
-              const collapsed = collapsedGroups.has(consignorId);
-              return (
-                <section className="consignment-item-group" key={consignorId}>
-                  <div className="consignment-item-group-summary">
-                    <button type="button" className={`consignment-item-group-chevron ${collapsed ? '' : 'open'}`} onClick={() => toggleGroup(consignorId)} aria-label={collapsed ? 'Expand consignor items' : 'Collapse consignor items'}><ChevronRight size={16} /></button>
-                    <span className="consignment-avatar consignment-item-group-avatar">{initials}</span>
-                    <span className="consignment-item-group-person">
-                      <ConsignorName consignor={consignor} />
-                      <span className="consignment-item-group-meta"><strong className="consignment-item-group-number">#{consignor?.number || '—'}</strong><span className="consignment-item-group-count">· {consignorItems.length} item{consignorItems.length === 1 ? '' : 's'}</span></span>
-                    </span>
-                    <span className="consignment-item-group-stat"><strong>{availableCount}</strong><span>Available</span></span>
-                    <span className="consignment-item-group-stat"><strong>{soldCount}</strong><span>Sold</span></span>
-                  </div>
-                  {!collapsed && (
-                    <div className="consignment-item-group-items">
-                      <div className="consignment-grouped-item-row consignment-list-head"><span>Item</span><span>Price</span><span>Commission</span><span>Product</span><span>Status</span><span>Action</span></div>
-                      {consignorItems.map((item) => {
-                        const product = productLabel(item);
-                        return (
-                          <div className="consignment-grouped-item-row" key={item.id}>
-                            <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem(item.id)}><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span></button>
-                            <strong>{money(item.price)}</strong><span>{item.commissionPct}%</span><span className={`consignment-product-badge ${product.className}`}>{product.text}</span><span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span><span className="consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </section>
-              );
-            })}
+            {groupedEntries.map(([consignorId, consignorItems]) => (
+              <AllConsignorView
+                key={consignorId}
+                consignor={consignorById[consignorId]}
+                items={consignorItems}
+                onOpenConsignor={onOpenConsignor}
+                onOpenItem={onOpenItem}
+                onMarkSold={onMarkSold}
+                onStartPayout={onStartPayout}
+              />
+            ))}
           </div>
         )}
 
@@ -4093,6 +4017,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
           onOpenConsignor={openConsignor}
           onOpenItem={openItem}
           onMarkSold={(itemId, details) => handleUpdateItemStatus(itemId, 'Sold', details)}
+          onStartPayout={(consignorId) => { setActiveId(consignorId); setView('createPayout'); }}
           onNewConsignor={() => startNewConsignor('consignor', 'home')}
           onNewItem={startNewItem}
           onImport={() => startImport('consignors', 'home')}

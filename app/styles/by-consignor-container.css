@@ -1,0 +1,43 @@
+.consignment-by-consignor-container .consignment-item-group-summary {
+  grid-template-columns: 30px 38px minmax(0, 1fr) repeat(4, minmax(72px, 92px));
+}
+
+.consignment-by-consignor-container .consignment-item-group-chevron.open {
+  transform: rotate(90deg);
+}
+
+.consignment-by-consignor-container .consignment-archive-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface, #fff);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .consignment-by-consignor-container .consignment-item-group-summary {
+    grid-template-columns: 28px 36px minmax(0, 1fr) repeat(4, minmax(58px, 76px));
+    gap: 8px;
+  }
+}
+
+@media (max-width: 700px) {
+  .consignment-by-consignor-container .consignment-item-group-summary {
+    grid-template-columns: 28px 36px minmax(0, 1fr);
+    gap: 9px;
+    padding: 12px;
+  }
+
+  .consignment-by-consignor-container .consignment-item-group-stat {
+    display: none;
+  }
+}
