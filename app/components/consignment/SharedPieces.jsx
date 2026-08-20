@@ -1,28 +1,8 @@
-import { ArrowLeft } from 'lucide-react';
+/* eslint-disable react/prop-types */
 
-// Extracted verbatim from consignment_intake.jsx — behavior unchanged.
-// More pieces move here as each additional page gets broken out.
-
-export function Header({ eyebrow, title, onBack = null, action = null }) {
-  return (
-    <div className="consignment-header">
-      <div className="consignment-header-row">
-        <div className="consignment-header-main">
-          {onBack && (
-            <button className="consignment-back" onClick={onBack} aria-label="Back">
-              <ArrowLeft size={18} />
-            </button>
-          )}
-          <div>
-            {eyebrow && <p className="consignment-eyebrow">{eyebrow}</p>}
-            <h1 className="consignment-title">{title}</h1>
-          </div>
-        </div>
-        {action && <div className="consignment-header-action">{action}</div>}
-      </div>
-    </div>
-  );
-}
+// Compatibility re-export so existing screens keep working unchanged.
+// New/updated screens can import Header directly from ./Header.
+export { default as Header } from './Header';
 
 export function MetricCard({ icon: Icon, label, value, note, onClick }) {
   return (

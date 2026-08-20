@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types, jsx-a11y/label-has-associated-control */
 import { useState, useEffect } from 'react';
 import {
-  Search, Plus, ArrowLeft, Camera, X, ChevronRight, ChevronDown, Phone, Mail,
+  Search, Plus, Camera, X, ChevronRight, ChevronDown, Phone, Mail,
   Loader2, Tag, Check, Trash2, ShoppingBag, LayoutDashboard,
   Users, ReceiptText, WalletCards, PackageSearch, TrendingUp, CircleDollarSign,
   CalendarDays, FileUp, Download, MapPin, Pencil, List, Grid3X3, ArrowUp,
@@ -22,7 +22,7 @@ import {
 } from './consignmentApi';
 import ReportsScreen from './reports';
 import DashboardScreen from './pages/consignment/DashboardScreen';
-import { Header, MetricCard } from './components/consignment/SharedPieces';
+import Header from './components/consignment/Header';
 import AllConsignorView from './components/consignment/AllConsignorView';
 import ConsignorsScreen from './pages/consignment/ConsignorsScreen';
 import { money } from './lib/consignmentHelpers';
@@ -150,32 +150,6 @@ function GlobalStyle() {
       }
       .consignment ::placeholder { color: #A6AC9B; }
 
-      .consignment-header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background: var(--bg);
-        padding: 22px 24px 14px;
-        border-bottom: 1px solid var(--line);
-      }
-      .consignment-header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-      .consignment-header-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
-      .consignment-header-action { flex-shrink: 0; }
-      .consignment-header-action .consignment-btn {
-        min-width: 0; padding: 10px 14px; border-radius: 9px; box-shadow: none;
-      }
-      .consignment-back {
-        display: flex; align-items: center; justify-content: center;
-        width: 36px; height: 36px; border-radius: 999px;
-        border: 1px solid var(--line); background: var(--surface);
-        color: var(--ink); flex-shrink: 0;
-      }
-      .consignment-back:active { background: var(--green-soft); }
-      .consignment-eyebrow {
-        font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
-        color: var(--green); font-weight: 600; margin: 0 0 2px;
-      }
-      .consignment-title { font-family: 'Inter', system-ui, sans-serif !important; font-size: 24px; font-weight: 700; line-height: 1.15; }
 
       .consignment-body { flex: 1; overflow-y: auto; padding: 20px 24px 110px; }
 
@@ -539,8 +513,6 @@ function GlobalStyle() {
         margin-top: 7px; padding: 9px 11px; background: var(--green-soft);
         border-radius: 9px; color: var(--green-dark); font-size: 12px;
       }
-      .consignment-header-actions { display: flex; gap: 8px; align-items: center; }
-      .consignment-header-actions .consignment-btn { min-width: 0; }
       .consignment-data-menu { position: relative; }
       .consignment-data-menu > summary {
         list-style: none; display: flex; align-items: center; gap: 7px;
@@ -922,13 +894,6 @@ function GlobalStyle() {
         .consignment-back-to-top {
           right: 14px;
           bottom: calc(84px + env(safe-area-inset-bottom));
-        }
-        .consignment-header { padding: 18px 16px 12px; position: static; }
-        .consignment-header-row { flex-direction: column; align-items: stretch; gap: 10px; }
-        .consignment-header-action { width: 100%; }
-        .consignment-header-actions { flex-wrap: wrap; }
-        .consignment-header-actions .consignment-btn {
-          width: calc(50% - 4px); flex: 0 0 auto;
         }
         .consignment-body { padding: 14px 16px 96px; }
         .consignment-fab-wrap { padding-left: 16px; padding-right: 16px; bottom: 68px; }
