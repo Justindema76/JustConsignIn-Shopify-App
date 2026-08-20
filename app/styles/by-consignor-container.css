@@ -6,21 +6,16 @@
   transform: rotate(90deg);
 }
 
-.consignment-by-consignor-container .consignment-archive-note {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 96px;
-  min-height: 34px;
-  padding: 6px 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface, #fff);
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1.1;
-  white-space: nowrap;
+/* Archived items: the desktop/tablet action link uses the existing
+   .consignment-item-open-btn styling (matches Pay/Mark sold sizing
+   exactly). On mobile the action column gets absolutely positioned and
+   overlaps the title, so we hide the link there entirely — the item
+   title itself already routes to the consignor dashboard for paid
+   items (see AllConsignorView.jsx), so nothing is lost. */
+@media (max-width: 640px) {
+  .consignment-archived-link {
+    display: none;
+  }
 }
 
 @media (max-width: 900px) {

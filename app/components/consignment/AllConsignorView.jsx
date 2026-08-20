@@ -5,10 +5,12 @@ import '../../styles/by-consignor-container.css';
 
 // Ported from the TESTING app's ByConsignorContainer.jsx, renamed
 // AllConsignorView per Justin's request. Per-item actions: Pay (sold,
-// unpaid), Mark sold (manual, available), Archived label (paid out).
-// No "View Product" link out to Shopify admin — item titles open the
-// item's own page in-app instead, since edits made directly in Shopify
-// don't sync back automatically. Used across Consignors and Items so far.
+// unpaid), Mark sold (manual, available), Archived link (paid out —
+// routes to the consignor's dashboard, not Shopify admin, since edits
+// made directly in Shopify don't sync back automatically). On mobile the
+// Archived link is hidden (it would overlap the title in the tight
+// layout) and the title itself routes to the consignor dashboard
+// instead for paid items. Used across Consignors and Items so far.
 
 export default function AllConsignorView({
   consignor,
@@ -65,7 +67,18 @@ export default function AllConsignorView({
     const isPaid = item.paidOut === true;
     const isManualAvailable = product.className === 'manual' && !isSold && !isPaid && (item.status === 'Available' || item.status === 'Active');
 
-    if (isPaid) return <span className="consignment-archive-note">Archived</span>;
+    if (isPaid) {
+      if (!consignor || !onOpenConsignor) return null;
+      return (
+        <button
+          type="button"
+          className="consignment-item-open-btn consignment-archived-link"
+          onClick={() => onOpenConsignor(consignor.id)}
+        >
+          Archived
+        </button>
+      );
+    }
     if (isSold && consignor && onStartPayout) {
       return <button type="button" className="consignment-sales-pay-btn" onClick={() => onStartPayout(consignor.id)}>Pay</button>;
     }
@@ -124,9 +137,14 @@ export default function AllConsignorView({
           {items.map((item) => {
             const product = productLabel(item);
             const photo = item.shopifyPhoto || item.photo;
+            const titleGoesToConsignor = item.paidOut === true && consignor && onOpenConsignor;
             return (
               <div className="consignment-grouped-item-row" key={item.id}>
-                <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem?.(item.id)}>
+                <button
+                  type="button"
+                  className="consignment-grouped-item-open"
+                  onClick={() => (titleGoesToConsignor ? onOpenConsignor(consignor.id) : onOpenItem?.(item.id))}
+                >
                   {photo && <span className="consignment-batch-thumb"><img src={photo} alt="" /></span>}
                   <span>
                     <strong>{item.description || item.type || 'Consignment item'}</strong>
@@ -136,7 +154,7 @@ export default function AllConsignorView({
                 <strong>{money(item.price)}</strong>
                 <span>{item.commissionPct ?? consignor?.commissionPct ?? 0}%</span>
                 <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
-                <span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>{item.paidOut ? 'Paid · archived' : statusLabel(item.status)}</span>
+                <span className={`consignment-badge ${item.paidOut ? 'paid' : statusClass(item.status)}`}>{item.paidOut ? 'Paid' : statusLabel(item.status)}</span>
                 <span className="consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
               </div>
             );
