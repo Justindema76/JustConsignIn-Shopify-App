@@ -6,6 +6,23 @@
   transform: rotate(90deg);
 }
 
+/* The item-row grid itself — exclusive to AllConsignorView (nothing else
+   in the app renders .consignment-grouped-item-row), so it lives here
+   instead of the monolith's GlobalStyle. Moved out 2026-08-19. */
+.consignment-grouped-item-row {
+  display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px;
+}
+.consignment-grouped-item-row:last-child { border-bottom: 0; }
+.consignment-grouped-item-row > :nth-child(2),
+.consignment-grouped-item-row > :nth-child(3),
+.consignment-grouped-item-row > :nth-child(4),
+.consignment-grouped-item-row > :nth-child(5),
+.consignment-grouped-item-row > :nth-child(6) {
+  text-align: center; justify-self: center;
+}
+.consignment-grouped-item-row .consignment-item-quick-action { justify-content: center; }
+
 /* Archived items: the desktop/tablet action link uses the existing
    .consignment-item-open-btn styling (matches Pay/Mark sold sizing
    exactly). On mobile the action column gets absolutely positioned and
@@ -16,6 +33,18 @@
   .consignment-archived-link {
     display: none;
   }
+  .consignment-grouped-item-row {
+    position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 12px;
+  }
+  .consignment-grouped-item-row.consignment-list-head { display: none; }
+  .consignment-grouped-item-row > :nth-child(1) { flex: 1 1 100%; min-width: 0; padding-right: 96px; }
+  .consignment-grouped-item-row > :nth-child(3) { display: none; }
+  .consignment-grouped-item-row > .consignment-item-quick-action {
+    position: absolute; top: 12px; right: 12px; margin: 0;
+    display: flex; justify-content: flex-end;
+  }
+  .consignment-grouped-item-row .consignment-item-open-btn,
+  .consignment-grouped-item-row .consignment-quick-sold-btn { width: auto; min-width: 0; padding: 7px 9px; font-size: 11px; }
 }
 
 @media (max-width: 900px) {
@@ -23,6 +52,8 @@
     grid-template-columns: 28px 36px minmax(0, 1fr) repeat(4, minmax(58px, 76px));
     gap: 8px;
   }
+  .consignment-grouped-item-row { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
+  .consignment-grouped-item-row > :nth-child(3) { display: none; }
 }
 
 @media (max-width: 700px) {
