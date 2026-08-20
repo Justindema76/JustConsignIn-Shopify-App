@@ -1,0 +1,24 @@
+.consignment-all-items-card { padding:0; overflow:hidden; }
+.consignment-all-item-row { display:grid; grid-template-columns:minmax(210px,2fr) 82px minmax(120px,1fr) 84px 88px 108px 90px 108px; gap:12px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--line); font-size:13px; }
+.consignment-all-item-row:last-child { border-bottom:0; }
+.consignment-all-items-card > .consignment-list-head { grid-template-columns:minmax(210px,2fr) 82px minmax(120px,1fr) 84px 88px 108px 90px 108px; }
+.consignment-grouped-item-open { display:flex; align-items:center; gap:10px; min-width:0; border:0; background:transparent; color:inherit; padding:0; text-align:left; font:inherit; }
+.consignment-grouped-item-open > span:last-child { min-width:0; }
+.consignment-grouped-item-open strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.consignment-grouped-item-open > span:last-child > span { display:block; color:var(--muted); font-size:11px; margin-top:2px; }
+.consignment-item-quick-action { display:flex; justify-content:flex-start; }
+.consignment-consignor-profile-link { border:0; background:transparent; color:var(--green-dark); padding:0; font:inherit; font-weight:700; text-align:left; cursor:pointer; width:fit-content; }
+.consignment-consignor-profile-link:hover,.consignment-consignor-profile-link:focus-visible { text-decoration:underline; }
+.consignment-item-open-btn { border:1px solid #9EBFE4; border-radius:8px; background:#fff; color:var(--green-dark); padding:8px 10px; font-size:12px; font-weight:700; white-space:nowrap; cursor:pointer; }
+@media(max-width:900px){
+  .consignment-all-item-row,.consignment-all-items-card > .consignment-list-head { grid-template-columns:minmax(180px,2fr) 76px minmax(105px,1fr) 80px 102px 86px 102px; }
+  .consignment-all-item-row > :nth-child(5),.consignment-all-items-card > .consignment-list-head > :nth-child(5){display:none;}
+}
+@media(max-width:640px){
+  .consignment-all-item-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; }
+  .consignment-all-items-card > .consignment-list-head { display:none; }
+  .consignment-all-item-row > :nth-child(1){flex:1 1 100%;}
+  .consignment-all-item-row > :nth-child(3),.consignment-all-item-row > :nth-child(5){display:none;}
+  .consignment-all-item-row > :nth-child(2){font-weight:800;color:var(--green-dark);}
+  .consignment-all-item-row > :nth-child(8){margin-left:auto;}
+}
