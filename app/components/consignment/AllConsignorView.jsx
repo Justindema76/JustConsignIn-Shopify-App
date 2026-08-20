@@ -7,10 +7,14 @@ import '../../styles/by-consignor-container.css';
 // AllConsignorView per Justin's request. Per-item actions: Pay (sold,
 // unpaid), Mark sold (manual, available), Archived link (paid out —
 // routes to the consignor's dashboard, not Shopify admin, since edits
-// made directly in Shopify don't sync back automatically). On mobile the
-// Archived link is hidden (it would overlap the title in the tight
-// layout) and the title itself routes to the consignor dashboard
-// instead for paid items. Used across Consignors and Items so far.
+// made directly in Shopify don't sync back automatically). Pay and Mark
+// sold always render regardless of whether the page passed
+// onStartPayout/onMarkSold — they safely no-op via optional chaining if
+// missing, but the button itself is never silently hidden by incomplete
+// upstream wiring. On mobile the Archived link is hidden (it would
+// overlap the title in the tight layout) and the title itself routes to
+// the consignor dashboard instead for paid items. Used across
+// Consignors and Items so far.
 
 export default function AllConsignorView({
   consignor,
@@ -79,10 +83,10 @@ export default function AllConsignorView({
         </button>
       );
     }
-    if (isSold && consignor && onStartPayout) {
-      return <button type="button" className="consignment-sales-pay-btn" onClick={() => onStartPayout(consignor.id)}>Pay</button>;
+    if (isSold && consignor) {
+      return <button type="button" className="consignment-sales-pay-btn" onClick={() => onStartPayout?.(consignor.id)}>Pay</button>;
     }
-    if (isManualAvailable && onMarkSold) {
+    if (isManualAvailable) {
       return <button type="button" className="consignment-quick-sold-btn" disabled={sellingItemId === item.id} onClick={() => quickMarkSold(item)}>{sellingItemId === item.id ? 'Saving…' : 'Mark sold'}</button>;
     }
     return null;
