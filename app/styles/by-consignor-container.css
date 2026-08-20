@@ -19,6 +19,7 @@
 .consignment-consignor-profile-link:hover,
 .consignment-consignor-profile-link:focus-visible { text-decoration: underline; }
 .consignment-item-open-btn { border: 1px solid #9EBFE4; border-radius: 8px; background: #fff; color: var(--green-dark); padding: 8px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.consignment-all-item-mobile-consignor { display: none !important; }
 
 /* By-consignor item-row grid. */
 .consignment-grouped-item-row {
@@ -72,6 +73,7 @@
   .consignment-all-item-row > :nth-child(5) { display: none; }
   .consignment-all-item-row > :nth-child(2) { font-weight: 800; color: var(--green-dark); }
   .consignment-all-item-row > :nth-child(8) { margin-left: auto; }
+  .consignment-all-item-mobile-consignor { display: block !important; color: var(--green-dark) !important; font-weight: 700; }
 }
 
 @media (max-width: 900px) {
