@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { money, productLabel, statusClass, statusLabel } from '../../lib/consignmentHelpers';
-import '../../styles/all-list-view.css';
+import '../../styles/by-consignor-container.css';
 
 export default function AllListView({ items, consignors = [], onOpenItem, onOpenConsignor, renderAction = null }) {
   const consignorById = Object.fromEntries(consignors.map((c) => [c.id, c]));
