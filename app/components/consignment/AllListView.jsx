@@ -9,7 +9,7 @@ export default function AllListView({ items, consignors = [], onOpenItem, onOpen
     <section className="consignment-card consignment-all-items-card">
       <div className="consignment-list-row consignment-list-head">
         <span>Item</span><span>SKU</span><span>Consignor</span><span>Price</span>
-        <span>Commission</span><span>Product</span><span>Status</span>
+        <span>Commission</span><span>Expiry</span><span>Product</span><span>Status</span>
       </div>
       {items.map((item) => {
         const consignor = consignorById[item.consignorId];
@@ -27,6 +27,7 @@ export default function AllListView({ items, consignors = [], onOpenItem, onOpen
                 <strong>{item.description || item.type || 'Consignment item'}</strong>
                 <span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span>
                 <span className="consignment-all-item-mobile-consignor">{consignor ? `${consignor.firstName} ${consignor.lastName}` : 'Unassigned'}</span>
+                <span className="consignment-all-item-mobile-expiry">Expiry: {item.expiryDate || '—'}</span>
               </span>
             </button>
             <strong>{item.itemNumber || '—'}</strong>
@@ -37,6 +38,7 @@ export default function AllListView({ items, consignors = [], onOpenItem, onOpen
             ) : <span>Unassigned</span>}
             <strong>{money(item.price)}</strong>
             <span>{item.commissionPct}%</span>
+            <span className="consignment-expiry-date">{item.expiryDate || '—'}</span>
             <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
             <span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>
               {item.paidOut ? 'Paid · archived' : statusLabel(item.status)}
