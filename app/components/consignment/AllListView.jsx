@@ -2,14 +2,14 @@
 import { money, productLabel, statusClass, statusLabel } from '../../lib/consignmentHelpers';
 import '../../styles/by-consignor-container.css';
 
-export default function AllListView({ items, consignors = [], onOpenItem, onOpenConsignor, renderAction = null }) {
+export default function AllListView({ items, consignors = [], onOpenItem, onOpenConsignor }) {
   const consignorById = Object.fromEntries(consignors.map((c) => [c.id, c]));
 
   return (
     <section className="consignment-card consignment-all-items-card">
       <div className="consignment-list-row consignment-list-head">
         <span>Item</span><span>SKU</span><span>Consignor</span><span>Price</span>
-        <span>Commission</span><span>Product</span><span>Status</span><span>Action</span>
+        <span>Commission</span><span>Product</span><span>Status</span>
       </div>
       {items.map((item) => {
         const consignor = consignorById[item.consignorId];
@@ -40,11 +40,6 @@ export default function AllListView({ items, consignors = [], onOpenItem, onOpen
             <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
             <span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>
               {item.paidOut ? 'Paid · archived' : statusLabel(item.status)}
-            </span>
-            <span className="consignment-item-quick-action">
-              {renderAction ? renderAction(item, product) : (
-                <button type="button" className="consignment-item-open-btn" onClick={() => onOpenItem?.(item.id)}>Open item</button>
-              )}
             </span>
           </div>
         );
