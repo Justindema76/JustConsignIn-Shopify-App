@@ -33,7 +33,7 @@ export default function AllConsignorView({
     ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` || '—'
     : '—';
 
-  const availableCount = items.filter((item) => item.status === 'Available' || item.status === 'Active').length;
+  const availableCount = items.filter((item) => item.status === 'Available' || item.status === 'Active' || item.status === 'Draft').length;
   const soldCount = items.filter((item) => item.status === 'Sold' || item.dateSold).length;
   const total = items.reduce((sum, item) => sum + Number(item.salePrice ?? item.price ?? 0), 0);
   const due = items
@@ -69,7 +69,7 @@ export default function AllConsignorView({
   function ItemAction({ item, product }) {
     const isSold = item.status === 'Sold' || Boolean(item.dateSold);
     const isPaid = item.paidOut === true;
-    const isManualAvailable = product.className === 'manual' && !isSold && !isPaid && (item.status === 'Available' || item.status === 'Active');
+    const isManualAvailable = product.className === 'manual' && !isSold && !isPaid && (item.status === 'Available' || item.status === 'Active' || item.status === 'Draft');
 
     if (isPaid) {
       if (!consignor || !onOpenConsignor) return null;
