@@ -3,18 +3,45 @@ import { ChevronRight } from 'lucide-react';
 import { money, productLabel, statusClass, statusLabel } from '../../lib/consignmentHelpers';
 import '../../styles/by-consignor-container.css';
 
-// Ported from the TESTING app's ByConsignorContainer.jsx, renamed
-// AllConsignorView per Justin's request. Per-item actions: Pay (sold,
-// unpaid), Mark sold (manual, available), Archived link (paid out —
-// routes to the consignor's dashboard, not Shopify admin, since edits
-// made directly in Shopify don't sync back automatically). Pay and Mark
-// sold always render regardless of whether the page passed
-// onStartPayout/onMarkSold — they safely no-op via optional chaining if
-// missing, but the button itself is never silently hidden by incomplete
-// upstream wiring. On mobile the Archived link is hidden (it would
-// overlap the title in the tight layout) and the title itself routes to
-// the consignor dashboard instead for paid items. Used across
-// Consignors and Items so far.
+export function ItemAction({ item, product, consignor, onOpenConsignor, onMarkSold, onStartPayout }) {
+  const [selling, setSelling] = useState(false);
+  const isSold = item.status === 'Sold' || Boolean(item.dateSold);
+  const isPaid = item.paidOut === true;
+  const isManualAvailable = product.className === 'manual' && !isSold && !isPaid && (item.status === 'Available' || item.status === 'Active' || item.status === 'Draft');
+
+  async function quickMarkSold() {
+    if (selling || !onMarkSold) return;
+    const amount = window.prompt(`Sale price for ${item.description || item.itemNumber}`, String(item.price ?? ''));
+    if (amount === null) return;
+    const salePrice = Number(amount);
+    if (!Number.isFinite(salePrice) || salePrice < 0) {
+      window.alert('Enter a valid sale price.');
+      return;
+    }
+    setSelling(true);
+    try {
+      await onMarkSold(item.id, { salePrice, dateSold: new Date().toISOString().slice(0, 10) });
+    } finally {
+      setSelling(false);
+    }
+  }
+
+  if (isPaid) {
+    if (!consignor || !onOpenConsignor) return null;
+    return (
+      <button type="button" className="consignment-item-open-btn consignment-archived-link" onClick={() => onOpenConsignor(consignor.id)}>
+        Archived
+      </button>
+    );
+  }
+  if (isSold && consignor) {
+    return <button type="button" className="consignment-sales-pay-btn" onClick={() => onStartPayout?.(consignor.id)}>Pay consignor</button>;
+  }
+  if (isManualAvailable) {
+    return <button type="button" className="consignment-quick-sold-btn" disabled={selling} onClick={quickMarkSold}>{selling ? 'Saving…' : 'Mark sold'}</button>;
+  }
+  return null;
+}
 
 export default function AllConsignorView({
   consignor,
@@ -27,7 +54,6 @@ export default function AllConsignorView({
   defaultOpen = true,
 }) {
   const [open, setOpen] = useState(defaultOpen);
-  const [sellingItemId, setSellingItemId] = useState(null);
 
   const initials = consignor
     ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` || '—'
@@ -49,49 +75,6 @@ export default function AllConsignorView({
 
   const label = itemLabel || `item${items.length === 1 ? '' : 's'}`;
 
-  async function quickMarkSold(item) {
-    if (sellingItemId || !onMarkSold) return;
-    const amount = window.prompt(`Sale price for ${item.description || item.itemNumber}`, String(item.price ?? ''));
-    if (amount === null) return;
-    const salePrice = Number(amount);
-    if (!Number.isFinite(salePrice) || salePrice < 0) {
-      window.alert('Enter a valid sale price.');
-      return;
-    }
-    setSellingItemId(item.id);
-    try {
-      await onMarkSold(item.id, { salePrice, dateSold: new Date().toISOString().slice(0, 10) });
-    } finally {
-      setSellingItemId(null);
-    }
-  }
-
-  function ItemAction({ item, product }) {
-    const isSold = item.status === 'Sold' || Boolean(item.dateSold);
-    const isPaid = item.paidOut === true;
-    const isManualAvailable = product.className === 'manual' && !isSold && !isPaid && (item.status === 'Available' || item.status === 'Active' || item.status === 'Draft');
-
-    if (isPaid) {
-      if (!consignor || !onOpenConsignor) return null;
-      return (
-        <button
-          type="button"
-          className="consignment-item-open-btn consignment-archived-link"
-          onClick={() => onOpenConsignor(consignor.id)}
-        >
-          Archived
-        </button>
-      );
-    }
-    if (isSold && consignor) {
-      return <button type="button" className="consignment-sales-pay-btn" onClick={() => onStartPayout?.(consignor.id)}>Pay</button>;
-    }
-    if (isManualAvailable) {
-      return <button type="button" className="consignment-quick-sold-btn" disabled={sellingItemId === item.id} onClick={() => quickMarkSold(item)}>{sellingItemId === item.id ? 'Saving…' : 'Mark sold'}</button>;
-    }
-    return null;
-  }
-
   return (
     <section className="consignment-item-group consignment-by-consignor-container">
       <div className="consignment-item-group-summary">
@@ -109,11 +92,7 @@ export default function AllConsignorView({
 
         <span className="consignment-item-group-person">
           {consignor ? (
-            <button
-              type="button"
-              className="consignment-consignor-profile-link"
-              onClick={() => onOpenConsignor?.(consignor.id)}
-            >
+            <button type="button" className="consignment-consignor-profile-link" onClick={() => onOpenConsignor?.(consignor.id)}>
               {consignor.firstName} {consignor.lastName}
             </button>
           ) : (
@@ -144,11 +123,7 @@ export default function AllConsignorView({
             const titleGoesToConsignor = item.paidOut === true && consignor && onOpenConsignor;
             return (
               <div className="consignment-grouped-item-row" key={item.id}>
-                <button
-                  type="button"
-                  className="consignment-grouped-item-open"
-                  onClick={() => (titleGoesToConsignor ? onOpenConsignor(consignor.id) : onOpenItem?.(item.id))}
-                >
+                <button type="button" className="consignment-grouped-item-open" onClick={() => (titleGoesToConsignor ? onOpenConsignor(consignor.id) : onOpenItem?.(item.id))}>
                   {photo && <span className="consignment-batch-thumb"><img src={photo} alt="" /></span>}
                   <span>
                     <strong>{item.description || item.type || 'Consignment item'}</strong>
@@ -159,7 +134,9 @@ export default function AllConsignorView({
                 <span>{item.commissionPct ?? consignor?.commissionPct ?? 0}%</span>
                 <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
                 <span className={`consignment-badge ${item.paidOut ? 'paid' : statusClass(item.status)}`}>{item.paidOut ? 'Paid' : statusLabel(item.status)}</span>
-                <span className="consignment-item-quick-action"><ItemAction item={item} product={product} /></span>
+                <span className="consignment-item-quick-action">
+                  <ItemAction item={item} product={product} consignor={consignor} onOpenConsignor={onOpenConsignor} onMarkSold={onMarkSold} onStartPayout={onStartPayout} />
+                </span>
               </div>
             );
           })}
