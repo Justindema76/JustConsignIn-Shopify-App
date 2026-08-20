@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { Tag } from 'lucide-react';
 import { money, productLabel, statusClass, statusLabel } from '../../lib/consignmentHelpers';
 import '../../styles/all-list-view.css';
 
@@ -15,12 +14,15 @@ export default function AllListView({ items, consignors = [], onOpenItem, onOpen
       {items.map((item) => {
         const consignor = consignorById[item.consignorId];
         const product = productLabel(item);
+        const photo = item.shopifyPhoto || item.photo;
         return (
           <div className="consignment-all-item-row" key={item.id}>
             <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem?.(item.id)}>
-              <span className="consignment-batch-thumb">
-                {item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}
-              </span>
+              {photo && (
+                <span className="consignment-batch-thumb">
+                  <img src={photo} alt="" />
+                </span>
+              )}
               <span>
                 <strong>{item.description || item.type || 'Consignment item'}</strong>
                 <span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span>
