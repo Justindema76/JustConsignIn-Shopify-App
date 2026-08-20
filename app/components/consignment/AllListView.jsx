@@ -26,6 +26,7 @@ export default function AllListView({ items, consignors = [], onOpenItem, onOpen
               <span>
                 <strong>{item.description || item.type || 'Consignment item'}</strong>
                 <span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span>
+                <span className="consignment-all-item-mobile-consignor">{consignor ? `${consignor.firstName} ${consignor.lastName}` : 'Unassigned'}</span>
               </span>
             </button>
             <strong>{item.itemNumber || '—'}</strong>
