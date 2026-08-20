@@ -612,19 +612,8 @@ function GlobalStyle() {
       .consignment-item-group-stat strong { font-size: 14px; }
       .consignment-item-group-stat span { color: var(--muted); font-size: 10px; margin-top: 2px; }
       .consignment-item-group-items { border-top: 1px solid var(--line); }
-      .consignment-grouped-item-row {
-        display: grid; grid-template-columns: minmax(220px, 420px) 90px 90px 112px 92px 96px;
-        gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px;
-      }
-      .consignment-grouped-item-row:last-child { border-bottom: 0; }
-      .consignment-grouped-item-row > :nth-child(2),
-      .consignment-grouped-item-row > :nth-child(3),
-      .consignment-grouped-item-row > :nth-child(4),
-      .consignment-grouped-item-row > :nth-child(5),
-      .consignment-grouped-item-row > :nth-child(6) {
-        text-align: center; justify-self: center;
-      }
-      .consignment-grouped-item-row .consignment-item-quick-action { justify-content: center; }
+    
+     
       .consignment-grouped-item-open {
         display: flex; align-items: center; gap: 10px; min-width: 0; border: 0; background: transparent;
         color: inherit; padding: 0; text-align: left; font: inherit;
@@ -920,8 +909,7 @@ function GlobalStyle() {
         .consignment-section-grid { grid-template-columns: 1fr; }
         .consignment-list-row { grid-template-columns: minmax(180px, 2fr) minmax(110px, 1fr) 85px 108px 92px; }
         .consignment-list-row > :nth-child(4) { display: none; }
-        .consignment-grouped-item-row { grid-template-columns: minmax(190px, 360px) 84px 106px 88px 106px; }
-        .consignment-grouped-item-row > :nth-child(3) { display: none; }
+   
         .consignment-sales-row { grid-template-columns: minmax(200px, 2fr) 80px minmax(120px, 1fr) 88px 100px 86px 118px; }
         .consignment-items-toolbar { grid-template-columns: minmax(220px, 1fr) 160px 145px 160px; }
         .consignment-view-toggle { grid-column: 1 / -1; width: fit-content; }
@@ -963,18 +951,8 @@ function GlobalStyle() {
         .consignment-list-row > :nth-child(2), .consignment-list-row > :nth-child(3), .consignment-list-row > :nth-child(4), .consignment-list-row > :nth-child(6) { display: none; }
         .consignment-item-group-summary { grid-template-columns: 28px 36px minmax(0, 1fr); gap: 9px; padding: 12px; }
         .consignment-item-group-stat { display: none; }
-        .consignment-grouped-item-row {
-          position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 12px;
-        }
-        .consignment-grouped-item-row.consignment-list-head { display: none; }
-        .consignment-grouped-item-row > :nth-child(1) { flex: 1 1 100%; min-width: 0; padding-right: 96px; }
-        .consignment-grouped-item-row > :nth-child(3) { display: none; }
-        .consignment-grouped-item-row > .consignment-item-quick-action {
-          position: absolute; top: 12px; right: 12px; margin: 0;
-          display: flex; justify-content: flex-end;
-        }
-        .consignment-grouped-item-row .consignment-item-open-btn,
-        .consignment-grouped-item-row .consignment-quick-sold-btn { width: auto; min-width: 0; padding: 7px 9px; font-size: 11px; }
+
+      
         .consignment-sales-row { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px; }
         .consignment-sales-row.consignment-list-head { display: none; }
         .consignment-sales-row > :nth-child(2), .consignment-sales-row > :nth-child(3), .consignment-sales-row > :nth-child(4), .consignment-sales-row > :nth-child(5), .consignment-sales-row > :nth-child(6) { display: none; }
