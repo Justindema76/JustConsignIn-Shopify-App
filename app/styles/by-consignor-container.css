@@ -6,7 +6,7 @@
   transform: rotate(90deg);
 }
 
-/* Shared item presentation used by AllConsignorView and AllListView. */
+/* Shared item presentation used by AllConsignorView, AllListView and ItemGridCardContainer. */
 .consignment-grouped-item-open {
   display: flex; align-items: center; gap: 10px; min-width: 0; border: 0; background: transparent;
   color: inherit; padding: 0; text-align: left; font: inherit;
@@ -21,6 +21,16 @@
 .consignment-item-open-btn { border: 1px solid #9EBFE4; border-radius: 8px; background: #fff; color: var(--green-dark); padding: 8px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; }
 .consignment-all-item-mobile-consignor,
 .consignment-all-item-mobile-expiry { display: none !important; }
+
+/* Shared grid-card structure. Image and action behavior still comes from the same item logic above. */
+.consignment-grid-item-open { appearance: none; min-width: 0; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.consignment-grid-unassigned { cursor: default; color: var(--muted); }
+.consignment-grid-status-action-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; }
+.consignment-grid-status-copy { min-width: 0; }
+.consignment-grid-inline-action { margin: 0; justify-content: flex-end; }
+.consignment-grid-inline-action .consignment-sales-pay-btn,
+.consignment-grid-inline-action .consignment-quick-sold-btn,
+.consignment-grid-inline-action .consignment-item-open-btn { width: auto; min-width: 0; max-width: none; min-height: 34px; padding: 7px 10px; font-size: 11px; white-space: nowrap; }
 
 /* By-consignor item-row grid. */
 .consignment-grouped-item-row {
@@ -92,6 +102,12 @@
   .consignment-all-item-row > .consignment-item-quick-action { margin-left: auto; }
   .consignment-all-item-mobile-consignor { display: block !important; color: var(--green-dark) !important; font-weight: 700; }
   .consignment-all-item-mobile-expiry { display: block !important; }
+
+  .consignment-grid-status-action-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .consignment-grid-status-copy { grid-column: 1 / -1; }
+  .consignment-grid-inline-action { justify-self: end; }
+  .consignment-grid-inline-action .consignment-sales-pay-btn,
+  .consignment-grid-inline-action .consignment-quick-sold-btn { min-height: 30px; padding: 6px 8px; font-size: 10px; }
 }
 
 @media (max-width: 900px) and (min-width: 641px) {
