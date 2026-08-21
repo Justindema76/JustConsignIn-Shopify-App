@@ -22,9 +22,10 @@
 .consignment-all-item-mobile-consignor,
 .consignment-all-item-mobile-expiry { display: none !important; }
 
-/* By-consignor item-row grid. */
+/* By-consignor item-row grid. SKU and Expiry are separate columns. */
 .consignment-grouped-item-row {
-  display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) 82px minmax(0, .8fr) minmax(0, .8fr) 108px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px;
 }
 .consignment-grouped-item-row:last-child { border-bottom: 0; }
@@ -32,7 +33,9 @@
 .consignment-grouped-item-row > :nth-child(3),
 .consignment-grouped-item-row > :nth-child(4),
 .consignment-grouped-item-row > :nth-child(5),
-.consignment-grouped-item-row > :nth-child(6) {
+.consignment-grouped-item-row > :nth-child(6),
+.consignment-grouped-item-row > :nth-child(7),
+.consignment-grouped-item-row > :nth-child(8) {
   text-align: center; justify-self: center;
 }
 .consignment-grouped-item-row .consignment-item-quick-action { justify-content: center; }
@@ -74,7 +77,8 @@
   }
   .consignment-grouped-item-row.consignment-list-head { display: none; }
   .consignment-grouped-item-row > :nth-child(1) { flex: 1 1 100%; min-width: 0; padding-right: 96px; }
-  .consignment-grouped-item-row > :nth-child(3) { display: none; }
+  .consignment-grouped-item-row > :nth-child(4),
+  .consignment-grouped-item-row > :nth-child(5) { display: none; }
   .consignment-grouped-item-row > .consignment-item-quick-action {
     position: absolute; top: 12px; right: 12px; margin: 0;
     display: flex; justify-content: flex-end;
@@ -99,8 +103,9 @@
     grid-template-columns: 28px 36px minmax(0, 1fr) repeat(4, minmax(58px, 76px));
     gap: 8px;
   }
-  .consignment-grouped-item-row { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
-  .consignment-grouped-item-row > :nth-child(3) { display: none; }
+  .consignment-grouped-item-row {
+    grid-template-columns: minmax(180px, 2fr) 76px 80px 82px 102px 92px 92px 102px;
+  }
 
   .consignment-all-item-row,
   .consignment-all-items-card > .consignment-list-head {
