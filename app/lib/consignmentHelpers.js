@@ -37,3 +37,21 @@ export function productAdminUrl(productId) {
   const numericId = String(productId || '').split('/').pop();
   return `shopify://admin/products/${numericId}`;
 }
+
+export function csvValue(value) {
+  const text = value == null ? '' : String(value);
+  return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+}
+
+export function downloadCsv(fileName, headers, rows) {
+  const csv = [headers, ...rows]
+    .map((row) => row.map(csvValue).join(','))
+    .join('\n');
+  const blob = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+}
