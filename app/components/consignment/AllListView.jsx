@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { money, productLabel, statusClass, statusLabel } from '../../lib/consignmentHelpers';
-import { ItemAction } from './AllConsignorView';
+import { ItemRowAction } from './AllConsignorView';
 import '../../styles/by-consignor-container.css';
 
 export default function AllListView({ items, consignors = [], onOpenItem, onOpenConsignor, onMarkSold, onStartPayout }) {
@@ -40,14 +40,14 @@ export default function AllListView({ items, consignors = [], onOpenItem, onOpen
                 </button>
               ) : <span>Unassigned</span>}
               <strong>{money(item.price)}</strong>
-              <span>{item.commissionPct}%</span>
+              <span>{item.commissionPct ?? consignor?.commissionPct ?? 0}%</span>
               <span className="consignment-expiry-date">{item.expiryDate || '—'}</span>
               <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
-              <span className={`consignment-badge ${item.paidOut ? 'sold' : statusClass(item.status)}`}>
-                {item.paidOut ? 'Paid · archived' : statusLabel(item.status)}
+              <span className={`consignment-badge ${item.paidOut ? 'paid' : statusClass(item.status)}`}>
+                {item.paidOut ? 'Paid' : statusLabel(item.status)}
               </span>
               <span className="consignment-item-quick-action">
-                <ItemAction item={item} product={product} consignor={consignor} onOpenConsignor={onOpenConsignor} onMarkSold={onMarkSold} onStartPayout={onStartPayout} />
+                <ItemRowAction item={item} product={product} consignor={consignor} onOpenItem={onOpenItem} onMarkSold={onMarkSold} onStartPayout={onStartPayout} />
               </span>
             </div>
           );
