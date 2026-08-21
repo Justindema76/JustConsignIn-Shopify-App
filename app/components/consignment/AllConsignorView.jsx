@@ -115,7 +115,7 @@ export default function AllConsignorView({
       {open && (
         <div className="consignment-item-group-items">
           <div className="consignment-grouped-item-row consignment-list-head">
-            <span>Item</span><span>Price</span><span>Commission</span><span>Product</span><span>Status</span><span>Action</span>
+            <span>Item</span><span>SKU</span><span>Price</span><span>Commission</span><span>Expiry</span><span>Product</span><span>Status</span><span>Action</span>
           </div>
           {items.map((item) => {
             const product = productLabel(item);
@@ -130,8 +130,10 @@ export default function AllConsignorView({
                     <span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span>
                   </span>
                 </button>
+                <strong>{item.itemNumber || '—'}</strong>
                 <strong>{money(item.price)}</strong>
                 <span>{item.commissionPct ?? consignor?.commissionPct ?? 0}%</span>
+                <span className="consignment-expiry-date">{item.expiryDate || '—'}</span>
                 <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
                 <span className={`consignment-badge ${item.paidOut ? 'paid' : statusClass(item.status)}`}>{item.paidOut ? 'Paid' : statusLabel(item.status)}</span>
                 <span className="consignment-item-quick-action">
