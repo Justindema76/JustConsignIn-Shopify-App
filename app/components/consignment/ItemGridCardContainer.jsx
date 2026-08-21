@@ -2,6 +2,7 @@
 import { money, productLabel, statusClass, statusLabel } from '../../lib/consignmentHelpers';
 import { ItemAction } from './AllConsignorView';
 import '../../styles/by-consignor-container.css';
+import '../../styles/consignment-card-grid.css';
 
 export default function ItemGridCardContainer({
   item,
@@ -39,7 +40,6 @@ export default function ItemGridCardContainer({
             </span>
           </div>
         </button>
-
         <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
       </div>
 
@@ -67,27 +67,28 @@ export default function ItemGridCardContainer({
         )}
       </div>
 
-      <div className="consignment-readable-card-details consignment-grid-status-action-row">
-        <span className="consignment-grid-status-copy">
+      <div className="consignment-readable-card-details">
+        <span>
           <small>{isSold ? 'Sale date' : 'Status'}</small>
           {isSold && <strong>{item.dateSold || 'Sold'}</strong>}
         </span>
         <span className={`consignment-badge ${item.paidOut ? 'paid' : statusClass(item.status)}`}>
           {item.paidOut ? 'Paid' : statusLabel(item.status)}
         </span>
-        <span className="consignment-item-quick-action consignment-grid-inline-action">
-          <ItemAction
-            item={item}
-            product={product}
-            consignor={consignor}
-            onOpenConsignor={onOpenConsignor}
-            onMarkSold={onMarkSold}
-            onStartPayout={onStartPayout}
-          />
-        </span>
       </div>
 
       {item.expiryDate && <div className="consignment-sales-grid-order">Expiry {item.expiryDate}</div>}
+
+      <div className="consignment-readable-card-actions">
+        <ItemAction
+          item={item}
+          product={product}
+          consignor={consignor}
+          onOpenConsignor={onOpenConsignor}
+          onMarkSold={onMarkSold}
+          onStartPayout={onStartPayout}
+        />
+      </div>
     </article>
   );
 }
