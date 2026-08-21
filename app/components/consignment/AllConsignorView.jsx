@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react';
 import { money, productLabel, statusClass, statusLabel } from '../../lib/consignmentHelpers';
 import '../../styles/by-consignor-container.css';
 
-export function ItemAction({ item, product, consignor, onOpenConsignor, onMarkSold, onStartPayout }) {
+export function ItemAction({ item, product, consignor, onMarkSold, onStartPayout }) {
   const [selling, setSelling] = useState(false);
   const isSold = item.status === 'Sold' || Boolean(item.dateSold);
   const isPaid = item.paidOut === true;
@@ -26,10 +26,7 @@ export function ItemAction({ item, product, consignor, onOpenConsignor, onMarkSo
     }
   }
 
-  if (isPaid) {
-    if (!consignor || !onOpenConsignor) return null;
-    return <button type="button" className="consignment-item-open-btn consignment-archived-link" onClick={() => onOpenConsignor(consignor.id)}>Archived</button>;
-  }
+  if (isPaid) return null;
   if (isSold && consignor) return <button type="button" className="consignment-sales-pay-btn" onClick={() => onStartPayout?.(consignor.id)}>Pay consignor</button>;
   if (isManualAvailable) return <button type="button" className="consignment-quick-sold-btn" disabled={selling} onClick={quickMarkSold}>{selling ? 'Saving…' : 'Mark sold'}</button>;
   return null;
@@ -60,19 +57,25 @@ export default function AllConsignorView({ consignor, items = [], itemLabel, onO
       {open && (
         <>
           <div className="consignment-shared-scroll-hint" aria-hidden="true">Swipe to see more <span>→</span></div>
-          <div className="consignment-item-group-items">
-            <div className="consignment-grouped-item-row consignment-list-head"><span>Item</span><span>SKU</span><span>Price</span><span>Commission</span><span>Expiry</span><span>Product</span><span>Status</span><span>Action</span></div>
+          <div className="consignment-item-group-items consignment-shared-item-table">
+            <div className="consignment-list-row consignment-list-head"><span>Item</span><span>SKU</span><span>Consignor</span><span>Price</span><span>Commission</span><span>Expiry</span><span>Product</span><span>Status</span><span>Action</span></div>
             {items.map((item) => {
               const product = productLabel(item);
               const photo = item.shopifyPhoto || item.photo;
-              const titleGoesToConsignor = item.paidOut === true && consignor && onOpenConsignor;
               return (
-                <div className="consignment-grouped-item-row" key={item.id}>
-                  <button type="button" className="consignment-grouped-item-open" onClick={() => (titleGoesToConsignor ? onOpenConsignor(consignor.id) : onOpenItem?.(item.id))}>
+                <div className="consignment-all-item-row" key={item.id}>
+                  <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem?.(item.id)}>
                     {photo && <span className="consignment-batch-thumb"><img src={photo} alt="" /></span>}
                     <span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span>
                   </button>
-                  <strong>{item.itemNumber || '—'}</strong><strong>{money(item.price)}</strong><span>{item.commissionPct ?? consignor?.commissionPct ?? 0}%</span><span className="consignment-expiry-date">{item.expiryDate || '—'}</span><span className={`consignment-product-badge ${product.className}`}>{product.text}</span><span className={`consignment-badge ${item.paidOut ? 'paid' : statusClass(item.status)}`}>{item.paidOut ? 'Paid' : statusLabel(item.status)}</span><span className="consignment-item-quick-action"><ItemAction item={item} product={product} consignor={consignor} onOpenConsignor={onOpenConsignor} onMarkSold={onMarkSold} onStartPayout={onStartPayout} /></span>
+                  <strong>{item.itemNumber || '—'}</strong>
+                  {consignor ? <button type="button" className="consignment-consignor-profile-link" onClick={() => onOpenConsignor?.(consignor.id)}>{consignor.firstName} {consignor.lastName}</button> : <span>Unassigned</span>}
+                  <strong>{money(item.price)}</strong>
+                  <span>{item.commissionPct ?? consignor?.commissionPct ?? 0}%</span>
+                  <span className="consignment-expiry-date">{item.expiryDate || '—'}</span>
+                  <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
+                  <span className={`consignment-badge ${item.paidOut ? 'paid' : statusClass(item.status)}`}>{item.paidOut ? 'Paid' : statusLabel(item.status)}</span>
+                  <span className="consignment-item-quick-action"><ItemAction item={item} product={product} consignor={consignor} onMarkSold={onMarkSold} onStartPayout={onStartPayout} /></span>
                 </div>
               );
             })}
