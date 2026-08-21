@@ -15,42 +15,46 @@
 .consignment-all-item-mobile-consignor,.consignment-all-item-mobile-expiry { display:none !important; }
 .consignment-shared-scroll-hint { display:none; }
 
-/* By-consignor item table. */
+/* One nine-column table definition shared by AllListView and AllConsignorView. */
+.consignment-all-items-card,
+.consignment-shared-item-table {
+  padding:0;
+  overflow-x:auto;
+  overflow-y:hidden;
+  position:relative;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-x pan-y;
+}
+.consignment-all-item-row,
+.consignment-all-items-card > .consignment-list-head,
+.consignment-shared-item-table > .consignment-list-head {
+  display:grid;
+  grid-template-columns:minmax(235px,2.2fr) 76px minmax(120px,1fr) 82px 88px 100px 104px 94px 118px;
+  gap:10px;
+  align-items:center;
+}
+.consignment-all-item-row { padding:12px 14px; border-bottom:1px solid var(--line); font-size:13px; }
+.consignment-all-item-row:last-child { border-bottom:0; }
+.consignment-all-item-row > :not(:first-child),
+.consignment-all-items-card > .consignment-list-head > :not(:first-child),
+.consignment-shared-item-table > .consignment-list-head > :not(:first-child) { text-align:center; justify-self:center; }
+.consignment-all-items-card > .consignment-list-head,
+.consignment-shared-item-table > .consignment-list-head { position:sticky; top:0; z-index:8; padding:12px 14px; background:var(--surface); border-bottom:1px solid var(--line); }
+.consignment-expiry-date { white-space:nowrap; }
+
+/* Legacy selector kept for any remaining caller; shared views above do not use it. */
 .consignment-grouped-item-row { display:grid; grid-template-columns:minmax(235px,2fr) 82px 90px 100px 108px 110px 100px 120px; gap:12px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--line); font-size:13px; }
 .consignment-grouped-item-row:last-child { border-bottom:0; }
 .consignment-grouped-item-row > :not(:first-child) { text-align:center; justify-self:center; }
-.consignment-grouped-item-row .consignment-item-quick-action { justify-content:center; }
-.consignment-item-group-items { overflow:hidden; }
 
-/* All-items list table. */
-.consignment-all-items-card { padding:0; overflow:hidden; }
-.consignment-all-item-row,.consignment-all-items-card > .consignment-list-head { display:grid; grid-template-columns:minmax(235px,2.2fr) 76px minmax(120px,1fr) 82px 88px 100px 104px 94px 118px; gap:10px; align-items:center; }
-.consignment-all-item-row { padding:12px 14px; border-bottom:1px solid var(--line); font-size:13px; }
-.consignment-all-item-row:last-child { border-bottom:0; }
-.consignment-all-item-row > :not(:first-child),.consignment-all-items-card > .consignment-list-head > :not(:first-child) { text-align:center; justify-self:center; }
-.consignment-all-items-card > .consignment-list-head { position:sticky; top:0; z-index:8; padding:12px 14px; background:var(--surface); border-bottom:1px solid var(--line); }
-.consignment-expiry-date { white-space:nowrap; }
-
-/* Match Sales exactly: keep the real table columns and make the table itself horizontally scrollable. */
+/* Match Sales: preserve columns and scroll horizontally whenever they no longer fit. */
 @media (max-width:1100px) {
-  .consignment-all-item-row,.consignment-all-items-card > .consignment-list-head { min-width:1180px; }
-  .consignment-all-items-card {
-    overflow-x:auto;
-    overflow-y:hidden;
-    position:relative;
-    -webkit-overflow-scrolling:touch;
-    touch-action:pan-x pan-y;
-    box-shadow:inset -14px 0 14px -16px rgba(20,63,115,.75);
-  }
+  .consignment-all-item-row,
+  .consignment-all-items-card > .consignment-list-head,
+  .consignment-shared-item-table > .consignment-list-head { min-width:1180px; }
+  .consignment-all-items-card,
+  .consignment-shared-item-table { box-shadow:inset -14px 0 14px -16px rgba(20,63,115,.75); }
   .consignment-grouped-item-row { min-width:1000px; }
-  .consignment-item-group-items {
-    overflow-x:auto;
-    overflow-y:hidden;
-    position:relative;
-    -webkit-overflow-scrolling:touch;
-    touch-action:pan-x pan-y;
-    box-shadow:inset -14px 0 14px -16px rgba(20,63,115,.75);
-  }
 }
 
 @media (max-width:760px) {
