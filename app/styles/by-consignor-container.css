@@ -31,12 +31,26 @@
 .consignment-all-items-card > .consignment-list-head { position:sticky; top:0; z-index:8; padding:12px 14px; background:var(--surface); border-bottom:1px solid var(--line); }
 .consignment-expiry-date { white-space:nowrap; }
 
-/* Same responsive model as Sales: preserve real columns and scroll the table. */
+/* Match Sales exactly: keep the real table columns and make the table itself horizontally scrollable. */
 @media (max-width:1100px) {
   .consignment-all-item-row,.consignment-all-items-card > .consignment-list-head { min-width:1180px; }
-  .consignment-all-items-card { overflow-x:auto; position:relative; box-shadow:inset -14px 0 14px -16px rgba(20,63,115,.75); }
+  .consignment-all-items-card {
+    overflow-x:auto;
+    overflow-y:hidden;
+    position:relative;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-x pan-y;
+    box-shadow:inset -14px 0 14px -16px rgba(20,63,115,.75);
+  }
   .consignment-grouped-item-row { min-width:1000px; }
-  .consignment-item-group-items { overflow-x:auto; position:relative; box-shadow:inset -14px 0 14px -16px rgba(20,63,115,.75); }
+  .consignment-item-group-items {
+    overflow-x:auto;
+    overflow-y:hidden;
+    position:relative;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-x pan-y;
+    box-shadow:inset -14px 0 14px -16px rgba(20,63,115,.75);
+  }
 }
 
 @media (max-width:760px) {
