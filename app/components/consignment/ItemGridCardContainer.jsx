@@ -40,7 +40,9 @@ export default function ItemGridCardContainer({
             </span>
           </div>
         </button>
-        <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
+        <div className="consignment-readable-product-row">
+          <span className={`consignment-product-badge ${product.className}`}>{product.text}</span>
+        </div>
       </div>
 
       {showConsignor && (
