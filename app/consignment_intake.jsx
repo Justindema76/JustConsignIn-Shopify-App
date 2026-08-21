@@ -27,6 +27,7 @@ import Header from './components/consignment/Header';
 import ConsignorsScreen from './pages/consignment/ConsignorsScreen';
 import SalesScreen from './pages/consignment/SalesScreen';
 import PayoutsScreen from './pages/consignment/PayoutsScreen';
+import ConsignorDashboard from './pages/consignment/ConsignorDashboard';
 import { csvValue, downloadCsv, money } from './lib/consignmentHelpers';
 
 /* ---------- image helper ---------- */
@@ -76,29 +77,6 @@ function productLabel(item) {
   return item.publishOnline
     ? { text: 'POS + Online', className: 'online' }
     : { text: 'POS', className: 'pos' };
-}
-
-function saleSourceLabel(item) {
-  if (!(item?.status === 'Sold' || item?.dateSold)) return null;
-
-  const source = String(item.saleSource || '').trim().toLowerCase();
-  if (source === 'pos' || source.includes('point of sale')) {
-    return { text: 'Sold via POS', className: 'pos' };
-  }
-  if (source === 'online' || source === 'web' || source.includes('online')) {
-    return { text: 'Sold Online', className: 'online' };
-  }
-  if (source === 'manual') {
-    return { text: 'Manual Sale', className: 'manual' };
-  }
-
-  // Older sales recorded before sale-source tracking:
-  // no Shopify order means it was marked sold manually in JustConsignIn.
-  if (!item.orderId && !item.orderName) {
-    return { text: 'Manual Sale', className: 'manual' };
-  }
-
-  return { text: 'Shopify Sale', className: 'draft' };
 }
 
 /* ---------- shared styles ---------- */
@@ -651,8 +629,6 @@ function GlobalStyle() {
         padding: 7px 10px; font-size: 12px; font-weight: 600;
       }
       .consignment-date-tabs button.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-      .consignment-consignor-card-open:disabled { opacity: .5; cursor: default; }
-      .consignment-consignor-card-open:disabled:hover { background: var(--surface); border-color: var(--line); color: var(--ink); }
       .consignment-payout-fields {
         display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;
       }
@@ -864,32 +840,6 @@ function GlobalStyle() {
       @media (max-width:1100px) { .consignment-readable-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
       @media (max-width:760px) { .consignment-readable-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .consignment-readable-card { min-height:250px; padding:13px; } .consignment-readable-card-meta strong { font-size:18px; } }
 
-      .consignment-consignor-card-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; align-items:stretch; }
-      .consignment-consignor-card {
-        display:flex; flex-direction:column; gap:12px; background:var(--surface);
-        border:1px solid var(--line); border-radius:12px; padding:16px;
-      }
-      .consignment-consignor-card-top { display:flex; align-items:center; gap:10px; }
-      .consignment-consignor-card-name { display:flex; flex-direction:column; min-width:0; }
-      .consignment-consignor-card-name strong { font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-      .consignment-consignor-card-name small { color:var(--muted); font-size:11px; }
-      .consignment-consignor-card-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-      .consignment-consignor-card-stats span {
-        display:flex; flex-direction:column; align-items:center; gap:2px;
-        background:#FAFAFB; border-radius:8px; padding:8px;
-      }
-      .consignment-consignor-card-stats strong { font-size:16px; }
-      .consignment-consignor-card-stats small { color:var(--muted); font-size:10px; text-transform:uppercase; font-weight:700; }
-      .consignment-consignor-card-due { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:var(--muted); }
-      .consignment-consignor-card-due strong { color:var(--ink); font-size:15px; }
-      .consignment-consignor-card-open {
-        margin-top:auto; border:1px solid var(--line); background:var(--surface); border-radius:8px;
-        padding:9px; font-size:12px; font-weight:700; cursor:pointer; color:var(--ink);
-      }
-      .consignment-consignor-card-open:hover { background:var(--blue-soft); border-color:var(--blue); color:var(--green-dark); }
-      @media (max-width:1100px) { .consignment-consignor-card-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-      @media (max-width:760px) { .consignment-consignor-card-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-
       /* Items toolbar: two clean rows matching the approved inventory layout. */
       .consignment-items-toolbar {
         display: grid;
@@ -1000,47 +950,6 @@ function GlobalStyle() {
       }
       .consignment-consignor-view-toggle button:last-child { border-right: 0; }
       .consignment-consignor-view-toggle button.active { background: #EAF2FC; color: #153E7A; }
-      .consignment-consignor-item-list { display: grid; gap: 8px; }
-      .consignment-consignor-item {
-        display: grid; grid-template-columns: minmax(0, 1fr) auto;
-        align-items: center; gap: 12px; margin: 0; padding: 10px 12px;
-      }
-      .consignment-consignor-item-open {
-        min-width: 0; display: grid; grid-template-columns: 48px minmax(0, 1fr);
-        align-items: center; gap: 12px; padding: 0; border: 0; background: transparent; text-align: left;
-      }
-      .consignment-consignor-item-copy { min-width: 0; }
-      .consignment-consignor-item-title { display: block; overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-      .consignment-consignor-item-meta { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.35; }
-      .consignment-consignor-item-actions {
-        display: grid; grid-template-columns: minmax(92px, auto) minmax(104px, auto) minmax(112px, auto);
-        align-items: center; justify-content: end; gap: 7px;
-      }
-      .consignment-consignor-item-actions .consignment-product-badge,
-      .consignment-consignor-item-actions .consignment-badge {
-        width: 100%; min-width: 0; min-height: 28px; box-sizing: border-box;
-        justify-content: center; text-align: center;
-      }
-      .consignment-consignor-pay-btn {
-        height: 34px; padding: 0 11px; border: 0; border-radius: 8px;
-        background: var(--blue); color: white; font-size: 11px; font-weight: 750; white-space: nowrap;
-      }
-      .consignment-consignor-action-spacer { display: block; min-height: 1px; }
-      .consignment-consignor-item-list.grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-      @media (max-width: 1100px) {
-        .consignment-consignor-item-list.grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      }
-      .consignment-consignor-item-list.grid .consignment-consignor-item {
-        display: flex; flex-direction: column; align-items: stretch; min-width: 0; min-height: 180px;
-      }
-      .consignment-consignor-item-list.grid .consignment-consignor-item-open {
-        grid-template-columns: 42px minmax(0, 1fr);
-      }
-      .consignment-consignor-item-list.grid .consignment-consignor-item-actions {
-        grid-template-columns: 1fr; justify-content: stretch; width: 100%; margin-top: auto;
-      }
 
       @media (max-width: 640px) {
         .consignment-consignor-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1057,58 +966,6 @@ function GlobalStyle() {
         .consignment-consignor-items-head { align-items: flex-start; flex-direction: column; }
         .consignment-consignor-items-tools { width: 100%; justify-content: space-between; }
         .consignment-consignor-view-toggle { margin-left: auto; }
-        .consignment-consignor-item-list.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-        .consignment-consignor-item-list.grid .consignment-consignor-item {
-          min-width: 0; min-height: 218px; padding: 10px; gap: 8px; overflow: hidden;
-        }
-        .consignment-consignor-item-list.grid .consignment-consignor-item-open {
-          grid-template-columns: 36px minmax(0, 1fr); gap: 8px; align-items: start;
-        }
-        .consignment-consignor-item-list.grid .consignment-batch-thumb {
-          width: 36px !important; height: 36px !important; border-radius: 8px !important;
-        }
-        .consignment-consignor-item-list.grid .consignment-consignor-item-title {
-          font-size: 12px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .consignment-consignor-item-list.grid .consignment-consignor-item-meta {
-          font-size: 10px; line-height: 1.35; overflow: hidden; text-overflow: ellipsis;
-        }
-        .consignment-consignor-item-list.grid .consignment-consignor-item-actions {
-          grid-template-columns: 1fr; gap: 6px; width: 100%; margin-top: auto;
-        }
-        .consignment-consignor-item-list.grid .consignment-consignor-item-actions .consignment-product-badge,
-        .consignment-consignor-item-list.grid .consignment-consignor-item-actions .consignment-badge,
-        .consignment-consignor-item-list.grid .consignment-consignor-pay-btn {
-          width: 100%; min-width: 0;
-        }
-
-        .consignment-consignor-item-list:not(.grid) .consignment-consignor-item {
-          display: grid; grid-template-columns: minmax(0, 1fr); align-items: stretch;
-          gap: 10px; padding: 12px; overflow: hidden;
-        }
-        .consignment-consignor-item-list:not(.grid) .consignment-consignor-item-open {
-          grid-template-columns: 44px minmax(0, 1fr); gap: 10px; width: 100%;
-        }
-        .consignment-consignor-item-list:not(.grid) .consignment-batch-thumb {
-          width: 44px !important; height: 44px !important; border-radius: 9px !important;
-        }
-        .consignment-consignor-item-list:not(.grid) .consignment-consignor-item-actions {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          justify-content: stretch; padding-left: 0; width: 100%; gap: 7px;
-        }
-        .consignment-consignor-item-list:not(.grid) .consignment-consignor-item-actions .consignment-product-badge,
-        .consignment-consignor-item-list:not(.grid) .consignment-consignor-item-actions .consignment-badge {
-          width: 100%; min-width: 0; min-height: 30px;
-        }
-        .consignment-consignor-item-list:not(.grid) .consignment-consignor-pay-btn {
-          grid-column: 1 / -1; width: 100%; height: 36px;
-        }
-        .consignment-consignor-item-list:not(.grid) .consignment-consignor-action-spacer {
-          display: none;
-        }
-        .consignment-consignor-item-title { font-size: 13px; }
-        .consignment-consignor-item-meta { font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
-        .consignment-consignor-pay-btn { padding: 0 8px; font-size: 10px; }
       }
     `}</style>
   );
@@ -1719,155 +1576,6 @@ function EditConsignorScreen({ consignor, onBack, onSave }) {
     </>
   );
 }
-
-function ConsignorScreen({ consignor, items, onBack, onStartIntake, onOpenItem, onDeleteConsignor, onEditConsignor, onStartPayout }) {
-  const [viewMode, setViewMode] = useState('grid');
-  const consignorItems = items.filter((item) => item.consignorId === consignor.id);
-  const draftCount = consignorItems.filter((item) => item.status === 'Draft').length;
-  const soldItems = consignorItems.filter((item) => item.status === 'Sold' || item.dateSold);
-  const unpaidItems = soldItems.filter((item) => !item.paidOut);
-  const totalSales = soldItems.reduce((sum, item) => sum + Number(item.salePrice ?? item.price ?? 0), 0);
-  const activeCount = consignorItems.filter((item) => ['Available', 'Active'].includes(item.status)).length;
-  const [confirmingDeleteConsignor, setConfirmingDeleteConsignor] = useState(false);
-  const amountDue = unpaidItems.reduce(
-    (sum, item) => sum + (Number(item.salePrice ?? item.price ?? 0) * Number(item.commissionPct ?? consignor.commissionPct ?? 0)) / 100,
-    0,
-  );
-  const fullAddress = [consignor.address, consignor.city, consignor.province, consignor.postalCode]
-    .filter(Boolean)
-    .join(', ');
-
-  return (
-    <>
-      <Header
-        eyebrow={`Consignor #${consignor.number}`}
-        title={`${consignor.firstName} ${consignor.lastName}`}
-        onBack={onBack}
-        action={(
-          <div className="consignment-header-actions">
-            <button className="consignment-btn" onClick={onStartIntake}>
-              <Plus size={17} /> Add items
-            </button>
-            <button className="consignment-btn secondary" onClick={onEditConsignor}>
-              <Pencil size={17} /> Edit
-            </button>
-            <button
-              className="consignment-btn secondary"
-              style={{ color: 'var(--danger)', borderColor: 'var(--danger-soft)' }}
-              onClick={() => setConfirmingDeleteConsignor(true)}
-            >
-              <Trash2 size={17} /> Delete
-            </button>
-          </div>
-        )}
-      />
-      <div className="consignment-body">
-        <section className="consignment-card consignment-consignor-profile" aria-label="Consignor profile information">
-          <div className="consignment-profile-column">
-            <div className="consignment-profile-title">Contact</div>
-            <div className="consignment-profile-row">
-              <span className="consignment-profile-icon"><Phone size={17} /></span>
-              <span className="consignment-profile-copy">
-                <span className="consignment-profile-label">Phone</span>
-                {consignor.phone ? <a className="consignment-profile-value consignment-profile-link" href={`tel:${String(consignor.phone).replace(/[^\d+]/g, '')}`}>{consignor.phone}</a> : <span className="consignment-profile-value">—</span>}
-              </span>
-            </div>
-            <div className="consignment-profile-row">
-              <span className="consignment-profile-icon"><Mail size={17} /></span>
-              <span className="consignment-profile-copy">
-                <span className="consignment-profile-label">Email</span>
-                {consignor.email ? <a className="consignment-profile-value consignment-profile-link" href={`mailto:${consignor.email}`}>{consignor.email}</a> : <span className="consignment-profile-value">—</span>}
-              </span>
-            </div>
-            <div className="consignment-profile-row">
-              <span className="consignment-profile-icon"><MapPin size={17} /></span>
-              <span className="consignment-profile-copy">
-                <span className="consignment-profile-label">Address</span>
-                {fullAddress ? <a className="consignment-profile-value consignment-profile-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noopener noreferrer">{fullAddress}</a> : <span className="consignment-profile-value">—</span>}
-              </span>
-            </div>
-          </div>
-          <div className="consignment-profile-column">
-            <div className="consignment-profile-title">Account details</div>
-            <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Commission split</span><span className="consignment-profile-value">Consignor gets {consignor.commissionPct}%</span></span></div>
-            <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Joined</span><span className="consignment-profile-value">{consignor.dateJoined || '—'}</span></span></div>
-            <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Unsold items</span><span className="consignment-profile-value">{consignor.unsoldPreference || 'Please return'}</span></span></div>
-          </div>
-        </section>
-
-        <div className="consignment-consignor-stats">
-          <div className="consignment-consignor-stat"><span>Amount due</span><strong>{money(amountDue)}</strong></div>
-          <div className="consignment-consignor-stat"><span>Total sales</span><strong>{money(totalSales)}</strong></div>
-          <div className="consignment-consignor-stat"><span>Active items</span><strong>{activeCount}</strong></div>
-          <div className="consignment-consignor-stat"><span>Store credit</span><strong aria-label="Not available yet">&nbsp;</strong></div>
-        </div>
-
-        <div className="consignment-consignor-items-head">
-          <h3>Items on file</h3>
-          <div className="consignment-consignor-items-tools">
-            <span className="consignment-consignor-items-count">{consignorItems.length} total · {draftCount} draft</span>
-            <div className="consignment-consignor-view-toggle" aria-label="Choose item view">
-              <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={14} /> List</button>
-              <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={14} /> Grid</button>
-            </div>
-          </div>
-        </div>
-
-        {consignorItems.length === 0 && (
-          <div className="consignment-empty">
-            <h3>No items yet</h3>
-            <p>Add what they brought in today.</p>
-          </div>
-        )}
-
-        <div className={`consignment-consignor-item-list ${viewMode === 'grid' ? 'grid' : ''}`}>
-          {consignorItems.map((item) => {
-            const product = productLabel(item);
-            const saleSource = saleSourceLabel(item);
-            const soldUnpaid = (item.status === 'Sold' || item.dateSold) && !item.paidOut;
-            return (
-              <article key={item.id} className="consignment-card consignment-consignor-item">
-                <button type="button" className="consignment-consignor-item-open" onClick={() => onOpenItem(item.id)}>
-                  <span className="consignment-batch-thumb" style={{ width: 48, height: 48, borderRadius: 10 }}>
-                    {item.photo ? <img src={item.photo} alt="" /> : <Tag size={18} color="var(--green-dark)" />}
-                  </span>
-                  <span className="consignment-consignor-item-copy">
-                    <span className="consignment-consignor-item-title">{item.description || item.category}</span>
-                    <span className="consignment-consignor-item-meta">{item.itemNumber} · {item.size ? `Size ${item.size} · ` : ''}{money(item.price)}</span>
-                    <span className="consignment-consignor-item-meta">Product type: {item.type || item.category || 'Not set'}</span>
-                    {item.paidOut && <span className="consignment-paid-detail">Paid {item.payoutDate || ''} · {item.payoutMethod || 'Method not recorded'} · {money(item.payoutAmount)}</span>}
-                  </span>
-                </button>
-                <div className="consignment-consignor-item-actions">
-                  <span className={`consignment-product-badge ${(saleSource || product).className}`}>
-                    {(saleSource || product).text}
-                  </span>
-                  <span className={`consignment-badge ${item.paidOut ? 'paid' : item.status === 'Sold' ? 'unpaid' : statusClass(item.status)}`}>
-                    {item.paidOut ? 'Paid' : item.status === 'Sold' ? 'Sold · unpaid' : statusLabel(item.status)}
-                  </span>
-                  {soldUnpaid ? (
-                    <button type="button" className="consignment-consignor-pay-btn" onClick={() => onStartPayout(consignor.id)}>Review &amp; pay</button>
-                  ) : <span className="consignment-consignor-action-spacer" aria-hidden="true" />}
-                </div>
-              </article>
-            );
-          })}
-        </div>
-
-        {confirmingDeleteConsignor && (
-          <div className="consignment-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 13 }}>Delete {consignor.firstName} {consignor.lastName} for good?</span>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button className="consignment-btn secondary" style={{ padding: '8px 14px' }} onClick={() => setConfirmingDeleteConsignor(false)}>Cancel</button>
-              <button className="consignment-btn danger" style={{ padding: '8px 14px' }} onClick={() => onDeleteConsignor(consignor.id)}>Delete</button>
-            </div>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
-
 
 function ConsignmentItemFields({ form, setForm }) {
   const set = (key) => (event) => setForm((current) => ({
@@ -2792,7 +2500,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
       )}
 
       {ready && view === 'consignor' && activeConsignor && (
-        <ConsignorScreen
+        <ConsignorDashboard
           consignor={activeConsignor}
           items={items}
           onBack={() => setView('home')}
