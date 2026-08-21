@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { ArrowLeft } from 'lucide-react';
+import '../../styles/consignment-global.css';
 import '../../styles/consignment-header.css';
 
 export default function Header({ eyebrow, title, onBack = null, action = null }) {
