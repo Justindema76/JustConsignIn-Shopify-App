@@ -74,7 +74,7 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
   return (
     <>
       <Header eyebrow="Accounts" title="Consignors" action={(
-        <div className="consignment-header-actions">
+        <div className="consignment-header-actions consignment-consignors-header-actions">
           <details className="consignment-data-menu"><summary><FileUp size={16} /> Data</summary><div className="consignment-data-menu-popover"><button type="button" onClick={onImport}><FileUp size={15} /> Import CSV</button><button type="button" onClick={onExport}><Download size={15} /> Export CSV</button></div></details>
           <button className="consignment-btn secondary" type="button" onClick={onNewItem}><Plus size={16} /> New item</button>
           <button className="consignment-btn" type="button" onClick={onNewConsignor}><Plus size={17} /> New consignor</button>
