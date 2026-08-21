@@ -99,4 +99,21 @@
     width: calc(50% - 4px);
     flex: 0 0 auto;
   }
+
+  .consignment-consignors-header-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .consignment-consignors-header-actions .consignment-data-menu {
+    display: none;
+  }
+
+  .consignment-consignors-header-actions .consignment-btn {
+    width: 100%;
+    max-width: none;
+    flex: none;
+  }
 }
