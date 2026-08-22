@@ -21,9 +21,9 @@ export default function AllListView({ items, consignors = [], onOpenItem, onOpen
           return (
             <div className="consignment-all-item-row" key={item.id}>
               <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem?.(item.id)}>
-                {photo && (
-                  <span className="consignment-batch-thumb">
-                    <img src={photo} alt="" />
+                {item.shopifyProductId && (
+                  <span className={`consignment-batch-thumb ${photo ? '' : 'consignment-image-placeholder'}`}>
+                    {photo ? <img src={photo} alt="" /> : <span aria-hidden="true">No image</span>}
                   </span>
                 )}
                 <span>
