@@ -25,9 +25,9 @@ export default function ItemGridCardContainer({
       <div className="consignment-readable-card-top">
         <button type="button" className="consignment-grid-item-open" onClick={() => onOpenItem?.(item.id)}>
           <div className="consignment-grid-thumb-row">
-            {photo && (
-              <span className="consignment-grid-thumb">
-                <img src={photo} alt="" />
+            {item.shopifyProductId && (
+              <span className={`consignment-grid-thumb ${photo ? '' : 'consignment-image-placeholder'}`}>
+                {photo ? <img src={photo} alt="" /> : <span aria-hidden="true">No image</span>}
               </span>
             )}
             <span className="consignment-readable-title-copy">
