@@ -16,6 +16,10 @@
 .consignment-all-item-mobile-consignor,.consignment-all-item-mobile-expiry { display:none !important; }
 .consignment-shared-scroll-hint { display:none; }
 
+/* Shopify products keep an image slot even when Shopify has no image. Manual items never render this element. */
+.consignment-image-placeholder { display:flex; align-items:center; justify-content:center; background:var(--green-soft); color:var(--muted); font-size:9px; font-weight:700; line-height:1.1; text-align:center; }
+.consignment-batch-thumb.consignment-image-placeholder { width:44px; height:44px; min-width:44px; flex:0 0 44px; border-radius:8px; overflow:hidden; }
+
 /* One nine-column table definition shared by AllListView and AllConsignorView. */
 .consignment-all-items-card,
 .consignment-shared-item-table {
