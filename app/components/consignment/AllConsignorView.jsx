@@ -107,7 +107,11 @@ export default function AllConsignorView({ consignor, items = [], itemLabel, onO
               return (
                 <div className="consignment-all-item-row" key={item.id}>
                   <button type="button" className="consignment-grouped-item-open" onClick={() => onOpenItem?.(item.id)}>
-                    {photo && <span className="consignment-batch-thumb"><img src={photo} alt="" /></span>}
+                    {item.shopifyProductId && (
+                      <span className={`consignment-batch-thumb ${photo ? '' : 'consignment-image-placeholder'}`}>
+                        {photo ? <img src={photo} alt="" /> : <span aria-hidden="true">No image</span>}
+                      </span>
+                    )}
                     <span><strong>{item.description || item.type || 'Consignment item'}</strong><span>{item.itemNumber}{item.size ? ` · ${item.size}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span></span>
                   </button>
                   <strong>{item.itemNumber || '—'}</strong>
