@@ -18,6 +18,7 @@ export const PLANS = {
     currencyCode: 'USD',
     interval: 'EVERY_30_DAYS',
     trialDays: 14,
+    description: 'Payment method required at signup. Billing starts after the trial unless cancelled.',
     features: [
       'Consignors',
       'Items',
@@ -35,6 +36,7 @@ export const PLANS = {
     currencyCode: 'USD',
     interval: 'EVERY_30_DAYS',
     trialDays: 14,
+    description: "Turn every item you take on consignment into a real, sellable Shopify listing — photo, price, and inventory live in minutes, not spreadsheets.",
     features: [
       'Everything in Manual',
       'Real Shopify products, not just line items',
