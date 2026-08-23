@@ -35,7 +35,24 @@ export const action = async ({ request }) => {
     if (!appUrl) {
       return { error: 'SHOPIFY_APP_URL is not set on the server — required to build an absolute returnUrl for billing.' };
     }
-    const returnUrl = `${appUrl}/app`;
+    // IMPORTANT: Shopify appends `charge_id` to whatever returnUrl we give
+    // it and redirects the TOP-LEVEL browser tab there (not the iframe) —
+    // but it does NOT add `shop`/`host` for us. If returnUrl is bare
+    // (`/app`), the round trip lands with only `?charge_id=...`, and
+    // authenticate.admin() has no shop to identify — it throws a raw
+    // Response (status defaults to 200) from Shopify's own renderAppBridge()
+    // helper trying to bootstrap App Bridge with nothing to redirect to.
+    // That Response isn't caught by the app's error boundary (it's a raw
+    // Response, not the wrapped error type the boundary checks for), so it
+    // falls through to a bare "200" page. Carrying shop/host through fixes
+    // the round trip.
+    const requestUrl = new URL(request.url);
+    const shopParam = requestUrl.searchParams.get('shop');
+    const hostParam = requestUrl.searchParams.get('host');
+    const returnUrlParams = new URLSearchParams();
+    if (shopParam) returnUrlParams.set('shop', shopParam);
+    if (hostParam) returnUrlParams.set('host', hostParam);
+    const returnUrl = `${appUrl}/app${returnUrlParams.toString() ? `?${returnUrlParams.toString()}` : ''}`;
 
     const confirmationUrl = await createSubscription(admin, planKey, {
       returnUrl,
