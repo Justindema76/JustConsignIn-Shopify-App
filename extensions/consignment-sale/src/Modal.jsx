@@ -227,13 +227,17 @@ function Extension() {
   useEffect(() => {
     const subscription = shopify.scanner.scannerData.current.subscribe((scan) => {
       if (!scan?.data) return;
+      // A scan landing mid-lookup or mid-add would blow away in-flight state
+      // (e.g. two rapid scans while the first is still resolving) — ignore
+      // it rather than racing two lookups against the same `item` state.
+      if (loading || adding) return;
       const scannedTicket = scan.data.trim();
       setTicket(scannedTicket);
       void findItem(scannedTicket);
     });
 
     return () => subscription();
-  }, [findItem]);
+  }, [findItem, loading, adding]);
 
   async function addToCart() {
     if (!item?.product?.variantId) return;
@@ -262,6 +266,17 @@ function Extension() {
       shopify.toast.show(String(i18n.translate('added_to_cart', {
         itemNumber: item.itemNumber,
       })));
+
+      // Reset immediately so the associate lands back on a clean ticket
+      // field for the next item, instead of the same item card staying on
+      // screen where a stray tap could add it a second time. For a
+      // hardware-scanner workflow this is enough on its own — the scanner
+      // API fires regardless of DOM focus, so the next scan works right
+      // away with no extra tap.
+      setItem(null);
+      setTicket('');
+      setError('');
+
       // Note: there is no supported API to programmatically close a
       // pos.home.modal.render extension from within itself — the Action API's
       // presentModal()/dismissModal() only exists on the launching tile/menu
@@ -309,7 +324,6 @@ function Extension() {
                   <s-box inlineSize="100%" blockSize="200px">
                     <s-image
                       src={item.photo}
-                      alt={item.title}
                       inlineSize="fill"
                       objectFit="cover"
                     />
@@ -337,7 +351,7 @@ function Extension() {
                 <s-heading>
                   {new Intl.NumberFormat(undefined, {
                     style: 'currency',
-                    currency: item.currencyCode || 'CAD',
+                    currency: item.currencyCode || 'USD',
                   }).format(Number(item.price))}
                 </s-heading>
                 <s-banner heading={i18n.translate('confirm_heading')} tone="warning">
