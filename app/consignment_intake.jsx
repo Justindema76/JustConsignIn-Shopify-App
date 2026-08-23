@@ -4,7 +4,7 @@ import {
   Search, Plus, Camera, X, ChevronRight, ChevronDown, Phone, Mail,
   Loader2, Tag, Check, Trash2, ShoppingBag, LayoutDashboard,
   Users, ReceiptText, WalletCards, PackageSearch, TrendingUp, CircleDollarSign,
-  CalendarDays, FileUp, Download, MapPin, Pencil, List, Grid3X3, ArrowUp,
+  CalendarDays, FileUp, Download, MapPin, Pencil, List, Grid3X3, ArrowUp, Image,
 } from 'lucide-react';
 import {
   createConsignor,
@@ -15,6 +15,7 @@ import {
   getConsignmentData,
   recordConsignorPayout,
   searchShopifyCategories,
+  searchShopifyFiles,
   updateConsignmentItem,
   updateConsignmentItemStatus,
   updateConsignor,
@@ -940,6 +941,39 @@ function GlobalStyle() {
 
 /* ---------- small components ---------- */
 
+// Shopify's App Bridge (loaded via AppProvider) exposes window.shopify.environment
+// with a `mobile` boolean — true when running inside the Shopify Mobile app's
+// WebView, false in a desktop/browser admin session.
+// https://shopify.dev/docs/api/app-home/apis/authentication-and-data/environment-api
+// App Bridge initializes asynchronously after its <script> tag loads, so we
+// poll briefly rather than assume it's ready on first render. Defaults to
+// "desktop unconfirmed = hide" so the button never briefly flashes on mobile
+// while App Bridge is still starting up.
+function useIsDesktopAdmin() {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    let attempts = 0;
+
+    function check() {
+      if (cancelled) return;
+      const environment = window.shopify?.environment;
+      if (environment) {
+        setIsDesktop(!environment.mobile);
+        return;
+      }
+      attempts += 1;
+      if (attempts < 20) setTimeout(check, 100);
+    }
+
+    check();
+    return () => { cancelled = true; };
+  }, []);
+
+  return isDesktop;
+}
+
 async function handlePhotoFile(e, onChange) {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -947,7 +981,107 @@ async function handlePhotoFile(e, onChange) {
   onChange(dataUrl);
 }
 
+function ShopifyFileLibraryModal({ onClose, onSelect }) {
+  const [query, setQuery] = useState('');
+  const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError('');
+    const timer = setTimeout(async () => {
+      try {
+        const results = await searchShopifyFiles(query);
+        if (!cancelled) setFiles(results);
+      } catch (e) {
+        if (!cancelled) setError(e.message || 'Could not load Shopify files');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [query]);
+
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 200,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: 'var(--surface)', width: '100%', maxWidth: 560, maxHeight: '80vh',
+          borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 16px 10px' }}>
+          <strong style={{ fontSize: 15 }}>Choose an existing image</strong>
+          <button type="button" className="consignment-back" onClick={onClose} aria-label="Close">
+            <X size={18} />
+          </button>
+        </div>
+        <div style={{ padding: '0 16px 12px' }}>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search files by name…"
+            style={{
+              width: '100%', border: '1px solid var(--line)', borderRadius: 10,
+              padding: '10px 12px', fontSize: 14, background: 'var(--surface)', color: 'var(--ink)',
+            }}
+            autoFocus
+          />
+        </div>
+        <div style={{ overflowY: 'auto', padding: '0 16px 16px' }}>
+          {loading && (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '30px 0' }}>
+              <Loader2 className="consignment-spin" size={22} />
+            </div>
+          )}
+          {!loading && error && (
+            <div style={{ color: 'var(--danger)', fontSize: 13, padding: '10px 0' }}>{error}</div>
+          )}
+          {!loading && !error && files.length === 0 && (
+            <div style={{ color: 'var(--muted)', fontSize: 13, padding: '20px 0', textAlign: 'center' }}>
+              No images found{query ? ' for that search' : ' in your Shopify Files'}.
+            </div>
+          )}
+          {!loading && !error && files.length > 0 && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+              {files.map((file) => (
+                <button
+                  type="button"
+                  key={file.id}
+                  onClick={() => onSelect(file)}
+                  style={{
+                    padding: 0, border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden',
+                    aspectRatio: '1 / 1', cursor: 'pointer', background: 'var(--surface)',
+                  }}
+                >
+                  <img src={file.url} alt={file.alt || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PhotoPicker({ value, onChange }) {
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const isDesktop = useIsDesktopAdmin();
+
   return (
     <div className="consignment-photo-wrap">
       <label className="consignment-photo-btn">
@@ -968,7 +1102,7 @@ function PhotoPicker({ value, onChange }) {
         />
       </label>
       <label className="consignment-photo-alt">
-        {value ? 'Retake or choose' : 'Choose from library'}
+        {value ? 'Retake or choose' : 'Upload from device'}
         <input
           type="file"
           accept="image/*"
@@ -976,6 +1110,29 @@ function PhotoPicker({ value, onChange }) {
           onChange={(e) => handlePhotoFile(e, onChange)}
         />
       </label>
+      {isDesktop && (
+        <button
+          type="button"
+          onClick={() => setLibraryOpen(true)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 5, maxWidth: 128,
+            border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--ink)',
+            borderRadius: 8, padding: '5px 9px', fontSize: 11, cursor: 'pointer',
+          }}
+        >
+          <Image size={13} />
+          Choose from Shopify Files
+        </button>
+      )}
+      {isDesktop && libraryOpen && (
+        <ShopifyFileLibraryModal
+          onClose={() => setLibraryOpen(false)}
+          onSelect={(file) => {
+            onChange(file.url, file.id);
+            setLibraryOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -1835,7 +1992,14 @@ function ShopifyProductSection({
           This section only controls the linked Shopify product. Manual item saving never creates or updates a Shopify product.
         </p>
         <div className="consignment-shopify-photo-row">
-          <PhotoPicker value={shopifyForm.photo} onChange={(value) => setShopifyForm((current) => ({ ...current, photo: value }))} />
+          <PhotoPicker
+            value={shopifyForm.photo}
+            onChange={(value, photoId) => setShopifyForm((current) => ({
+              ...current,
+              photo: value,
+              photoId: photoId || null,
+            }))}
+          />
           <ShopifyProductFields form={shopifyForm} setForm={setShopifyForm} />
         </div>
         <label className="consignment-product-choice">
@@ -2082,6 +2246,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
   const [importBack, setImportBack] = useState('home');
   const [importConsignorId, setImportConsignorId] = useState(null);
   const [toast, setToast] = useState('');
+  const [toastTone, setToastTone] = useState('');
   const [error, setError] = useState('');
   const [showBackToTop, setShowBackToTop] = useState(false);
 
@@ -2128,9 +2293,13 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     document.querySelector('.consignment-body')?.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   }
 
-  function flash(msg) {
+  function flash(msg, tone = '') {
     setToast(msg);
-    setTimeout(() => setToast(''), 2000);
+    setToastTone(tone);
+    setTimeout(() => {
+      setToast('');
+      setToastTone('');
+    }, 2000);
   }
 
   async function handleNewConsignor(form) {
@@ -2266,9 +2435,10 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
   async function handleSyncProduct(itemId, shopifyForm) {
     try {
       setError('');
+      const wasAlreadyLinked = Boolean(items.find((entry) => entry.id === itemId)?.shopifyProductId);
       await syncShopifyProduct(itemId, shopifyForm);
       await refreshData();
-      flash('Shopify product synced');
+      flash(wasAlreadyLinked ? 'Your product has been updated' : 'Shopify product created', 'success');
     } catch (e) {
       setError(errorMessage(e, 'Could not sync the Shopify product'));
       throw e;
@@ -2339,7 +2509,14 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     <div className="consignment">
       <GlobalStyle />
       {ready && <AppNavigation view={navigationView} onNavigate={navigate} />}
-      {toast && <div className="consignment-toast"><Check size={14} /> {toast}</div>}
+      {toast && (
+        <div
+          className="consignment-toast"
+          style={toastTone === 'success' ? { background: '#1C7A3E' } : undefined}
+        >
+          <Check size={14} /> {toast}
+        </div>
+      )}
       {error && (
         <div className="consignment-toast" style={{ background: 'var(--danger)', top: 12 }}>
           <X size={14} /> {error}
