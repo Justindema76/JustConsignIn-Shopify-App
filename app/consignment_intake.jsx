@@ -1010,25 +1010,40 @@ function ShopifyFileLibraryModal({ onClose, onSelect }) {
   return (
     <div
       style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 200,
-        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+        position: 'fixed', inset: 0, background: 'rgba(15,17,20,0.55)', zIndex: 200,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
       }}
       onClick={onClose}
     >
       <div
         style={{
-          background: 'var(--surface)', width: '100%', maxWidth: 560, maxHeight: '80vh',
-          borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          background: 'var(--surface)', width: '100%', maxWidth: 560,
+          maxHeight: 'min(600px, calc(100vh - 48px))',
+          borderRadius: 16, display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 16px 10px' }}>
-          <strong style={{ fontSize: 15 }}>Choose an existing image</strong>
-          <button type="button" className="consignment-back" onClick={onClose} aria-label="Close">
-            <X size={18} />
+        <div
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '18px 20px', borderBottom: '1px solid var(--line)', flexShrink: 0,
+          }}
+        >
+          <strong style={{ fontSize: 16 }}>Choose an existing image</strong>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            style={{
+              width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: 'none', background: 'var(--bg)', borderRadius: 999, cursor: 'pointer', color: 'var(--ink)',
+            }}
+          >
+            <X size={16} />
           </button>
         </div>
-        <div style={{ padding: '0 16px 12px' }}>
+        <div style={{ padding: '16px 20px 0' }}>
           <input
             type="text"
             value={query}
@@ -1041,9 +1056,9 @@ function ShopifyFileLibraryModal({ onClose, onSelect }) {
             autoFocus
           />
         </div>
-        <div style={{ overflowY: 'auto', padding: '0 16px 16px' }}>
+        <div style={{ overflowY: 'auto', padding: 20 }}>
           {loading && (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '30px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
               <Loader2 className="consignment-spin" size={22} />
             </div>
           )}
@@ -1051,12 +1066,12 @@ function ShopifyFileLibraryModal({ onClose, onSelect }) {
             <div style={{ color: 'var(--danger)', fontSize: 13, padding: '10px 0' }}>{error}</div>
           )}
           {!loading && !error && files.length === 0 && (
-            <div style={{ color: 'var(--muted)', fontSize: 13, padding: '20px 0', textAlign: 'center' }}>
+            <div style={{ color: 'var(--muted)', fontSize: 13, padding: '40px 0', textAlign: 'center' }}>
               No images found{query ? ' for that search' : ' in your Shopify Files'}.
             </div>
           )}
           {!loading && !error && files.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
               {files.map((file) => (
                 <button
                   type="button"
@@ -1064,7 +1079,7 @@ function ShopifyFileLibraryModal({ onClose, onSelect }) {
                   onClick={() => onSelect(file)}
                   style={{
                     padding: 0, border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden',
-                    aspectRatio: '1 / 1', cursor: 'pointer', background: 'var(--surface)',
+                    aspectRatio: '1 / 1', cursor: 'pointer', background: 'var(--bg)',
                   }}
                 >
                   <img src={file.url} alt={file.alt || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
