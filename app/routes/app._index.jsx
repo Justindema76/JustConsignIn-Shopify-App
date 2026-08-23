@@ -10,12 +10,21 @@ export const loader = async ({ request }) => {
   // No active subscription — send the merchant to the plan picker first.
   // This is what makes /app/plans the actual landing screen right after
   // install, instead of the dashboard rendering (unstyled/unusable) behind
-  // a paywall nobody's hit yet. This stays inside the embedded app's own
-  // iframe the whole way, so a normal server-side redirect is safe here —
-  // this is NOT the Shopify billing confirmation redirect, which has to
-  // break out to the top-level tab instead (see app.plans.jsx).
+  // a paywall nobody's hit yet.
+  //
+  // IMPORTANT: this is a server-side loader redirect, which forces a brand
+  // new top-level document load of the embedded iframe — not a client-side
+  // SPA navigation. Shopify's embedded auth (shop, host, embedded, hmac,
+  // timestamp, session token) travels as query params on that request, and
+  // App Bridge needs them present on the NEW document load to reinitialize.
+  // A bare `redirect('/app/plans')` drops all of them, which is exactly
+  // what broke this — the next request had no `shop` param, authenticate
+  // couldn't resolve it, and App Bridge failed with "missing required
+  // configuration fields: shop". Always carry the original search params
+  // forward on any redirect inside the embedded app.
   if (!activePlan) {
-    throw redirect('/app/plans');
+    const url = new URL(request.url);
+    throw redirect(`/app/plans${url.search}`);
   }
 
   return { activePlan };
