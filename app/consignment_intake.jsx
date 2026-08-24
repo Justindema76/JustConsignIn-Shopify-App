@@ -39,7 +39,10 @@ import './styles/consignment-global.css';
    ============================================================================ */
 import { csvValue, downloadCsv, money } from './lib/consignmentHelpers';
 
-/* ---------- image helper ---------- */
+/* ============================================================================
+   IMAGE HELPERS
+   Resizes uploaded item photos before they are stored/sent.
+   ============================================================================ */
 
 function resizeImage(file, maxWidth = 320, quality = 0.55) {
   return new Promise((resolve, reject) => {
@@ -75,6 +78,9 @@ const CATEGORIES = [
 ];
 const CONDITIONS = ['New with tags', 'Like new', 'Good', 'Fair'];
 
+/* PRODUCT SOURCE LABEL
+   Determines whether an item displays as Manual, Shopify Draft, POS, or POS + Online.
+*/
 function productLabel(item) {
   if (!item?.shopifyProductId) return { text: 'Manual', className: 'manual' };
 
@@ -88,7 +94,10 @@ function productLabel(item) {
     : { text: 'POS', className: 'pos' };
 }
 
-/* ---------- small components ---------- */
+/* ============================================================================
+   SHARED UI HELPERS + SMALL COMPONENTS
+   Shopify environment detection, photo picker, status helpers, and app navigation.
+   ============================================================================ */
 
 // Shopify's App Bridge (loaded via AppProvider) exposes window.shopify.environment
 // with a `mobile` boolean — true when running inside the Shopify Mobile app's
@@ -98,6 +107,9 @@ function productLabel(item) {
 // poll briefly rather than assume it's ready on first render. Defaults to
 // "desktop unconfirmed = hide" so the button never briefly flashes on mobile
 // while App Bridge is still starting up.
+/* SHOPIFY ENVIRONMENT CHECK
+   Detects whether the app is running in desktop Shopify Admin or Shopify Mobile.
+*/
 function useIsDesktopAdmin() {
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -123,6 +135,9 @@ function useIsDesktopAdmin() {
   return isDesktop;
 }
 
+/* PHOTO FILE HANDLER
+   Reads a selected image, resizes it, and sends the data back to the photo field.
+*/
 async function handlePhotoFile(e, onChange) {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -130,6 +145,9 @@ async function handlePhotoFile(e, onChange) {
   onChange(dataUrl);
 }
 
+/* SHOPIFY FILE LIBRARY MODAL
+   Lets desktop users search Shopify Files and choose an existing image.
+*/
 function ShopifyFileLibraryModal({ onClose, onSelect }) {
   const [query, setQuery] = useState('');
   const [files, setFiles] = useState([]);
@@ -242,6 +260,9 @@ function ShopifyFileLibraryModal({ onClose, onSelect }) {
   );
 }
 
+/* PHOTO PICKER
+   Handles camera capture, device upload, and Shopify Files selection.
+*/
 function PhotoPicker({ value, onChange }) {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const isDesktop = useIsDesktopAdmin();
@@ -301,6 +322,9 @@ function PhotoPicker({ value, onChange }) {
   );
 }
 
+/* ITEM STATUS HELPERS
+   Converts stored item status values into display/CSS-friendly values.
+*/
 function statusClass(status) {
   return String(status || 'Draft').toLowerCase();
 }
@@ -312,6 +336,9 @@ function statusLabel(status) {
   return value === 'Draft' ? 'Available' : value;
 }
 
+/* MAIN APP NAVIGATION
+   Dashboard / Consignors / Items / Sales / Payouts / Reports navigation.
+*/
 function AppNavigation({ view, onNavigate }) {
   const entries = [
     ['dashboard', 'Dashboard', LayoutDashboard],
@@ -343,6 +370,10 @@ function AppNavigation({ view, onNavigate }) {
   );
 }
 
+/* ============================================================================
+   WORKFLOW PAGE: CREATE PAYOUT
+   Select unpaid sold items, choose payment details, and record a consignor payout.
+   ============================================================================ */
 function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
   const eligible = items.filter(
     (item) => item.consignorId === consignor.id && (item.status === 'Sold' || item.dateSold) && !item.paidOut,
@@ -507,8 +538,15 @@ function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
   );
 }
 
-/* ---------- screens ---------- */
+/* ============================================================================
+   WORKFLOW SCREENS
+   Smaller screens that still live inside this intake/controller file.
+   ============================================================================ */
 
+/* ============================================================================
+   WORKFLOW PAGE: CHOOSE CONSIGNOR
+   Used before adding an item. Select an existing consignor or create a new one.
+   ============================================================================ */
 function ChooseConsignorScreen({ consignors, onBack, onChoose, onCreate }) {
   const [search, setSearch] = useState('');
   const filtered = consignors.filter((consignor) => {
@@ -565,6 +603,9 @@ function ChooseConsignorScreen({ consignors, onBack, onChoose, onCreate }) {
   );
 }
 
+/* CSV IMPORT HELPER
+   Parses uploaded CSV text into normalized row objects.
+*/
 function parseCsv(text) {
   const rows = [];
   let row = [], field = '', quoted = false;
@@ -587,6 +628,9 @@ function parseCsv(text) {
   return rows.slice(1).map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] || ''])));
 }
 
+/* CSV EXPORT: CONSIGNORS
+   Builds and downloads the consignor export file.
+*/
 function exportConsignors(consignors) {
   const headers = ['number', 'first_name', 'last_name', 'phone', 'email', 'address', 'city', 'province', 'postal_code', 'date_joined', 'commission_pct', 'unsold_preference', 'notes'];
   const rows = consignors.map((c) => [
@@ -596,6 +640,9 @@ function exportConsignors(consignors) {
   downloadCsv(`consignors-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows);
 }
 
+/* CSV EXPORT: ITEMS
+   Builds and downloads the item export file, including sale and payout data.
+*/
 function exportItems(items, consignors) {
   const consignorById = Object.fromEntries(consignors.map((c) => [c.id, c]));
   const headers = [
@@ -619,6 +666,10 @@ function exportItems(items, consignors) {
   downloadCsv(`items-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows);
 }
 
+/* ============================================================================
+   WORKFLOW PAGE: IMPORT DATA
+   Downloads templates, reads CSV files, previews rows, and starts the import.
+   ============================================================================ */
 function ImportScreen({ kind, onBack, onImport, fixedConsignor = null }) {
   const [fileName, setFileName] = useState('');
   const [rows, setRows] = useState([]);
@@ -696,6 +747,10 @@ function ImportScreen({ kind, onBack, onImport, fixedConsignor = null }) {
   );
 }
 
+/* ============================================================================
+   WORKFLOW PAGE: ADD CONSIGNOR
+   Creates a new consignor record.
+   ============================================================================ */
 function NewConsignorScreen({ onBack, onSave, nextNumber }) {
   const [form, setForm] = useState({ number: nextNumber, firstName: '', lastName: '', phone: '', email: '', address: '', city: '', province: 'Ontario', postalCode: '', commissionPct: 50, unsoldPreference: 'Please return', notes: '' });
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -774,6 +829,10 @@ function NewConsignorScreen({ onBack, onSave, nextNumber }) {
   );
 }
 
+/* ============================================================================
+   WORKFLOW PAGE: EDIT CONSIGNOR
+   Updates an existing consignor record.
+   ============================================================================ */
 function EditConsignorScreen({ consignor, onBack, onSave }) {
   const [form, setForm] = useState({
     number: consignor.number,
@@ -864,6 +923,9 @@ function EditConsignorScreen({ consignor, onBack, onSave }) {
   );
 }
 
+/* MANUAL ITEM FIELD GROUP
+   Category, brand, size, condition, and internal notes for the consignment item.
+*/
 function ConsignmentItemFields({ form, setForm }) {
   const set = (key) => (event) => setForm((current) => ({
     ...current,
@@ -914,6 +976,9 @@ function ConsignmentItemFields({ form, setForm }) {
   );
 }
 
+/* SHOPIFY PRODUCT FIELD GROUP
+   Shopify title, price, vendor, tags, taxonomy, description, and SEO fields.
+*/
 function ShopifyProductFields({ form, setForm }) {
   const [categorySearch, setCategorySearch] = useState(form.shopifyCategoryName || '');
   const [categoryResults, setCategoryResults] = useState([]);
@@ -1029,6 +1094,9 @@ function ShopifyProductFields({ form, setForm }) {
   );
 }
 
+/* MANUAL ITEM FORM
+   Shared form used to create/update the manual consignment metaobject record.
+*/
 function ManualItemCore({
   form,
   setForm,
@@ -1109,11 +1177,17 @@ function ManualItemCore({
   );
 }
 
+/* SHOPIFY PRODUCT ADMIN LINK
+   Converts the Shopify product ID into a Shopify Admin deep link.
+*/
 function productAdminUrl(productId) {
   const numericId = String(productId || '').split('/').pop();
   return `shopify://admin/products/${numericId}`;
 }
 
+/* SHOPIFY PRODUCT SECTION
+   Optional Tier 2 workflow for creating/updating the linked Shopify product.
+*/
 function ShopifyProductSection({
   shopifyForm,
   setShopifyForm,
@@ -1212,6 +1286,10 @@ function ShopifyProductSection({
   );
 }
 
+/* ============================================================================
+   WORKFLOW PAGE: ADD ITEMS / INTAKE
+   Adds one or more manual items and optionally creates a Shopify product.
+   ============================================================================ */
 function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, tier2Enabled = false }) {
   const emptyForm = {
     category: 'Clothing', type: '', description: '', size: '', condition: 'Good',
@@ -1297,6 +1375,10 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
 }
 
 
+/* ============================================================================
+   WORKFLOW PAGE: EDIT ITEM
+   Edits the manual item, records a manual sale, syncs Shopify, or deletes the item.
+   ============================================================================ */
 function EditItemScreen({
   item,
   onBack,
@@ -1392,9 +1474,20 @@ function EditItemScreen({
   );
 }
 
-/* ---------- app ---------- */
+/* ============================================================================
+   APP CONTROLLER / ROUTER
+   Owns app state, API actions, navigation, and decides which page is rendered.
+   ============================================================================ */
 
+/* ============================================================================
+   ROOT: CONSIGNMENT INTAKE APP
+   Central controller for data loading, state, actions, navigation, and page routing.
+   ============================================================================ */
 export default function ConsignmentIntakeApp({ activePlan = null }) {
+  // --------------------------------------------------------------------------
+  // APP-WIDE STATE
+  // Loaded consignors/items, current page, selected records, import state, alerts.
+  // --------------------------------------------------------------------------
   const tier2Enabled = activePlan === 'TIER2';
   const [ready, setReady] = useState(false);
   const [consignors, setConsignors] = useState([]);
@@ -1413,6 +1506,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
   const [error, setError] = useState('');
   const [showBackToTop, setShowBackToTop] = useState(false);
 
+  // --------------------------------------------------------------------------
+  // ERROR + DATA LOADING HELPERS
+  // --------------------------------------------------------------------------
   function errorMessage(value, fallback) {
     return value instanceof Error ? value.message : fallback;
   }
@@ -1424,18 +1520,27 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     return data;
   }
 
+  // --------------------------------------------------------------------------
+  // INITIAL APP DATA LOAD
+  // --------------------------------------------------------------------------
   useEffect(() => {
     refreshData()
       .catch((e) => setError(errorMessage(e, 'Could not load Shopify data')))
       .finally(() => setReady(true));
   }, []);
 
+  // --------------------------------------------------------------------------
+  // PAGE CHANGE: RESET SCROLL POSITION
+  // --------------------------------------------------------------------------
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     document.querySelector('.consignment-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     setShowBackToTop(false);
   }, [view]);
 
+  // --------------------------------------------------------------------------
+  // BACK-TO-TOP VISIBILITY
+  // --------------------------------------------------------------------------
   useEffect(() => {
     if (!ready) return undefined;
     const body = document.querySelector('.consignment-body');
@@ -1451,6 +1556,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     };
   }, [ready, view]);
 
+  // --------------------------------------------------------------------------
+  // GENERAL UI HELPERS
+  // --------------------------------------------------------------------------
   function scrollToTop() {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     document.querySelector('.consignment-body')?.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
@@ -1465,6 +1573,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     }, 2000);
   }
 
+  // --------------------------------------------------------------------------
+  // CONSIGNOR ACTIONS
+  // --------------------------------------------------------------------------
   async function handleNewConsignor(form) {
     try {
       setError('');
@@ -1478,6 +1589,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     }
   }
 
+  // --------------------------------------------------------------------------
+  // IMPORT ACTIONS
+  // --------------------------------------------------------------------------
   async function handleImport(kind, rows) {
     try {
       setError('');
@@ -1503,6 +1617,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     setView('import');
   }
 
+  // --------------------------------------------------------------------------
+  // ITEM CREATE + SHOPIFY CREATE ACTIONS
+  // --------------------------------------------------------------------------
   async function handleSaveBatch(batch) {
     try {
       setError('');
@@ -1535,6 +1652,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     }
   }
 
+  // --------------------------------------------------------------------------
+  // CONSIGNOR UPDATE / DELETE ACTIONS
+  // --------------------------------------------------------------------------
   async function handleUpdateConsignor(consignorId, form) {
     try {
       setError('');
@@ -1560,6 +1680,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     }
   }
 
+  // --------------------------------------------------------------------------
+  // ITEM UPDATE / DELETE / STATUS / SHOPIFY SYNC ACTIONS
+  // --------------------------------------------------------------------------
   async function handleDeleteItem(itemId) {
     try {
       setError('');
@@ -1608,6 +1731,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     }
   }
 
+  // --------------------------------------------------------------------------
+  // PAYOUT ACTIONS
+  // --------------------------------------------------------------------------
   async function handleRecordPayout(payout) {
     try {
       setError('');
@@ -1626,6 +1752,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     setView('consignor');
   }
 
+  // --------------------------------------------------------------------------
+  // ACTIVE RECORDS + NAVIGATION STATE
+  // --------------------------------------------------------------------------
   const activeConsignor = consignors.find((c) => c.id === activeId);
   const activeItem = items.find((i) => i.id === activeItemId);
   const nextConsignorNumber = Math.max(0, ...consignors.map((consignor) => Number(consignor.number) || 0)) + 1;
@@ -1637,6 +1766,9 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         ? 'payouts'
         : view;
 
+  // --------------------------------------------------------------------------
+  // NAVIGATION HELPERS
+  // --------------------------------------------------------------------------
   function navigate(viewName) {
     setError('');
     setView(viewName);
@@ -1668,6 +1800,10 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
     setView('chooseConsignor');
   }
 
+  // --------------------------------------------------------------------------
+  // PAGE ROUTER
+  // Each JSX block below corresponds to one app page or workflow page.
+  // --------------------------------------------------------------------------
   return (
     <div className="consignment">
       {ready && <AppNavigation view={navigationView} onNavigate={navigate} />}
@@ -1777,6 +1913,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* WORKFLOW PAGE: CREATE PAYOUT */}
       {ready && view === 'createPayout' && activeConsignor && (
         <CreatePayoutScreen
           consignor={activeConsignor}
@@ -1786,6 +1923,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* WORKFLOW PAGE: IMPORT DATA */}
       {ready && view === 'import' && (
         <ImportScreen
           kind={importKind}
@@ -1795,10 +1933,12 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* WORKFLOW PAGE: ADD CONSIGNOR */}
       {ready && view === 'newConsignor' && (
         <NewConsignorScreen onBack={() => setView(newConsignorBack)} onSave={handleNewConsignor} nextNumber={nextConsignorNumber} />
       )}
 
+      {/* WORKFLOW PAGE: CHOOSE CONSIGNOR */}
       {ready && view === 'chooseConsignor' && (
         <ChooseConsignorScreen
           consignors={consignors}
@@ -1811,6 +1951,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: CONSIGNOR DASHBOARD */}
       {ready && view === 'consignor' && activeConsignor && (
         <ConsignorDashboard
           consignor={activeConsignor}
@@ -1827,6 +1968,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* WORKFLOW PAGE: EDIT CONSIGNOR */}
       {ready && view === 'editConsignor' && activeConsignor && (
         <EditConsignorScreen
           consignor={activeConsignor}
@@ -1835,6 +1977,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* WORKFLOW PAGE: ADD ITEMS / INTAKE */}
       {ready && view === 'intake' && activeConsignor && (
         <IntakeScreen
           consignor={activeConsignor}
@@ -1846,6 +1989,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* WORKFLOW PAGE: EDIT ITEM */}
       {ready && view === 'editItem' && activeItem && (
         <EditItemScreen
           item={activeItem}
@@ -1858,6 +2002,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* GLOBAL CONTROL: BACK TO TOP */}
       {ready && showBackToTop && (
         <button className="consignment-back-to-top" type="button" onClick={scrollToTop} aria-label="Back to top" title="Back to top">
           <ArrowUp size={20} aria-hidden="true" />

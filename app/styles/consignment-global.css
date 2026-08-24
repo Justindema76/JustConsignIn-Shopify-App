@@ -147,7 +147,7 @@
 .consignment-card {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 5px;
   padding: 16px;
   margin-bottom: 12px;
   box-shadow: 0 1px 0 rgba(0, 0, 0, .03);
@@ -233,13 +233,13 @@
 .consignment-row-btn {
         width: 100%; text-align: left; display: flex; align-items: center;
         gap: 12px; background: var(--surface); border: 1px solid var(--line);
-        border-radius: 12px; padding: 14px 14px; margin-bottom: 10px;
+        border-radius: 5px; padding: 14px 14px; margin-bottom: 10px;
         transition: background .15s;
       }
       .consignment-row-btn:active { background: var(--green-soft); }
 
       .consignment-avatar {
-        width: 42px; height: 42px; border-radius: 12px; background: var(--green-soft);
+        width: 42px; height: 42px; border-radius: 5px; background: var(--green-soft);
         color: var(--green-dark); display: flex; align-items: center; justify-content: center;
         font-family: "Fraunces", serif; font-weight: 600; font-size: 16px; flex-shrink: 0;
       }
@@ -252,7 +252,7 @@
       .consignment-consignor-row-summary {
         width: 100%; display: flex; align-items: center; gap: 12px;
         background: var(--surface); border: 1px solid var(--line);
-        border-radius: 12px; padding: 14px 14px; cursor: pointer;
+        border-radius: 5px; padding: 14px 14px; cursor: pointer;
         list-style: none; transition: background .15s;
       }
       .consignment-consignor-row-summary::-webkit-details-marker { display: none; }
@@ -297,11 +297,22 @@
         display: block; font-size: 12px; font-weight: 600; color: var(--muted);
         text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px;
       }
+      /* ============================================================
+         GLOBAL FORM CONTROLS
+         Shared across Add/Edit Consignor, Add/Edit Item, Create Payout,
+         Shopify product fields, and other form-heavy screens.
+         Smaller 5px corners replace the previous 12px rounded look.
+         ============================================================ */
       .consignment-input,
       .consignment-select,
       .consignment-textarea {
-        width: 100%; border: 1px solid var(--line); border-radius: 12px;
-        padding: 12px 14px; background: var(--surface); color: var(--ink); outline: none;
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        padding: 12px 14px;
+        background: var(--surface);
+        color: var(--ink);
+        outline: none;
       }
       .consignment-input:focus,
       .consignment-select:focus,
@@ -333,7 +344,7 @@
       }
       .consignment-shopify-summary::-webkit-details-marker { display: none; }
       .consignment-shopify-summary > span:first-child { display: flex; align-items: center; gap: 8px; }
-      .consignment-shopify-summary::after { content: "âŒ„"; color: var(--muted); font-size: 18px; line-height: 1; }
+      .consignment-shopify-summary::after { content: "⌄"; color: var(--muted); font-size: 18px; line-height: 1; }
       details[open] > .consignment-shopify-summary::after { transform: rotate(180deg); }
       .consignment-shopify-content { padding: 0 16px 16px; border-top: 1px solid var(--line); }
       .consignment-shopify-help { margin: 12px 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
@@ -349,14 +360,14 @@
       }
       .consignment-consignor-number-preview {
         display: grid; place-items: center; min-height: 64px;
-        border: 1px solid #C9DDCE; border-radius: 12px;
+        border: 1px solid #C9DDCE; border-radius: 5px;
         background: var(--green-soft); color: var(--green-dark);
         font-size: 26px; font-weight: 800;
       }
 
       .consignment-product-choice {
         display: flex; align-items: flex-start; gap: 10px;
-        margin-top: 14px; padding: 13px; border-radius: 12px;
+        margin-top: 14px; padding: 13px; border-radius: 5px;
         background: var(--gold-soft); border: 1px solid #EFD7A8;
         cursor: pointer;
       }
@@ -378,7 +389,7 @@
         opacity: .72; pointer-events: none;
       }
       .consignment-status-card {
-        border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+        border: 1px solid var(--line); border-radius: 5px; padding: 12px 14px;
         background: var(--surface); margin: 0 0 14px;
       }
       .consignment-manual-sale {
@@ -444,7 +455,7 @@
       }
       .consignment-metric {
         width: 100%; text-align: left; color: inherit; font: inherit;
-        background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+        background: var(--surface); border: 1px solid var(--line); border-radius: 5px;
         padding: 16px; min-height: 118px;
         transition: border-color .15s, box-shadow .15s, transform .15s;
       }
@@ -470,7 +481,7 @@
       }
       .consignment-quick-action {
         display: flex; align-items: center; gap: 11px; min-height: 64px;
-        padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px;
+        padding: 13px 14px; border: 1px solid var(--line); border-radius: 5px;
         background: var(--surface); color: var(--ink); text-align: left;
       }
       .consignment-quick-action.primary { background: var(--green); color: #fff; border-color: var(--green); }
@@ -482,7 +493,7 @@
       .consignment-quick-action strong { display: block; font-size: 14px; }
       .consignment-quick-action-copy span { display: block; font-size: 11px; opacity: .75; margin-top: 2px; }
       .consignment-optional {
-        border: 1px solid var(--line); border-radius: 12px; margin-top: 14px;
+        border: 1px solid var(--line); border-radius: 5px; margin-top: 14px;
         background: #FAFBFB; overflow: hidden;
       }
       .consignment-optional summary {
@@ -525,7 +536,7 @@
       }
       .consignment-data-menu-popover button:hover { background: var(--green-soft); }
       .consignment-import-drop {
-        border: 1px dashed #AEB4B8; border-radius: 12px; padding: 24px 18px;
+        border: 1px dashed #AEB4B8; border-radius: 5px; padding: 24px 18px;
         background: var(--surface); text-align: center; margin-bottom: 14px;
       }
       .consignment-import-drop input { display: none; }
@@ -548,7 +559,7 @@
       .consignment-list-head { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
       .consignment-item-groups { display: grid; gap: 12px; }
       .consignment-item-group {
-        border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden;
+        border: 1px solid var(--line); border-radius: 5px; background: var(--surface); overflow: hidden;
       }
       .consignment-item-group-summary {
         list-style: none; display: grid; grid-template-columns: 30px 38px minmax(0, 1fr) 86px 70px;
