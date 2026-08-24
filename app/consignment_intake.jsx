@@ -662,7 +662,6 @@ function GlobalStyle() {
         .consignment-sales-pay-btn { width: auto; min-width: 112px; }
         .consignment-quick-actions { grid-template-columns: 1fr 1fr; gap: 8px; }
         .consignment-quick-action { min-height: 72px; padding: 11px; align-items: flex-start; }
-        .consignment-filter-select { width: 100%; }
         .consignment-row2,
       .consignment-payout-fields { display: grid; grid-template-columns: minmax(0, 1fr); }
         .consignment-intake-primary {
