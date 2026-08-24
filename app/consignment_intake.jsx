@@ -30,6 +30,7 @@ import SalesScreen from './pages/consignment/SalesScreen';
 import PayoutsScreen from './pages/consignment/PayoutsScreen';
 import ConsignorDashboard from './pages/consignment/ConsignorDashboard';
 import ConsignmentFilterBar from './components/consignment/ConsignmentFilterBar';
+import './styles/consignment-global.css';
 import { csvValue, downloadCsv, money } from './lib/consignmentHelpers';
 
 /* ---------- image helper ---------- */
@@ -81,33 +82,17 @@ function productLabel(item) {
     : { text: 'POS', className: 'pos' };
 }
 
-/* ---------- shared styles ---------- */
+/* ============================================================================
+   LEGACY / WORKFLOW INLINE STYLES
+   Only styles for workflow UI still physically owned by this intake file belong
+   here. Global app-shell styles live in consignment-global.css and shared
+   filter/search/view styles live in consignment-filter-bar.css.
+   ============================================================================ */
 
 function GlobalStyle() {
   return (
     <style>{`
-      @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap");
-
-      
-      
-      
-      
-      
-      
-
-
-      
-
-      
-      
-      
-
-      
-      
-      
-
-      
-      .consignment-row-btn {
+.consignment-row-btn {
         width: 100%; text-align: left; display: flex; align-items: center;
         gap: 12px; background: var(--surface); border: 1px solid var(--line);
         border-radius: 12px; padding: 14px 14px; margin-bottom: 10px;
@@ -168,12 +153,6 @@ function GlobalStyle() {
         padding: 14px 24px calc(14px + env(safe-area-inset-bottom));
         background: linear-gradient(to top, var(--bg) 60%, transparent);
       }
-      
-      
-      
-      
-      
-      
 
       .consignment-field { margin-bottom: 14px; }
       .consignment-label {
@@ -2370,6 +2349,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         </div>
       )}
 
+      {/* PAGE: DASHBOARD */}
       {ready && view === 'dashboard' && (
         <DashboardScreen
           consignors={consignors}
@@ -2383,6 +2363,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: CONSIGNORS */}
       {ready && view === 'home' && (
         <ConsignorsScreen
           consignors={consignors}
@@ -2400,6 +2381,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: ITEMS */}
       {ready && view === 'items' && (
         <ItemsScreen
           items={items}
@@ -2412,6 +2394,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: SALES */}
       {ready && view === 'sales' && (
         <SalesScreen
           items={items}
@@ -2425,6 +2408,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: PAYOUTS */}
       {ready && view === 'payouts' && (
         <PayoutsScreen
           items={items}
@@ -2438,6 +2422,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: REPORTS */}
       {ready && view === 'reports' && (
         <ReportsScreen
           items={items}

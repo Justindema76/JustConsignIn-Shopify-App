@@ -1,6 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 
-/* Global JustConsignIn app shell. New shared/global rules belong here. */
+/* ============================================================================
+   JUSTCONSIGNIN GLOBAL APP SHELL
+   Shared visual foundation used by every consignment page.
+   Page-specific/component-specific CSS belongs in its own stylesheet.
+   ============================================================================ */
+
 .consignment {
   --bg: #F6F6F7;
   --surface: #FFFFFF;
@@ -18,6 +23,7 @@
   --border: var(--line);
   --blue: var(--green);
   --blue-soft: var(--green-soft);
+
   font-family: 'Inter', system-ui, sans-serif;
   background: var(--bg);
   color: var(--ink);
@@ -30,17 +36,51 @@
   position: relative;
 }
 
-.consignment * { box-sizing: border-box; }
+/* --------------------------------------------------------------------------
+   GLOBAL BOX MODEL + TYPOGRAPHY
+   -------------------------------------------------------------------------- */
+
+.consignment * {
+  box-sizing: border-box;
+}
+
 .consignment h1,
 .consignment h2,
-.consignment h3 { font-family: 'Fraunces', serif; margin: 0; color: var(--ink); }
-.consignment button { font-family: inherit; cursor: pointer; }
+.consignment h3 {
+  font-family: 'Fraunces', serif;
+  margin: 0;
+  color: var(--ink);
+}
+
+.consignment button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .consignment input,
 .consignment select,
-.consignment textarea { font-family: inherit; font-size: 16px; }
-.consignment ::placeholder { color: #A6AC9B; }
+.consignment textarea {
+  font-family: inherit;
+  font-size: 16px;
+}
 
-.consignment-body { flex: 1; overflow-y: auto; padding: 20px 24px 110px; }
+.consignment ::placeholder {
+  color: #A6AC9B;
+}
+
+/* --------------------------------------------------------------------------
+   GLOBAL PAGE BODY
+   -------------------------------------------------------------------------- */
+
+.consignment-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px 110px;
+}
+
+/* --------------------------------------------------------------------------
+   GLOBAL BACK-TO-TOP CONTROL
+   -------------------------------------------------------------------------- */
 
 .consignment-back-to-top {
   position: fixed;
@@ -58,10 +98,23 @@
   border-radius: 50%;
   background: var(--green);
   color: #fff;
-  box-shadow: 0 6px 18px rgba(20,63,115,.28);
+  box-shadow: 0 6px 18px rgba(20, 63, 115, .28);
 }
-.consignment-back-to-top:hover { background: var(--green-dark); }
-.consignment-back-to-top:focus-visible { outline: 3px solid var(--green-soft); outline-offset: 2px; }
+
+.consignment-back-to-top:hover {
+  background: var(--green-dark);
+}
+
+.consignment-back-to-top:focus-visible {
+  outline: 3px solid var(--green-soft);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   GLOBAL SEARCH FIELD
+   Shared base search appearance. Filter-bar layout remains in
+   consignment-filter-bar.css.
+   -------------------------------------------------------------------------- */
 
 .consignment-search {
   display: flex;
@@ -73,8 +126,23 @@
   padding: 11px 14px;
   margin-bottom: 14px;
 }
-.consignment-search input { border: none; outline: none; flex: 1; background: transparent; color: var(--ink); }
-.consignment-search svg { color: var(--muted); flex-shrink: 0; }
+
+.consignment-search input {
+  border: none;
+  outline: none;
+  flex: 1;
+  background: transparent;
+  color: var(--ink);
+}
+
+.consignment-search svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   GLOBAL CARD
+   -------------------------------------------------------------------------- */
 
 .consignment-card {
   background: var(--surface);
@@ -82,8 +150,12 @@
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
-  box-shadow: 0 1px 0 rgba(0,0,0,.03);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .03);
 }
+
+/* --------------------------------------------------------------------------
+   GLOBAL BUTTONS
+   -------------------------------------------------------------------------- */
 
 .consignment-btn {
   width: auto;
@@ -99,18 +171,54 @@
   padding: 13px 18px;
   font-weight: 600;
   font-size: 14px;
-  box-shadow: 0 6px 16px rgba(47,107,79,.25);
+  box-shadow: 0 6px 16px rgba(47, 107, 79, .25);
   text-decoration: none;
 }
-.consignment-btn:active { background: var(--green-dark); }
-.consignment-btn.secondary { background: var(--surface); color: var(--green-dark); border: 1px solid var(--line); box-shadow: none; }
-.consignment-btn.secondary:active { background: var(--green-soft); }
-.consignment-btn.danger { background: var(--danger); box-shadow: 0 6px 16px rgba(179,73,47,.25); }
-.consignment-btn:disabled { opacity: .5; }
+
+.consignment-btn:active {
+  background: var(--green-dark);
+}
+
+.consignment-btn.secondary {
+  background: var(--surface);
+  color: var(--green-dark);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+
+.consignment-btn.secondary:active {
+  background: var(--green-soft);
+}
+
+.consignment-btn.danger {
+  background: var(--danger);
+  box-shadow: 0 6px 16px rgba(179, 73, 47, .25);
+}
+
+.consignment-btn:disabled {
+  opacity: .5;
+}
+
+/* --------------------------------------------------------------------------
+   GLOBAL MOBILE SHELL
+   -------------------------------------------------------------------------- */
 
 @media (max-width: 640px) {
-  .consignment { padding-bottom: 74px; }
-  .consignment-body { padding: 14px 16px 96px; }
-  .consignment-back-to-top { right: 14px !important; bottom: calc(84px + env(safe-area-inset-bottom)); }
-  .consignment-btn { width: 100%; min-width: 0; }
+  .consignment {
+    padding-bottom: 74px;
+  }
+
+  .consignment-body {
+    padding: 14px 16px 96px;
+  }
+
+  .consignment-back-to-top {
+    right: 14px !important;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+
+  .consignment-btn {
+    width: 100%;
+    min-width: 0;
+  }
 }
