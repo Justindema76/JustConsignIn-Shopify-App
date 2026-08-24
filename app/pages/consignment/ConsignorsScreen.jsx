@@ -1,16 +1,33 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { FileUp, Download, Plus, ChevronDown, Search, Users, Grid3X3 } from 'lucide-react';
+import { FileUp, Download, Plus, Grid3X3, Users } from 'lucide-react';
 import { Header } from '../../components/consignment/SharedPieces';
 import AllConsignorView from '../../components/consignment/AllConsignorView';
-import { money, productLabel, statusLabel } from '../../lib/consignmentHelpers';
+import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
+import { money, productLabel } from '../../lib/consignmentHelpers';
+
+// Same status set and "Available" merge as ItemsScreen — this page had the
+// identical duplicate-Available/Returned/Donated issue, fixed the same way.
+const STATUS_OPTIONS = ['All', 'Available', 'Sold', 'Archived'];
+
+function matchesStatusFilter(item, filter) {
+  if (filter === 'All') return true;
+  if (filter === 'Archived') return item.paidOut;
+  if (filter === 'Available') return item.status === 'Available' || item.status === 'Active' || item.status === 'Draft';
+  return item.status === filter && !item.paidOut;
+}
+
+function statusCount(items, filter) {
+  if (filter === 'All') return items.length;
+  return items.filter((item) => matchesStatusFilter(item, filter)).length;
+}
 
 export default function ConsignorsScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpenItem, onMarkSold, onStartPayout, onNewConsignor, onNewItem, onImport, onExport }) {
-  const [filter, setFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [consignorFilter, setConsignorFilter] = useState('All');
   const [productFilter, setProductFilter] = useState('All');
   const [sort, setSort] = useState('consignor');
   const [viewMode, setViewMode] = useState('grouped');
-  const statuses = ['All', 'Draft', 'Available', 'Sold', 'Archived', 'Returned', 'Donated'];
   const consignorById = Object.fromEntries(consignors.map((entry) => [entry.id, entry]));
 
   const filtered = items.filter((item) => {
@@ -24,14 +41,7 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
       || (productFilter === 'POS' && product.text === 'POS')
       || (productFilter === 'Online' && product.text === 'Online')
       || (productFilter === 'POS + Online' && product.text === 'POS + Online');
-    const matchesStatus = filter === 'All'
-      ? true
-      : filter === 'Archived'
-        ? item.paidOut
-        : filter === 'Available'
-          ? item.status === 'Available' || item.status === 'Active'
-          : item.status === filter && !item.paidOut;
-    return matchesQuery && matchesConsignor && matchesProduct && matchesStatus;
+    return matchesQuery && matchesConsignor && matchesProduct && matchesStatusFilter(item, statusFilter);
   }).sort((a, b) => {
     if (sort === 'oldest') return String(a.dateReceived || '').localeCompare(String(b.dateReceived || ''));
     if (sort === 'consignor') {
@@ -52,7 +62,7 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
     return groups;
   }, new Map());
 
-  if (filter === 'All' && productFilter === 'All') {
+  if (statusFilter === 'All' && productFilter === 'All') {
     const q = query.trim().toLowerCase();
     for (const consignor of consignors) {
       if (grouped.has(consignor.id)) continue;
@@ -108,27 +118,75 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
       )} />
 
       <div className="consignment-body">
-        <div className="consignment-items-toolbar">
-          <details className="consignment-items-filter-details">
-            <summary className="consignment-items-filter-summary"><span>Filters &amp; sorting</span><ChevronDown size={20} aria-hidden="true" /></summary>
-            <div className="consignment-items-toolbar-top">
-              <label className="consignment-tool-field"><span>Consignor</span><select className="consignment-select consignment-filter-select" value={consignorFilter} onChange={(event) => setConsignorFilter(event.target.value)} aria-label="Filter by consignor"><option value="All">All consignors</option>{consignors.map((consignor) => <option key={consignor.id} value={consignor.id}>#{consignor.number} · {consignor.firstName} {consignor.lastName}</option>)}</select></label>
-              <label className="consignment-tool-field"><span>Sort</span><select className="consignment-select consignment-filter-select" value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort items"><option value="consignor">Consignor name</option><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="ticket">SKU / item number</option><option value="priceHigh">Price high to low</option><option value="priceLow">Price low to high</option></select></label>
-              <label className="consignment-tool-field"><span>Product type</span><select className="consignment-select consignment-filter-select" value={productFilter} onChange={(event) => setProductFilter(event.target.value)} aria-label="Filter by product type"><option value="All">All product types</option><option value="Manual">Manual</option><option value="POS">POS</option><option value="Online">Online</option><option value="POS + Online">POS + Online</option></select></label>
-              <label className="consignment-tool-field"><span>Status</span><select id="consignor-status-filter" className="consignment-select consignment-filter-select" value={filter} onChange={(event) => setFilter(event.target.value)}>{statuses.map((status) => {
-                const count = status === 'All' ? items.length : status === 'Archived' ? items.filter((item) => item.paidOut).length : items.filter((item) => item.status === status && !item.paidOut).length;
-                return <option key={status} value={status}>{statusLabel(status)} ({count})</option>;
-              })}</select></label>
-            </div>
-          </details>
-          <div className="consignment-items-toolbar-bottom">
-            <div className="consignment-search"><Search size={19} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, SKU, brand, or consignor" /></div>
-            <div className="consignment-tool-view"><span>View</span><div className="consignment-view-toggle consignment-finder-toggle" aria-label="Choose consignor view">
-              <button type="button" className={viewMode === 'grouped' ? 'active' : ''} onClick={() => setViewMode('grouped')} aria-pressed={viewMode === 'grouped'}><Users size={16} /> By consignor</button>
-              <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={16} /> Grid</button>
-            </div></div>
-          </div>
-        </div>
+        <ConsignmentFilterBar
+          search={{
+            value: query,
+            onChange: setQuery,
+            placeholder: 'Search name, SKU, brand, or consignor',
+          }}
+          filters={[
+            {
+              key: 'consignor',
+              label: 'Consignor',
+              value: consignorFilter,
+              onChange: setConsignorFilter,
+              ariaLabel: 'Filter by consignor',
+              options: [
+                { value: 'All', label: 'All consignors' },
+                ...consignors.map((c) => ({ value: c.id, label: `#${c.number} · ${c.firstName} ${c.lastName}` })),
+              ],
+            },
+            {
+              key: 'sort',
+              label: 'Sort',
+              value: sort,
+              onChange: setSort,
+              ariaLabel: 'Sort items',
+              options: [
+                { value: 'consignor', label: 'Consignor name' },
+                { value: 'newest', label: 'Newest first' },
+                { value: 'oldest', label: 'Oldest first' },
+                { value: 'ticket', label: 'SKU / item number' },
+                { value: 'priceHigh', label: 'Price high to low' },
+                { value: 'priceLow', label: 'Price low to high' },
+              ],
+            },
+            {
+              key: 'product',
+              label: 'Product type',
+              value: productFilter,
+              onChange: setProductFilter,
+              ariaLabel: 'Filter by product type',
+              options: [
+                { value: 'All', label: 'All product types' },
+                { value: 'Manual', label: 'Manual' },
+                { value: 'POS', label: 'POS' },
+                { value: 'Online', label: 'Online' },
+                { value: 'POS + Online', label: 'POS + Online' },
+              ],
+            },
+            {
+              key: 'status',
+              label: 'Status',
+              value: statusFilter,
+              onChange: setStatusFilter,
+              ariaLabel: 'Filter by status',
+              options: STATUS_OPTIONS.map((status) => ({
+                value: status,
+                label: `${status} (${statusCount(items, status)})`,
+              })),
+            },
+          ]}
+          views={{
+            value: viewMode,
+            onChange: setViewMode,
+            ariaLabel: 'Choose consignor view',
+            options: [
+              { value: 'grouped', label: 'By consignor', icon: Users },
+              { value: 'grid', label: 'Grid', icon: Grid3X3 },
+            ],
+          }}
+        />
 
         {groupedEntries.length === 0 && <section className="consignment-card"><div className="consignment-empty-small">No consignors match these filters.</div></section>}
 

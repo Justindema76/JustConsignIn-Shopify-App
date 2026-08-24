@@ -1,10 +1,11 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { ChevronDown, Download, Grid3X3, List, Search, Users } from 'lucide-react';
+import { Download, Grid3X3, List, Users } from 'lucide-react';
 import Header from '../../components/consignment/Header';
 import AllConsignorView from '../../components/consignment/AllConsignorView';
 import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
+import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
 import { downloadCsv, productLabel } from '../../lib/consignmentHelpers';
 import '../../styles/consignment-sales.css';
 
@@ -94,25 +95,77 @@ export default function SalesScreen({ items, consignors, onOpenItem, onOpenConsi
           <div className="consignment-card consignment-sales-summary-card"><span>Paid sales</span><strong>{paidCount}</strong></div>
         </div>
 
-        <div className="consignment-items-toolbar">
-          <details className="consignment-items-filter-details">
-            <summary className="consignment-items-filter-summary"><span>Filters &amp; sorting</span><ChevronDown size={20} aria-hidden="true" /></summary>
-            <div className="consignment-items-toolbar-top">
-              <label className="consignment-tool-field"><span>Consignor</span><select className="consignment-select consignment-filter-select" value={consignorFilter} onChange={(event) => setConsignorFilter(event.target.value)} aria-label="Filter by consignor"><option value="All">All consignors</option>{consignors.map((consignor) => <option key={consignor.id} value={consignor.id}>#{consignor.number} · {consignor.firstName} {consignor.lastName}</option>)}</select></label>
-              <label className="consignment-tool-field"><span>Sort</span><select className="consignment-select consignment-filter-select" value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Sort sales"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="price">Highest sale price</option><option value="due">Highest consignor due</option><option value="consignor">Consignor name</option><option value="sku">SKU / item number</option></select></label>
-              <label className="consignment-tool-field"><span>Sale source</span><select className="consignment-select consignment-filter-select" value={productFilter} onChange={(event) => setProductFilter(event.target.value)} aria-label="Filter by sale source"><option value="All">All sale sources</option><option value="Manual">Manual</option><option value="POS">POS</option><option value="Online">Online</option><option value="POS + Online">POS + Online</option></select></label>
-              <label className="consignment-tool-field"><span>Payout status</span><select className="consignment-select consignment-filter-select" value={payoutFilter} onChange={(event) => setPayoutFilter(event.target.value)} aria-label="Filter by payout status"><option value="All">All payout statuses ({sales.length})</option><option value="Unpaid">Unpaid ({unpaidCount})</option><option value="Paid">Paid ({paidCount})</option></select></label>
-            </div>
-          </details>
-          <div className="consignment-items-toolbar-bottom">
-            <div className="consignment-search"><Search size={19} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, SKU, brand, or consignor" /></div>
-            <div className="consignment-tool-view"><span>View</span><div className="consignment-view-toggle consignment-finder-toggle" aria-label="Choose sales view">
-              <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={16} /> All items</button>
-              <button type="button" className={viewMode === 'grouped' ? 'active' : ''} onClick={() => setViewMode('grouped')} aria-pressed={viewMode === 'grouped'}><Users size={16} /> By consignor</button>
-              <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={16} /> Grid</button>
-            </div></div>
-          </div>
-        </div>
+        <ConsignmentFilterBar
+          search={{
+            value: query,
+            onChange: setQuery,
+            placeholder: 'Search name, SKU, brand, or consignor',
+          }}
+          filters={[
+            {
+              key: 'consignor',
+              label: 'Consignor',
+              value: consignorFilter,
+              onChange: setConsignorFilter,
+              ariaLabel: 'Filter by consignor',
+              options: [
+                { value: 'All', label: 'All consignors' },
+                ...consignors.map((c) => ({ value: c.id, label: `#${c.number} · ${c.firstName} ${c.lastName}` })),
+              ],
+            },
+            {
+              key: 'sort',
+              label: 'Sort',
+              value: sort,
+              onChange: setSort,
+              ariaLabel: 'Sort sales',
+              options: [
+                { value: 'newest', label: 'Newest first' },
+                { value: 'oldest', label: 'Oldest first' },
+                { value: 'price', label: 'Highest sale price' },
+                { value: 'due', label: 'Highest consignor due' },
+                { value: 'consignor', label: 'Consignor name' },
+                { value: 'sku', label: 'SKU / item number' },
+              ],
+            },
+            {
+              key: 'source',
+              label: 'Sale source',
+              value: productFilter,
+              onChange: setProductFilter,
+              ariaLabel: 'Filter by sale source',
+              options: [
+                { value: 'All', label: 'All sale sources' },
+                { value: 'Manual', label: 'Manual' },
+                { value: 'POS', label: 'POS' },
+                { value: 'Online', label: 'Online' },
+                { value: 'POS + Online', label: 'POS + Online' },
+              ],
+            },
+            {
+              key: 'payoutStatus',
+              label: 'Payout status',
+              value: payoutFilter,
+              onChange: setPayoutFilter,
+              ariaLabel: 'Filter by payout status',
+              options: [
+                { value: 'All', label: `All payout statuses (${sales.length})` },
+                { value: 'Unpaid', label: `Unpaid (${unpaidCount})` },
+                { value: 'Paid', label: `Paid (${paidCount})` },
+              ],
+            },
+          ]}
+          views={{
+            value: viewMode,
+            onChange: setViewMode,
+            ariaLabel: 'Choose sales view',
+            options: [
+              { value: 'list', label: 'All items', icon: List },
+              { value: 'grouped', label: 'By consignor', icon: Users },
+              { value: 'grid', label: 'Grid', icon: Grid3X3 },
+            ],
+          }}
+        />
 
         {filtered.length === 0 && <section className="consignment-card"><div className="consignment-empty-small">No sales match these filters.</div></section>}
 
