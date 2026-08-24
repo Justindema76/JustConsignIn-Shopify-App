@@ -26,7 +26,7 @@
 
 .consignment-items-filter-details {
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 5px;
   background: var(--surface);
   overflow: hidden;
 }
@@ -52,7 +52,7 @@
 }
 .consignment-filter-select { width: auto; min-width: 170px; padding: 10px 34px 10px 12px; font-size: 13px !important; }
 .consignment-items-toolbar .consignment-search {
-  width: 100%; min-width: 0; min-height: 46px; margin: 0; border-radius: 12px;
+  width: 100%; min-width: 0; min-height: 46px; margin: 0; border-radius: 5px;
 }
 .consignment-items-toolbar .consignment-view-toggle { min-height: 46px; }
 

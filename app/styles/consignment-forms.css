@@ -1,0 +1,188 @@
+/* ============================================================================
+   SHARED CONSIGNMENT FORM LAYOUT
+   Used by form-heavy pages such as:
+   - Add Consignor
+   - Edit Consignor
+   - Add Item
+   - Edit Item
+   - Create Payout
+
+   IMPORTANT:
+   This file controls form PAGE LAYOUT only.
+
+   Input/select/textarea/button appearance stays in consignment-global.css:
+   - .consignment-input
+   - .consignment-select
+   - .consignment-textarea
+   - .consignment-btn
+   ============================================================================ */
+
+
+/* ============================================================================
+   FORM PAGE WIDTH
+   Keeps long desktop forms readable instead of stretching across the app.
+   ============================================================================ */
+
+.consignment-form-shell {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+
+/* ============================================================================
+   FORM SECTIONS
+   Flat, structured sections with very small corners.
+   ============================================================================ */
+
+.consignment-form-section {
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+
+.consignment-form-section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+  background: #FBFCFD;
+}
+
+.consignment-form-section-marker {
+  width: 4px;
+  height: 24px;
+  flex: 0 0 4px;
+  background: var(--green);
+}
+
+.consignment-form-section-head h2 {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.consignment-form-section-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.consignment-form-section-body {
+  padding: 18px 16px 6px;
+}
+
+
+/* ============================================================================
+   FORM FIELDS
+   Layout wrapper only. Actual controls use the global classes.
+   ============================================================================ */
+
+.consignment-form-field {
+  min-width: 0;
+  margin-bottom: 14px;
+}
+
+.consignment-form-help {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+
+/* ============================================================================
+   FORM GRIDS
+   Reusable responsive field layouts.
+   ============================================================================ */
+
+.consignment-form-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.consignment-form-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.consignment-form-grid-3 {
+  grid-template-columns: 1.2fr 1fr 1fr;
+}
+
+/* Add/Edit Consignor identity row:
+   compact number + two full name fields. */
+.consignment-form-grid-identity {
+  grid-template-columns: 130px minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.consignment-form-field-number .consignment-input {
+  text-align: center;
+  font-weight: 700;
+}
+
+
+/* ============================================================================
+   FORM SAVE ACTION
+   The button itself uses global .consignment-btn styling.
+   ============================================================================ */
+
+.consignment-form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
+  padding: 14px 24px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: rgba(246, 246, 247, .96);
+  backdrop-filter: blur(8px);
+}
+
+.consignment-form-actions-inner {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+
+/* ============================================================================
+   MOBILE FORM LAYOUT
+   ============================================================================ */
+
+@media (max-width: 760px) {
+  .consignment-form-shell {
+    gap: 14px;
+  }
+
+  .consignment-form-grid-2,
+  .consignment-form-grid-3,
+  .consignment-form-grid-identity {
+    grid-template-columns: 1fr;
+  }
+
+  .consignment-form-field-number {
+    max-width: 150px;
+  }
+
+  .consignment-form-section-head {
+    padding: 12px 14px;
+  }
+
+  .consignment-form-section-body {
+    padding: 14px 14px 4px;
+  }
+
+  .consignment-form-actions {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .consignment-form-actions-inner .consignment-btn {
+    width: 100%;
+  }
+}
