@@ -24,6 +24,10 @@
   --blue: var(--green);
   --blue-soft: var(--green-soft);
 
+  /* Global corner size for normal action buttons.
+     Change this one value to adjust button corners app-wide. */
+  --button-radius: 4px;
+
   font-family: 'Inter', system-ui, sans-serif;
   background: var(--bg);
   color: var(--ink);
@@ -167,7 +171,7 @@
   background: var(--green);
   color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--button-radius);
   padding: 13px 18px;
   font-weight: 600;
   font-size: 14px;
@@ -404,7 +408,7 @@
       }
       .consignment-manual-sale .consignment-field { margin: 0; }
       .consignment-sold-btn {
-        min-width: 0; width: auto; padding: 11px 16px; border-radius: 9px;
+        min-width: 0; width: auto; padding: 11px 16px; border-radius: var(--button-radius);
         box-shadow: none; white-space: nowrap;
       }
       .consignment-status-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -444,7 +448,7 @@
       }
       .consignment-nav-button {
         display: flex; align-items: center; gap: 7px; padding: 9px 11px;
-        border: 0; border-radius: 8px; background: transparent; color: var(--muted);
+        border: 0; border-radius: var(--button-radius); background: transparent; color: var(--muted);
         font-size: 13px; font-weight: 600;
       }
       .consignment-nav-button:hover { background: #F1F2F3; color: var(--ink); }
@@ -481,7 +485,7 @@
       }
       .consignment-quick-action {
         display: flex; align-items: center; gap: 11px; min-height: 64px;
-        padding: 13px 14px; border: 1px solid var(--line); border-radius: 5px;
+        padding: 13px 14px; border: 1px solid var(--line); border-radius: var(--button-radius);
         background: var(--surface); color: var(--ink); text-align: left;
       }
       .consignment-quick-action.primary { background: var(--green); color: #fff; border-color: var(--green); }
@@ -505,7 +509,7 @@
         border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
         margin-top: 6px; overflow: hidden;
       }
-      .consignment-category-result {
+      .consignment-category-result { border-radius: var(--button-radius);
         width: 100%; border: 0; border-bottom: 1px solid var(--line);
         background: transparent; padding: 10px 12px; text-align: left; font-size: 12px;
       }
@@ -519,7 +523,7 @@
       .consignment-data-menu > summary {
         list-style: none; display: flex; align-items: center; gap: 7px;
         min-height: 40px; padding: 9px 12px; border: 1px solid var(--line);
-        border-radius: 9px; background: var(--surface); color: var(--green-dark);
+        border-radius: var(--button-radius); background: var(--surface); color: var(--green-dark);
         font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
       }
       .consignment-data-menu > summary::-webkit-details-marker { display: none; }
@@ -531,7 +535,7 @@
       }
       .consignment-data-menu-popover button {
         width: 100%; display: flex; align-items: center; gap: 8px;
-        border: 0; border-radius: 7px; padding: 10px;
+        border: 0; border-radius: var(--button-radius); padding: 10px;
         background: transparent; color: var(--ink); font-size: 13px; text-align: left;
       }
       .consignment-data-menu-popover button:hover { background: var(--green-soft); }
@@ -595,7 +599,7 @@
       
       
       .consignment-quick-sold-btn {
-        border: 0; border-radius: 8px; padding: 9px 11px; background: var(--green); color: #fff;
+        border: 0; border-radius: var(--button-radius); padding: 9px 11px; background: var(--green); color: #fff;
         font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
       }
       .consignment-quick-sold-btn:disabled { opacity: .65; cursor: wait; }
@@ -604,7 +608,7 @@
       
       .consignment-item-group-chevron { padding: 0; background: var(--surface); cursor: pointer; }
       .consignment-item-group-chevron.open { transform: rotate(90deg); }
-      .consignment-grid-open-btn { border: 1px solid #9EBFE4; border-radius: 8px; background: #fff; color: var(--green-dark); padding: 8px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+      .consignment-grid-open-btn { border: 1px solid #9EBFE4; border-radius: var(--button-radius); background: #fff; color: var(--green-dark); padding: 8px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; }
       .consignment-sales-row {
         display: grid; grid-template-columns: minmax(230px, 2fr) 86px minmax(130px, 1fr) 92px 112px 92px 128px;
         gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line);
@@ -613,7 +617,7 @@
       .consignment-sales-row:last-child { border-bottom: 0; }
       .consignment-sales-action { display: flex; justify-content: flex-start; }
       .consignment-sales-pay-btn {
-        border: 0; border-radius: 8px; padding: 9px 12px; background: var(--green); color: white;
+        border: 0; border-radius: var(--button-radius); padding: 9px 12px; background: var(--green); color: white;
         font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
       }
       .consignment-sales-paid-note { color: var(--muted); font-size: 12px; font-weight: 600; }
@@ -632,7 +636,7 @@
       .consignment-empty-small { text-align: center; color: var(--muted); padding: 28px 16px; font-size: 13px; }
       .consignment-date-tabs { display: flex; gap: 4px; }
       .consignment-date-tabs button {
-        border: 0; background: transparent; color: var(--muted); border-radius: 7px;
+        border: 0; background: transparent; color: var(--muted); border-radius: var(--button-radius);
         padding: 7px 10px; font-size: 12px; font-weight: 600;
       }
       .consignment-date-tabs button.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
@@ -867,7 +871,7 @@
         display: grid; grid-template-columns: 1fr 1fr; overflow: hidden;
         border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
       }
-      .consignment-consignor-view-toggle button {
+      .consignment-consignor-view-toggle button { border-radius: var(--button-radius);
         height: 32px; padding: 0 12px; border: 0; border-right: 1px solid var(--line);
         background: var(--surface); color: var(--muted); font-size: 12px; font-weight: 750;
       }
