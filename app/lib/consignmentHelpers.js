@@ -55,3 +55,51 @@ export function downloadCsv(fileName, headers, rows) {
   link.click();
   URL.revokeObjectURL(url);
 }
+
+// Shared payout math/grouping — originally lived only inside reports.jsx.
+// Extracted so the Payouts page's history view and the Reports payout
+// ledger CSV are guaranteed to agree on what a "payout" is, instead of
+// each page maintaining its own copy that could silently drift apart.
+
+export function saleAmount(item) {
+  return Number(item.salePrice ?? item.price ?? 0);
+}
+
+export function commissionRate(item, consignor) {
+  return Number(item.commissionPct ?? consignor?.commissionPct ?? 0);
+}
+
+export function consignorEarning(item, consignor) {
+  return (saleAmount(item) * commissionRate(item, consignor)) / 100;
+}
+
+export function isSold(item) {
+  return item.status === 'Sold' || Boolean(item.dateSold) || Boolean(item.orderId);
+}
+
+// Groups paid-out items back into the individual payout events that
+// created them (one payoutId = one "Record payout" action for one
+// consignor). This is the single source of truth for payout history.
+export function recordedPayoutGroups(items) {
+  const groups = new Map();
+
+  items
+    .filter((item) => item.paidOut && item.payoutId)
+    .forEach((item) => {
+      if (!groups.has(item.payoutId)) {
+        groups.set(item.payoutId, {
+          payoutId: item.payoutId,
+          consignorId: item.consignorId || null,
+          payoutDate: item.payoutDate || '',
+          payoutMethod: item.payoutMethod || '',
+          payoutReference: item.payoutReference || '',
+          payoutTotal: Number(item.payoutTotal || 0),
+          payoutAdjustment: Number(item.payoutAdjustment || 0),
+          items: [],
+        });
+      }
+      groups.get(item.payoutId).items.push(item);
+    });
+
+  return [...groups.values()];
+}
