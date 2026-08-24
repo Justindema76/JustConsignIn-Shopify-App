@@ -23,7 +23,7 @@
   padding: 11px;
 
   border: 1px solid var(--line);
-  border-radius: 11px;
+  border-radius: 7px;
 
   background: #fff;
 
@@ -453,7 +453,7 @@
   .consignment-readable-card {
     padding: 10px;
 
-    border-radius: 10px;
+    border-radius: 8px;
   }
 
   .consignment-grid-thumb {
