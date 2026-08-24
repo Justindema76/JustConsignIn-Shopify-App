@@ -21,7 +21,7 @@ import {
   updateConsignor,
   importConsignmentData,
 } from './consignmentApi';
-import ReportsScreen from './reports';
+import ReportsScreen from './pages/consignment/ReportsScreen';
 import DashboardScreen from './pages/consignment/DashboardScreen';
 import ItemsScreen from './pages/consignment/ItemsScreen';
 import Header from './components/consignment/Header';
