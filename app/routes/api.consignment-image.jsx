@@ -44,14 +44,26 @@ async function adminGraphql(admin, query, variables) {
   return payload.data;
 }
 
-function safeFilename(value) {
-  const normalized = String(value || 'consignment-photo.jpg')
+function safeFilename(value, mimeType = '') {
+  const normalized = String(value || 'consignment-photo')
     .toLowerCase()
     .replace(/[^a-z0-9._-]+/g, '-')
     .replace(/^-|-$/g, '');
-  return normalized.endsWith('.jpg') || normalized.endsWith('.jpeg') || normalized.endsWith('.png')
-    ? normalized
-    : `${normalized || 'consignment-photo'}.jpg`;
+
+  const knownExtension = /\.(jpg|jpeg|png|webp|gif|heic|heif|avif)$/i.test(normalized);
+  if (knownExtension) return normalized;
+
+  const extensionByMime = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/gif': 'gif',
+    'image/heic': 'heic',
+    'image/heif': 'heif',
+    'image/avif': 'avif',
+  };
+  const extension = extensionByMime[String(mimeType || '').toLowerCase()] || 'jpg';
+  return `${normalized || 'consignment-photo'}.${extension}`;
 }
 
 export async function action({ request }) {
@@ -73,7 +85,7 @@ export async function action({ request }) {
       return Response.json({ error: 'The image must be smaller than 10 MB.' }, { status: 400 });
     }
 
-    const filename = safeFilename(image.name);
+    const filename = safeFilename(image.name, image.type);
     const stagedData = await adminGraphql(admin, STAGED_UPLOAD_MUTATION, {
       input: [{
         resource: 'IMAGE',

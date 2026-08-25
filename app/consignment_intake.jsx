@@ -29,7 +29,15 @@ import ConsignorsScreen from './pages/consignment/ConsignorsScreen';
 import SalesScreen from './pages/consignment/SalesScreen';
 import PayoutsScreen from './pages/consignment/PayoutsScreen';
 import ConsignorDashboard from './pages/consignment/ConsignorDashboard';
+import CreateConsignorScreen from './pages/consignment/CreateConsignorScreen';
 import ConsignmentFilterBar from './components/consignment/ConsignmentFilterBar';
+import './styles/consignment-global.css';
+/* ============================================================================
+   STYLING
+   All app CSS is external. This intake file contains no embedded GlobalStyle().
+   Shared app styles: ./styles/consignment-global.css
+   Shared filter/search/view styles: ./styles/consignment-filter-bar.css
+   ============================================================================ */
 import { csvValue, downloadCsv, money } from './lib/consignmentHelpers';
 
 /* ---------- image helper ---------- */
@@ -81,620 +89,6 @@ function productLabel(item) {
     : { text: 'POS', className: 'pos' };
 }
 
-/* ---------- shared styles ---------- */
-
-function GlobalStyle() {
-  return (
-    <style>{`
-      @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap");
-
-      
-      
-      
-      
-      
-      
-
-
-      
-
-      
-      
-      
-
-      
-      
-      
-
-      
-      .consignment-row-btn {
-        width: 100%; text-align: left; display: flex; align-items: center;
-        gap: 12px; background: var(--surface); border: 1px solid var(--line);
-        border-radius: 12px; padding: 14px 14px; margin-bottom: 10px;
-        transition: background .15s;
-      }
-      .consignment-row-btn:active { background: var(--green-soft); }
-
-      .consignment-avatar {
-        width: 42px; height: 42px; border-radius: 12px; background: var(--green-soft);
-        color: var(--green-dark); display: flex; align-items: center; justify-content: center;
-        font-family: "Fraunces", serif; font-weight: 600; font-size: 16px; flex-shrink: 0;
-      }
-      .consignment-row-main { flex: 1; min-width: 0; }
-      .consignment-row-name { font-weight: 600; font-size: 15px; }
-      .consignment-row-sub { font-size: 13px; color: var(--muted); margin-top: 1px; }
-      .consignment-chev { color: var(--muted); flex-shrink: 0; }
-
-      .consignment-consignor-row { margin-bottom: 10px; }
-      .consignment-consignor-row-summary {
-        width: 100%; display: flex; align-items: center; gap: 12px;
-        background: var(--surface); border: 1px solid var(--line);
-        border-radius: 12px; padding: 14px 14px; cursor: pointer;
-        list-style: none; transition: background .15s;
-      }
-      .consignment-consignor-row-summary::-webkit-details-marker { display: none; }
-      .consignment-consignor-row-summary:active { background: var(--green-soft); }
-      .consignment-consignor-row-name {
-        display: block; padding: 0; border: 0; background: none;
-        font-family: inherit; font-weight: 600; font-size: 15px; color: var(--ink);
-        text-align: left; cursor: pointer;
-      }
-      .consignment-consignor-row-name:hover { text-decoration: underline; color: var(--green); }
-      .consignment-consignor-row-chevron { color: var(--muted); flex-shrink: 0; transition: transform .15s; }
-      .consignment-consignor-row[open] .consignment-consignor-row-summary { border-radius: 12px 12px 0 0; border-bottom: 0; }
-      .consignment-consignor-row[open] .consignment-consignor-row-chevron { transform: rotate(180deg); }
-      .consignment-consignor-row-items {
-        border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px;
-        background: #fff; padding: 6px 10px;
-      }
-      .consignment-consignor-row-item {
-        display: flex; align-items: center; gap: 10px; padding: 9px 4px;
-        border-bottom: 1px solid var(--line);
-      }
-      .consignment-consignor-row-item:last-child { border-bottom: 0; }
-      .consignment-consignor-row-item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-      .consignment-consignor-row-item-main strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .consignment-consignor-row-item-main small { font-size: 11px; color: var(--muted); }
-      .consignment-consignor-row-item-price { font-size: 13px; flex-shrink: 0; }
-
-      .consignment-empty {
-        text-align: center; padding: 60px 20px; color: var(--muted);
-      }
-      .consignment-empty h3 { font-size: 17px; margin-bottom: 6px; color: var(--ink); }
-      .consignment-empty p { font-size: 14px; margin: 0; }
-
-      .consignment-fab-wrap {
-        position: sticky; bottom: 0; left: 0; right: 0; z-index: 15;
-        padding: 14px 24px calc(14px + env(safe-area-inset-bottom));
-        background: linear-gradient(to top, var(--bg) 60%, transparent);
-      }
-      
-      
-      
-      
-      
-      
-
-      .consignment-field { margin-bottom: 14px; }
-      .consignment-label {
-        display: block; font-size: 12px; font-weight: 600; color: var(--muted);
-        text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px;
-      }
-      .consignment-input,
-      .consignment-select,
-      .consignment-textarea {
-        width: 100%; border: 1px solid var(--line); border-radius: 12px;
-        padding: 12px 14px; background: var(--surface); color: var(--ink); outline: none;
-      }
-      .consignment-input:focus,
-      .consignment-select:focus,
-      .consignment-textarea:focus {
-        border-color: var(--green); box-shadow: 0 0 0 3px var(--green-soft);
-      }
-      .consignment-row2 { display: flex; gap: 10px; }
-      .consignment-row2 > * { flex: 1; }
-      .consignment-section-heading {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 14px; margin: 0 0 8px;
-      }
-      .consignment-section-heading .consignment-label { margin: 0; }
-      .consignment-item-number {
-        flex: 0 0 auto; color: var(--green-dark); font-size: 22px;
-        font-weight: 800; letter-spacing: .02em;
-      }
-      .consignment-detail-card { margin-top: 14px; }
-      .consignment-detail-grid {
-        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-      }
-      .consignment-detail-grid .consignment-field { min-width: 0; margin: 0; }
-      .consignment-detail-grid .consignment-field.wide { grid-column: 1 / -1; }
-      .consignment-shopify-section { margin-top: 14px; padding: 0; overflow: hidden; }
-      .consignment-shopify-summary {
-        display: flex; align-items: center; justify-content: space-between; gap: 12px;
-        padding: 15px 16px; cursor: pointer; list-style: none;
-      }
-      .consignment-shopify-summary::-webkit-details-marker { display: none; }
-      .consignment-shopify-summary > span:first-child { display: flex; align-items: center; gap: 8px; }
-      .consignment-shopify-summary::after { content: "⌄"; color: var(--muted); font-size: 18px; line-height: 1; }
-      details[open] > .consignment-shopify-summary::after { transform: rotate(180deg); }
-      .consignment-shopify-content { padding: 0 16px 16px; border-top: 1px solid var(--line); }
-      .consignment-shopify-help { margin: 12px 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
-      .consignment-shopify-fields { margin-top: 12px; }
-      .consignment-shopify-edit-details { margin: -2px 0 14px; border-bottom: 1px solid var(--line); }
-      .consignment-shopify-edit-details .consignment-shopify-summary { padding: 10px 0 14px; }
-      .consignment-shopify-edit-details .consignment-shopify-content { padding: 0 0 14px; }
-      .consignment-add-another { width: 100%; margin-top: 14px; }
-
-      .consignment-consignor-number-card {
-        display: grid; grid-template-columns: minmax(0, 1fr) 112px;
-        gap: 14px; align-items: end; margin-bottom: 14px;
-      }
-      .consignment-consignor-number-preview {
-        display: grid; place-items: center; min-height: 64px;
-        border: 1px solid #C9DDCE; border-radius: 12px;
-        background: var(--green-soft); color: var(--green-dark);
-        font-size: 26px; font-weight: 800;
-      }
-
-      .consignment-product-choice {
-        display: flex; align-items: flex-start; gap: 10px;
-        margin-top: 14px; padding: 13px; border-radius: 12px;
-        background: var(--gold-soft); border: 1px solid #EFD7A8;
-        cursor: pointer;
-      }
-      .consignment-product-choice input {
-        width: 19px; height: 19px; margin: 1px 0 0; accent-color: var(--green);
-      }
-      .consignment-product-choice strong { display: block; font-size: 13px; margin-bottom: 2px; }
-      .consignment-product-choice span { display: block; color: var(--muted); font-size: 11px; line-height: 1.4; }
-      .consignment-product-choice.online {
-        margin-top: 8px; margin-left: 28px; background: var(--green-soft);
-        border-color: #C9DDCE;
-      }
-      .consignment-product-card {
-        margin-bottom: 14px; padding: 13px; border-radius: 14px;
-        background: var(--green-soft); border: 1px solid #C9DDCE;
-      }
-      .consignment-product-card.disabled {
-        background: #F1F2F3; border-color: var(--line); color: var(--muted);
-        opacity: .72; pointer-events: none;
-      }
-      .consignment-status-card {
-        border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
-        background: var(--surface); margin: 0 0 14px;
-      }
-      .consignment-manual-sale {
-        display: block;
-      }
-      .consignment-manual-sale-copy { margin-bottom: 10px; }
-      .consignment-manual-sale-copy strong { display: block; font-size: 13px; }
-      .consignment-manual-sale-copy span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
-      .consignment-manual-sale-controls {
-        display: grid; grid-template-columns: minmax(0, 1fr) auto;
-        gap: 10px; align-items: end;
-      }
-      .consignment-manual-sale .consignment-field { margin: 0; }
-      .consignment-sold-btn {
-        min-width: 0; width: auto; padding: 11px 16px; border-radius: 9px;
-        box-shadow: none; white-space: nowrap;
-      }
-      .consignment-status-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-      .consignment-status-actions .consignment-btn { min-width: 0; box-shadow: none; padding: 9px 13px; }
-      .consignment-sold-status {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 12px; min-height: 42px;
-      }
-      .consignment-sold-status .consignment-row-sub { text-align: right; }
-
-      .consignment-badge {
-        display: inline-flex; align-items: center; gap: 4px;
-        font-size: 11px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
-        padding: 4px 9px; border-radius: 999px;
-      }
-      .consignment-badge.draft { background: var(--green-soft); color: var(--green-dark); }
-      .consignment-badge.available,
-      .consignment-badge.active { background: #DFF5E7; color: #17663A; }
-      .consignment-badge.sold { background: #E4E7EC; color: #344054; }
-      .consignment-badge.paid { background: #DFF5E7; color: #17663A; }
-      .consignment-badge.unpaid { background: var(--gold-soft); color: #8A5D14; }
-      .consignment-badge.returned,
-      .consignment-badge.donated { background: #F2F4F7; color: #667085; }
-
-      .consignment-main-nav {
-        display: flex; align-items: center; gap: 4px; padding: 10px 24px;
-        background: var(--surface); border-bottom: 1px solid var(--line);
-        position: sticky; top: 0; z-index: 20;
-      }
-      .consignment-brand {
-        display: flex; align-items: center; gap: 10px; margin-right: 24px;
-        font-size: 15px; font-weight: 700; white-space: nowrap;
-      }
-      .consignment-brand-mark {
-        display: grid; place-items: center; width: 34px; height: 34px;
-        border-radius: 9px; background: var(--green); color: white;
-      }
-      .consignment-nav-button {
-        display: flex; align-items: center; gap: 7px; padding: 9px 11px;
-        border: 0; border-radius: 8px; background: transparent; color: var(--muted);
-        font-size: 13px; font-weight: 600;
-      }
-      .consignment-nav-button:hover { background: #F1F2F3; color: var(--ink); }
-      .consignment-nav-button.active { background: var(--green-soft); color: var(--green-dark); }
-      .consignment-dashboard-grid {
-        display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
-        margin-bottom: 20px;
-      }
-      .consignment-metric {
-        width: 100%; text-align: left; color: inherit; font: inherit;
-        background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
-        padding: 16px; min-height: 118px;
-        transition: border-color .15s, box-shadow .15s, transform .15s;
-      }
-      .consignment-metric:hover { border-color: #AEB4B8; box-shadow: 0 4px 14px rgba(0,0,0,.06); transform: translateY(-1px); }
-      .consignment-metric:focus-visible { outline: 3px solid var(--green-soft); border-color: var(--green); }
-      .consignment-metric-icon {
-        width: 34px; height: 34px; border-radius: 9px; background: var(--green-soft);
-        color: var(--green-dark); display: grid; place-items: center; margin-bottom: 14px;
-      }
-      .consignment-metric-label { color: var(--muted); font-size: 12px; font-weight: 600; }
-      .consignment-metric-value { font-size: 25px; font-weight: 700; margin-top: 4px; letter-spacing: -.02em; }
-      .consignment-metric-note { color: var(--muted); font-size: 11px; margin-top: 4px; }
-      .consignment-section-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .8fr); gap: 14px; }
-      .consignment-section-title {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 12px; margin: 4px 0 12px;
-      }
-      .consignment-section-title h2 { font-family: "Inter", system-ui, sans-serif; font-size: 16px; font-weight: 700; }
-      .consignment-link-button { border: 0; background: transparent; color: var(--green); font-size: 12px; font-weight: 600; }
-      .consignment-quick-actions {
-        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px; margin-bottom: 16px;
-      }
-      .consignment-quick-action {
-        display: flex; align-items: center; gap: 11px; min-height: 64px;
-        padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px;
-        background: var(--surface); color: var(--ink); text-align: left;
-      }
-      .consignment-quick-action.primary { background: var(--green); color: #fff; border-color: var(--green); }
-      .consignment-quick-action-icon {
-        width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
-        background: var(--green-soft); color: var(--green-dark); flex-shrink: 0;
-      }
-      .consignment-quick-action.primary .consignment-quick-action-icon { background: rgba(255,255,255,.18); color: #fff; }
-      .consignment-quick-action strong { display: block; font-size: 14px; }
-      .consignment-quick-action-copy span { display: block; font-size: 11px; opacity: .75; margin-top: 2px; }
-      .consignment-optional {
-        border: 1px solid var(--line); border-radius: 12px; margin-top: 14px;
-        background: #FAFBFB; overflow: hidden;
-      }
-      .consignment-optional summary {
-        cursor: pointer; padding: 13px 14px; font-size: 13px; font-weight: 700;
-        color: var(--green-dark); list-style-position: inside;
-      }
-      .consignment-optional-body { padding: 2px 14px 14px; }
-      .consignment-category-results {
-        border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
-        margin-top: 6px; overflow: hidden;
-      }
-      .consignment-category-result {
-        width: 100%; border: 0; border-bottom: 1px solid var(--line);
-        background: transparent; padding: 10px 12px; text-align: left; font-size: 12px;
-      }
-      .consignment-category-result:last-child { border-bottom: 0; }
-      .consignment-selected-category {
-        display: flex; align-items: center; justify-content: space-between; gap: 8px;
-        margin-top: 7px; padding: 9px 11px; background: var(--green-soft);
-        border-radius: 9px; color: var(--green-dark); font-size: 12px;
-      }
-      .consignment-data-menu { position: relative; }
-      .consignment-data-menu > summary {
-        list-style: none; display: flex; align-items: center; gap: 7px;
-        min-height: 40px; padding: 9px 12px; border: 1px solid var(--line);
-        border-radius: 9px; background: var(--surface); color: var(--green-dark);
-        font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
-      }
-      .consignment-data-menu > summary::-webkit-details-marker { display: none; }
-      .consignment-data-menu-popover {
-        position: absolute; top: calc(100% + 6px); right: 0; z-index: 30;
-        width: 150px; padding: 5px; border: 1px solid var(--line);
-        border-radius: 10px; background: var(--surface);
-        box-shadow: 0 10px 28px rgba(0,0,0,.14);
-      }
-      .consignment-data-menu-popover button {
-        width: 100%; display: flex; align-items: center; gap: 8px;
-        border: 0; border-radius: 7px; padding: 10px;
-        background: transparent; color: var(--ink); font-size: 13px; text-align: left;
-      }
-      .consignment-data-menu-popover button:hover { background: var(--green-soft); }
-      .consignment-import-drop {
-        border: 1px dashed #AEB4B8; border-radius: 12px; padding: 24px 18px;
-        background: var(--surface); text-align: center; margin-bottom: 14px;
-      }
-      .consignment-import-drop input { display: none; }
-      .consignment-import-drop label { cursor: pointer; display: grid; justify-items: center; gap: 8px; color: var(--green-dark); font-weight: 700; }
-      .consignment-import-help { color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 7px; }
-      .consignment-import-preview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
-      .consignment-import-preview div { background: #F9FAFB; border-radius: 9px; padding: 12px; }
-      .consignment-import-preview span { display: block; color: var(--muted); font-size: 11px; }
-      .consignment-import-preview strong { display: block; margin-top: 3px; font-size: 16px; }
-      .consignment-import-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-      .consignment-import-actions .consignment-btn { min-width: 0; box-shadow: none; }
-      .consignment-status-filter { margin-bottom: 14px; max-width: 240px; }
-      .consignment-status-filter .consignment-label { margin-bottom: 6px; }
-      .consignment-list-row {
-        display: grid; grid-template-columns: minmax(220px, 2fr) minmax(130px, 1fr) 100px 100px 118px 92px;
-        gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line);
-        font-size: 13px;
-      }
-      .consignment-list-row:last-child { border-bottom: 0; }
-      .consignment-list-head { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
-      .consignment-item-groups { display: grid; gap: 12px; }
-      .consignment-item-group {
-        border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden;
-      }
-      .consignment-item-group-summary {
-        list-style: none; display: grid; grid-template-columns: 30px 38px minmax(0, 1fr) 86px 70px;
-        gap: 12px; align-items: center; padding: 14px; cursor: pointer;
-      }
-      .consignment-item-group-summary::-webkit-details-marker { display: none; }
-      .consignment-item-group-chevron {
-        width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 999px;
-        display: grid; place-items: center; color: var(--muted); transition: transform .15s;
-      }
-      .consignment-item-group[open] .consignment-item-group-chevron { transform: rotate(90deg); }
-      .consignment-item-group-avatar { width: 38px; height: 38px; flex: 0 0 auto; }
-      .consignment-item-group-person { min-width: 0; }
-      .consignment-item-group-person > span { display: block; }
-      .consignment-item-group-link {
-        color: var(--green-dark); font-size: 14px; font-weight: 700; width: fit-content; cursor: pointer;
-      }
-      .consignment-item-group-link:hover,
-      .consignment-item-group-link:focus-visible { text-decoration: underline; }
-      .consignment-item-group-meta { display: flex !important; align-items: baseline; gap: 5px; margin-top: 3px; }
-      .consignment-item-group-number { color: var(--green-dark); font-size: 15px; font-weight: 800; line-height: 1.2; }
-      .consignment-item-group-count { color: var(--muted); font-size: 12px; font-weight: 500; }
-      .consignment-item-group-stat { text-align: right; }
-      .consignment-item-group-stat strong,
-      .consignment-item-group-stat span { display: block; }
-      .consignment-item-group-stat strong { font-size: 14px; }
-      .consignment-item-group-stat span { color: var(--muted); font-size: 10px; margin-top: 2px; }
-      .consignment-item-group-items { border-top: 1px solid var(--line); }
-    
-     
-      
-      
-      
-      
-      .consignment-quick-sold-btn {
-        border: 0; border-radius: 8px; padding: 9px 11px; background: var(--green); color: #fff;
-        font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
-      }
-      .consignment-quick-sold-btn:disabled { opacity: .65; cursor: wait; }
-      .consignment-item-action-note { color: var(--muted); font-size: 11px; }
-      
-      
-      .consignment-item-group-chevron { padding: 0; background: var(--surface); cursor: pointer; }
-      .consignment-item-group-chevron.open { transform: rotate(90deg); }
-      .consignment-grid-open-btn { border: 1px solid #9EBFE4; border-radius: 8px; background: #fff; color: var(--green-dark); padding: 8px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; }
-      .consignment-sales-row {
-        display: grid; grid-template-columns: minmax(230px, 2fr) 86px minmax(130px, 1fr) 92px 112px 92px 128px;
-        gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line);
-        font-size: 13px;
-      }
-      .consignment-sales-row:last-child { border-bottom: 0; }
-      .consignment-sales-action { display: flex; justify-content: flex-start; }
-      .consignment-sales-pay-btn {
-        border: 0; border-radius: 8px; padding: 9px 12px; background: var(--green); color: white;
-        font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
-      }
-      .consignment-sales-paid-note { color: var(--muted); font-size: 12px; font-weight: 600; }
-      .consignment-product-badge {
-        display: inline-flex; align-items: center; justify-content: center; justify-self: start;
-        width: fit-content; min-width: 76px; padding: 5px 9px; border-radius: 999px;
-        font-size: 10px; font-weight: 700; line-height: 1; text-transform: uppercase; white-space: nowrap;
-      }
-      .consignment-product-badge.manual { background: #FDE68A; color: #713F12; }
-      .consignment-product-badge.draft { background: #FFF4D6; color: #8A5D14; }
-      .consignment-product-badge.pos { background: #E4EEF9; color: #143F73; }
-      .consignment-product-badge.online { background: #DFF5E7; color: #17663A; }
-      .consignment-item-primary { display: flex; align-items: center; gap: 10px; min-width: 0; }
-      .consignment-item-primary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .consignment-item-primary span { color: var(--muted); font-size: 11px; }
-      .consignment-empty-small { text-align: center; color: var(--muted); padding: 28px 16px; font-size: 13px; }
-      .consignment-date-tabs { display: flex; gap: 4px; }
-      .consignment-date-tabs button {
-        border: 0; background: transparent; color: var(--muted); border-radius: 7px;
-        padding: 7px 10px; font-size: 12px; font-weight: 600;
-      }
-      .consignment-date-tabs button.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-      .consignment-payout-fields {
-        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;
-      }
-      .consignment-payout-fields > .consignment-field { min-width: 0; }
-      .consignment-store-credit-note {
-        display: flex; gap: 9px; align-items: flex-start; padding: 11px 12px;
-        margin: -2px 0 14px; border-radius: 10px; background: var(--gold-soft);
-        color: #714B0E; font-size: 12px; line-height: 1.45;
-      }
-      .consignment-paid-detail { display: block; color: var(--green-dark); font-size: 11px; margin-top: 4px; }
-
-      .consignment-tag {
-        display: inline-flex; align-items: center; gap: 5px;
-        background: var(--ink); color: #fff; font-family: "Fraunces", serif;
-        font-weight: 600; font-size: 12px; padding: 3px 10px 3px 8px; border-radius: 4px 10px 10px 4px;
-        position: relative;
-      }
-      .consignment-tag::before {
-        content: ""; width: 5px; height: 5px; border-radius: 999px; background: #fff;
-      }
-
-      .consignment-photo-btn {
-        width: 84px; height: 84px; border-radius: 14px; border: 1.5px dashed var(--line);
-        background: var(--surface); display: flex; flex-direction: column; align-items: center;
-        justify-content: center; gap: 4px; color: var(--muted); font-size: 11px; flex-shrink: 0;
-        overflow: hidden; text-align: center; line-height: 1.2;
-      }
-      .consignment-photo-btn img { width: 100%; height: 100%; object-fit: cover; }
-      .consignment-photo-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
-      .consignment-photo-alt {
-        font-size: 10.5px; color: var(--muted); text-decoration: underline;
-        text-align: center; max-width: 84px;
-      }
-
-      .consignment-intake-primary {
-        display: grid; grid-template-columns: 128px minmax(0, 1fr);
-        gap: 16px; align-items: start; padding: 16px;
-        margin-bottom: 0; border-radius: 12px 12px 0 0;
-      }
-      .consignment-intake-primary .consignment-photo-wrap {
-        width: 128px; gap: 6px;
-      }
-      .consignment-intake-primary .consignment-photo-btn {
-        width: 128px; height: 128px; border-radius: 10px;
-        background: #FAFBFB; font-size: 11px; gap: 5px;
-      }
-      .consignment-intake-primary .consignment-photo-btn svg { width: 22px; height: 22px; }
-      .consignment-intake-primary .consignment-photo-alt {
-        max-width: 128px; font-size: 10px;
-      }
-      .consignment-intake-primary-fields {
-        display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 240px);
-        gap: 12px; align-content: start; padding-top: 1px;
-      }
-      .consignment-intake-primary + .consignment-detail-card {
-        margin-top: 0; border-top: 0; border-radius: 0 0 12px 12px;
-      }
-      .consignment-intake-primary-fields .consignment-field { margin: 0; min-width: 0; }
-      .consignment-intake-primary-fields .consignment-input {
-        min-height: 46px; border-radius: 10px;
-      }
-      .consignment-shopify-photo-row {
-        display: grid; grid-template-columns: 140px minmax(0, 1fr);
-        gap: 16px; align-items: start; margin-top: 12px;
-      }
-
-      .consignment-batch-item {
-        display: flex; align-items: center; gap: 10px; background: var(--surface);
-        border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px;
-      }
-      .consignment-batch-thumb {
-        width: 44px; height: 44px; border-radius: 8px; background: var(--green-soft);
-        flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center;
-      }
-      .consignment-batch-thumb img { width: 100%; height: 100%; object-fit: cover; }
-      .consignment-batch-remove {
-        width: 30px; height: 30px; border-radius: 999px; border: none; background: var(--danger-soft);
-        color: var(--danger); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      }
-
-      .consignment-toast {
-        position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
-        background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 999px;
-        font-size: 13px; font-weight: 500; z-index: 50; display: flex; align-items: center; gap: 6px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      }
-
-      .consignment-loading { display: flex; align-items: center; justify-content: center; height: 100%; padding: 80px 0; color: var(--muted); }
-      .consignment-spin { animation: consignment-spin 1s linear infinite; }
-      @keyframes consignment-spin { to { transform: rotate(360deg); } }
-
-      .consignment-footnote {
-        text-align: center; font-size: 12px; color: var(--muted); padding: 18px 0 6px;
-      }
-      .consignment-footnote button { background: none; border: none; color: var(--muted); text-decoration: underline; font-size: 12px; }
-
-      @media (prefers-reduced-motion: reduce) {
-        .consignment-row-btn,
-      .consignment-btn,
-      .consignment-back { transition: none; }
-        .consignment-spin { animation: none; }
-      }
-      .consignment button:focus-visible,
-      .consignment input:focus-visible,
-      .consignment select:focus-visible {
-        outline: 2px solid var(--green); outline-offset: 2px;
-      }
-      @media (max-width: 900px) {
-        .consignment-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .consignment-section-grid { grid-template-columns: 1fr; }
-        .consignment-list-row { grid-template-columns: minmax(180px, 2fr) minmax(110px, 1fr) 85px 108px 92px; }
-        .consignment-list-row > :nth-child(4) { display: none; }
-   
-        .consignment-sales-row { grid-template-columns: minmax(200px, 2fr) 80px minmax(120px, 1fr) 88px 100px 86px 118px; }
-      }
-      @media (max-width: 640px) {
-        
-        
-        
-        .consignment-fab-wrap { padding-left: 16px; padding-right: 16px; bottom: 68px; }
-        
-        .consignment-main-nav {
-          position: fixed; top: auto; bottom: 0; left: 0; right: 0;
-          justify-content: space-around; padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
-          border-top: 1px solid var(--line); border-bottom: 0; box-shadow: 0 -5px 18px rgba(0,0,0,.08);
-        }
-        .consignment-brand { display: none; }
-        .consignment-nav-button { flex: 1; flex-direction: column; gap: 3px; font-size: 10px; padding: 6px 2px; }
-        .consignment-dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-        .consignment-metric { padding: 13px; min-height: 108px; }
-        .consignment-metric-value { font-size: 21px; }
-        .consignment-section-grid { grid-template-columns: 1fr; }
-        .consignment-list-head { display: none; }
-        .consignment-list-row {
-          grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px;
-        }
-        .consignment-list-row > :nth-child(2),
-      .consignment-list-row > :nth-child(3),
-      .consignment-list-row > :nth-child(4),
-      .consignment-list-row > :nth-child(6) { display: none; }
-        .consignment-item-group-summary { grid-template-columns: 28px 36px minmax(0, 1fr); gap: 9px; padding: 12px; }
-        .consignment-item-group-stat { display: none; }
-
-      
-        .consignment-sales-row { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 12px; }
-        .consignment-sales-row.consignment-list-head { display: none; }
-        .consignment-sales-row > :nth-child(2),
-      .consignment-sales-row > :nth-child(3),
-      .consignment-sales-row > :nth-child(4),
-      .consignment-sales-row > :nth-child(5),
-      .consignment-sales-row > :nth-child(6) { display: none; }
-        .consignment-sales-pay-btn { width: auto; min-width: 112px; }
-        .consignment-quick-actions { grid-template-columns: 1fr 1fr; gap: 8px; }
-        .consignment-quick-action { min-height: 72px; padding: 11px; align-items: flex-start; }
-        .consignment-filter-select { width: 100%; }
-        .consignment-row2,
-      .consignment-payout-fields { display: grid; grid-template-columns: minmax(0, 1fr); }
-        .consignment-intake-primary {
-          grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 12px;
-        }
-        .consignment-intake-primary .consignment-photo-wrap { width: 96px; }
-        .consignment-intake-primary .consignment-photo-btn {
-          width: 96px; height: 96px; aspect-ratio: auto;
-        }
-        .consignment-intake-primary .consignment-photo-alt { max-width: 96px; }
-        .consignment-intake-primary-fields {
-          grid-template-columns: minmax(0, 1fr); gap: 9px;
-        }
-        .consignment-shopify-photo-row {
-          grid-template-columns: minmax(0, 1fr); gap: 12px;
-        }
-        .consignment-shopify-photo-row .consignment-photo-btn { width: 96px; height: 96px; }
-        .consignment-detail-grid {
-          grid-template-columns: minmax(0, 1fr);
-        }
-        .consignment-detail-grid .consignment-field.wide { grid-column: auto; }
-        .consignment-manual-sale-controls { grid-template-columns: minmax(0, 1fr) 76px; gap: 8px; }
-        .consignment-manual-sale .consignment-sold-btn { width: auto; min-width: 76px; }
-        .consignment-sold-status { align-items: flex-start; flex-direction: column; gap: 6px; }
-        .consignment-sold-status .consignment-row-sub { text-align: left; }
-        .consignment-payout-create-body { padding-bottom: 180px; }
-      }
-
-    `}</style>
-  );
-}
-
 /* ---------- small components ---------- */
 
 // Shopify's App Bridge (loaded via AppProvider) exposes window.shopify.environment
@@ -730,19 +124,33 @@ function useIsDesktopAdmin() {
   return isDesktop;
 }
 
-async function handlePhotoFile(e, onChange, onError) {
-  const file = e.target.files?.[0];
+async function handlePhotoFile(e, onChange) {
+  const input = e.currentTarget;
+  const file = input.files?.[0];
   if (!file) return;
+
   try {
     const dataUrl = await resizeImage(file);
-    onChange(dataUrl);
-  } catch (error) {
-    onError?.('Could not read that photo. Try a different photo, or a screenshot of it.');
+    onChange(dataUrl, null);
+  } catch (resizeError) {
+    // Some mobile browsers cannot decode HEIC/HEIF through <img>/canvas.
+    // Keep the original image data instead so it can still be uploaded to Shopify.
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => typeof reader.result === 'string'
+          ? resolve(reader.result)
+          : reject(new Error('Could not read this image'));
+        reader.onerror = () => reject(reader.error || resizeError);
+        reader.readAsDataURL(file);
+      });
+      onChange(dataUrl, null);
+    } catch {
+      window.alert('That photo could not be opened. Try choosing a JPG, PNG, or another photo.');
+    }
   } finally {
-    // Without this, picking the same file a second time (e.g. retrying
-    // after a failure) doesn't fire onChange, since the input's value
-    // never changed.
-    e.target.value = '';
+    // Allow choosing the same photo again after a failed/changed selection.
+    input.value = '';
   }
 }
 
@@ -860,13 +268,7 @@ function ShopifyFileLibraryModal({ onClose, onSelect }) {
 
 function PhotoPicker({ value, onChange }) {
   const [libraryOpen, setLibraryOpen] = useState(false);
-  const [error, setError] = useState('');
   const isDesktop = useIsDesktopAdmin();
-
-  function handleChange(e) {
-    setError('');
-    handlePhotoFile(e, onChange, setError);
-  }
 
   return (
     <div className="consignment-photo-wrap">
@@ -884,7 +286,7 @@ function PhotoPicker({ value, onChange }) {
           accept="image/*"
           capture="environment"
           style={{ display: 'none' }}
-          onChange={handleChange}
+          onChange={(e) => handlePhotoFile(e, onChange)}
         />
       </label>
       <label className="consignment-photo-alt">
@@ -893,14 +295,9 @@ function PhotoPicker({ value, onChange }) {
           type="file"
           accept="image/*"
           style={{ display: 'none' }}
-          onChange={handleChange}
+          onChange={(e) => handlePhotoFile(e, onChange)}
         />
       </label>
-      {error && (
-        <span style={{ color: 'var(--danger)', fontSize: 10.5, maxWidth: 128, textAlign: 'center', lineHeight: 1.3 }}>
-          {error}
-        </span>
-      )}
       {isDesktop && (
         <button
           type="button"
@@ -1318,84 +715,6 @@ function ImportScreen({ kind, onBack, onImport, fixedConsignor = null }) {
             </div>
           </>
         )}
-      </div>
-    </>
-  );
-}
-
-function NewConsignorScreen({ onBack, onSave, nextNumber }) {
-  const [form, setForm] = useState({ number: nextNumber, firstName: '', lastName: '', phone: '', email: '', address: '', city: '', province: 'Ontario', postalCode: '', commissionPct: 50, unsoldPreference: 'Please return', notes: '' });
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const valid = form.firstName.trim() && form.lastName.trim();
-
-  return (
-    <>
-      <Header eyebrow="New" title="Add consignor" onBack={onBack} />
-      <div className="consignment-body">
-        <div className="consignment-field">
-          <label className="consignment-label">Consignor number</label>
-          <input className="consignment-input" type="number" inputMode="numeric" min="1" step="1" value={form.number} onChange={set('number')} />
-          <div className="consignment-row-sub" style={{ marginTop: 6 }}>Automatically assigned, but you can change it.</div>
-        </div>
-        <div className="consignment-row2">
-          <div className="consignment-field">
-            <label className="consignment-label">First name</label>
-            <input className="consignment-input" value={form.firstName} onChange={set('firstName')} placeholder="Sarah" />
-          </div>
-          <div className="consignment-field">
-            <label className="consignment-label">Last name</label>
-            <input className="consignment-input" value={form.lastName} onChange={set('lastName')} placeholder="Lee" />
-          </div>
-        </div>
-        <div className="consignment-row2">
-          <div className="consignment-field">
-            <label className="consignment-label">Phone</label>
-            <input className="consignment-input" type="tel" inputMode="tel" value={form.phone} onChange={set('phone')} placeholder="(416) 555-0134" />
-          </div>
-          <div className="consignment-field">
-            <label className="consignment-label">Email</label>
-            <input className="consignment-input" type="email" value={form.email} onChange={set('email')} placeholder="sarah@email.com" />
-          </div>
-        </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Street address</label>
-          <input className="consignment-input" value={form.address} onChange={set('address')} placeholder="123 Main Street" autoComplete="street-address" />
-        </div>
-        <div className="consignment-row2">
-          <div className="consignment-field">
-            <label className="consignment-label">City</label>
-            <input className="consignment-input" value={form.city} onChange={set('city')} placeholder="Hamilton" autoComplete="address-level2" />
-          </div>
-          <div className="consignment-field">
-            <label className="consignment-label">Province</label>
-            <input className="consignment-input" value={form.province} onChange={set('province')} placeholder="Ontario" autoComplete="address-level1" />
-          </div>
-        </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Postal code</label>
-          <input className="consignment-input" value={form.postalCode} onChange={set('postalCode')} placeholder="L8E 1A1" autoCapitalize="characters" autoComplete="postal-code" />
-        </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Commission split &mdash; consignor gets</label>
-          <input className="consignment-input" type="number" inputMode="decimal" value={form.commissionPct} onChange={set('commissionPct')} placeholder="50" />
-        </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Unsold items</label>
-          <select className="consignment-select" value={form.unsoldPreference} onChange={set('unsoldPreference')}>
-            <option value="Please return">Please return</option>
-            <option value="Donation okay">Donation okay</option>
-            <option value="Ask me first">Ask me first</option>
-          </select>
-        </div>
-        <div className="consignment-field">
-          <label className="consignment-label">Notes (optional)</label>
-          <textarea className="consignment-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Anything worth remembering" />
-        </div>
-      </div>
-      <div className="consignment-fab-wrap">
-        <button className="consignment-btn" disabled={!valid} onClick={() => onSave(form)}>
-          <Check size={18} /> Save consignor
-        </button>
       </div>
     </>
   );
@@ -1862,9 +1181,8 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
 
   function addToBatch() {
     if (!canAdd) return;
-    setBatch((current) => [...current, { ...form, photo: shopifyForm.photo, photoId: shopifyForm.photoId }]);
+    setBatch((current) => [...current, form]);
     setForm({ ...emptyForm, category: form.category, brand: form.brand });
-    setShopifyForm((current) => ({ ...current, photo: null, photoId: null }));
   }
 
   return (
@@ -1893,7 +1211,7 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
         <ManualItemCore
           form={form}
           setForm={setForm}
-          onSave={() => onSaveBatch(canAdd ? [...batch, { ...form, photo: shopifyForm.photo, photoId: shopifyForm.photoId }] : batch)}
+          onSave={() => onSaveBatch(canAdd ? [...batch, form] : batch)}
           saveDisabled={saveCount === 0}
           saveLabel={saveCount === 1 ? 'Save manual item' : `Save ${saveCount} manual items`}
         />
@@ -1974,7 +1292,7 @@ function EditItemScreen({
         <ManualItemCore
           form={form}
           setForm={setForm}
-          onSave={() => onSave(item.id, { ...form, photo: shopifyForm.photo, photoId: shopifyForm.photoId })}
+          onSave={() => onSave(item.id, form)}
           saveDisabled={!canSave || isSold}
           saveLabel="Save manual changes"
           helperText="Updates only the consignment item metaobject. Shopify product data and media are handled separately below."
@@ -2299,7 +1617,6 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
 
   return (
     <div className="consignment">
-      <GlobalStyle />
       {ready && <AppNavigation view={navigationView} onNavigate={navigate} />}
       {toast && (
         <div
@@ -2321,6 +1638,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         </div>
       )}
 
+      {/* PAGE: DASHBOARD */}
       {ready && view === 'dashboard' && (
         <DashboardScreen
           consignors={consignors}
@@ -2334,6 +1652,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: CONSIGNORS */}
       {ready && view === 'home' && (
         <ConsignorsScreen
           consignors={consignors}
@@ -2351,6 +1670,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: ITEMS */}
       {ready && view === 'items' && (
         <ItemsScreen
           items={items}
@@ -2363,6 +1683,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: SALES */}
       {ready && view === 'sales' && (
         <SalesScreen
           items={items}
@@ -2376,6 +1697,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: PAYOUTS */}
       {ready && view === 'payouts' && (
         <PayoutsScreen
           items={items}
@@ -2389,6 +1711,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
         />
       )}
 
+      {/* PAGE: REPORTS */}
       {ready && view === 'reports' && (
         <ReportsScreen
           items={items}
@@ -2420,7 +1743,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
       )}
 
       {ready && view === 'newConsignor' && (
-        <NewConsignorScreen onBack={() => setView(newConsignorBack)} onSave={handleNewConsignor} nextNumber={nextConsignorNumber} />
+        <CreateConsignorScreen onBack={() => setView(newConsignorBack)} onSave={handleNewConsignor} nextNumber={nextConsignorNumber} />
       )}
 
       {ready && view === 'chooseConsignor' && (

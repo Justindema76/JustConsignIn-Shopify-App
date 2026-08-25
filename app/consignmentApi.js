@@ -71,7 +71,16 @@ async function uploadImage(dataUrl, alt) {
 
   const imageBlob = dataUrlToImageBlob(dataUrl);
   const formData = new FormData();
-  const extension = imageBlob.type === 'image/png' ? 'png' : 'jpg';
+  const extensionByMime = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/gif': 'gif',
+    'image/heic': 'heic',
+    'image/heif': 'heif',
+    'image/avif': 'avif',
+  };
+  const extension = extensionByMime[imageBlob.type] || 'jpg';
   formData.append('image', imageBlob, `consignment-${Date.now()}.${extension}`);
   formData.append('alt', alt || 'Consignment item');
 

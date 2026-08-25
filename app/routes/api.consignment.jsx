@@ -1531,7 +1531,7 @@ export async function action({ request }) {
           price: Number(input.price || 0).toFixed(2),
           notes: input.notes,
           brand: input.brand,
-          photoId: input.photoId !== undefined ? input.photoId : existing.photoId,
+          photoId: input.photoId || existing.photoId,
           type: '',
         }),
       );
