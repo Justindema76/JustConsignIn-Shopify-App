@@ -74,7 +74,7 @@
    Same desktop data, rearranged for mobile
    ========================================================= */
 
-@media (max-width: 760px) {
+@media (max-width: 700px) {
 
   /* Stop the desktop tables from becoming horizontal sliders */
   .consignment-all-items-card,
