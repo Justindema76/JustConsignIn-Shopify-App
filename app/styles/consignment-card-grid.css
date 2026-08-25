@@ -442,6 +442,105 @@
   .consignment-entity-grid,
   .consignment-readable-grid,
   .consignment-sales-grid-view {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+
+    gap: 8px;
+
+    margin-left: -6px;
+    margin-right: -6px;
+  }
+
+  .consignment-readable-card {
+    padding: 10px;
+
+    border-radius: 8px;
+  }
+
+  .consignment-grid-thumb {
+    width: 48px;
+    height: 48px;
+
+    flex: 0 0 48px;
+  }
+
+  .consignment-readable-card-top strong {
+    font-size: 13px;
+  }
+
+  .consignment-readable-card-sku,
+  .consignment-readable-card-sku b {
+    font-size: 9px !important;
+  }
+
+  .consignment-readable-product-row {
+    margin-top: 9px;
+  }
+
+  .consignment-readable-consignor-link {
+    margin-top: 10px;
+
+    font-size: 12px;
+  }
+
+  .consignment-readable-card-meta,
+  .consignment-readable-card-meta.consignment-sales-money-rows {
+    margin: 12px 0 10px;
+
+    padding-top: 7px;
+  }
+
+  .consignment-readable-card-meta > span,
+  .consignment-readable-card-meta.consignment-sales-money-rows > span {
+    padding: 7px 0;
+  }
+
+  .consignment-readable-card-meta small {
+    font-size: 9px;
+  }
+
+  .consignment-readable-card-meta strong {
+    font-size: 18px;
+  }
+
+  .consignment-readable-card-details {
+    margin-bottom: 9px;
+  }
+
+  .consignment-readable-card-details small {
+    font-size: 9px;
+  }
+
+  .consignment-sales-grid-order {
+    margin-bottom: 9px;
+
+    font-size: 9px;
+  }
+
+  .consignment-readable-card-actions > *,
+  .consignment-readable-card-actions .consignment-list-action,
+  .consignment-readable-card-actions .consignment-quick-sold-btn,
+  .consignment-readable-card-actions .consignment-grid-open-btn,
+  .consignment-readable-card-actions .consignment-sales-pay-btn,
+  .consignment-readable-card-actions .consignment-item-open-btn,
+  .consignment-sales-grid-actions .consignment-sales-pay-btn,
+  .consignment-sales-pay-btn.compact {
+    min-height: 32px;
+
+    padding: 6px 7px;
+
+    font-size: 9px;
+  }
+}
+/* =========================================================
+   MOBILE
+   Approved compact two-column layout
+   ========================================================= */
+
+@media (max-width: 500px) {
+
+  .consignment-entity-grid,
+  .consignment-readable-grid,
+  .consignment-sales-grid-view {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 
     gap: 8px;
