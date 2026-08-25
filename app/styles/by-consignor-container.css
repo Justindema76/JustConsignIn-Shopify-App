@@ -53,7 +53,7 @@
 .consignment-grouped-item-row > :not(:first-child) { text-align:center; justify-self:center; }
 
 /* Match Sales: preserve columns and scroll horizontally whenever they no longer fit. */
-@media (max-width:1100px) {
+@media (max-width:800px) {
   .consignment-all-item-row,
   .consignment-all-items-card > .consignment-list-head,
   .consignment-shared-item-table > .consignment-list-head { min-width:1180px; }
