@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types, jsx-a11y/label-has-associated-control */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Plus, Camera, X, ChevronRight, Phone, Mail,
   Loader2, Tag, Check, Trash2, ShoppingBag, LayoutDashboard,
@@ -74,6 +74,76 @@ const CATEGORIES = [
   'Pet Supplies', 'Outdoor & Garden', 'Art', 'Automotive', 'Other',
 ];
 const CONDITIONS = ['New with tags', 'Like new', 'Good', 'Fair'];
+
+function buildShopifyDefaults(item = {}, consignor = null) {
+  const description = String(item.description || '').trim();
+  const brand = String(item.brand || '').trim();
+  const size = String(item.size || '').trim();
+  const condition = String(item.condition || '').trim();
+  const category = String(item.category || '').trim();
+  const type = String(item.type || '').trim();
+
+  const title = [
+    brand && !description.toLowerCase().includes(brand.toLowerCase()) ? brand : '',
+    description,
+    size && !description.toLowerCase().includes(size.toLowerCase()) ? `Size ${size}` : '',
+  ].filter(Boolean).join(' ').trim()
+    || description
+    || type
+    || category
+    || 'Consignment item';
+
+  const productDescription = [
+    description,
+    brand ? `Brand: ${brand}` : '',
+    condition ? `Condition: ${condition}` : '',
+    size ? `Size: ${size}` : '',
+    category ? `Category: ${category}` : '',
+  ].filter(Boolean).join('\n');
+
+  const tags = [...new Set([
+    'Consignment',
+    consignor?.number ? `Consignor ${consignor.number}` : '',
+    category,
+    type,
+    brand,
+    condition,
+  ].filter(Boolean))].join(', ');
+
+  const seoDescription = [
+    description,
+    brand ? `by ${brand}` : '',
+    condition ? `${condition} condition` : '',
+    size ? `Size ${size}` : '',
+  ].filter(Boolean).join(' · ').slice(0, 320);
+
+  return {
+    shopifyTitle: title,
+    shopifyPrice: item.price ?? '',
+    vendor: brand || 'Consignment',
+    tags,
+    productDescription,
+    seoTitle: title,
+    seoDescription,
+  };
+}
+
+function mergeAutoShopifyFields(current, previousDefaults, nextDefaults) {
+  const next = { ...current };
+
+  Object.entries(nextDefaults).forEach(([key, value]) => {
+    const currentValue = current[key];
+    const previousValue = previousDefaults?.[key];
+    const isEmpty = currentValue === '' || currentValue === null || currentValue === undefined;
+    const isStillAutoValue = String(currentValue ?? '') === String(previousValue ?? '');
+
+    if (isEmpty || isStillAutoValue) {
+      next[key] = value;
+    }
+  });
+
+  return next;
+}
 
 function productLabel(item) {
   if (!item?.shopifyProductId) return { text: 'Manual', className: 'manual' };
@@ -698,10 +768,16 @@ function ConsignmentItemFields({ form, setForm }) {
   );
 }
 
-function ShopifyProductFields({ form, setForm }) {
-  const [categorySearch, setCategorySearch] = useState(form.shopifyCategoryName || '');
+function ShopifyProductFields({ form, setForm, categoryHint = '' }) {
+  const [categorySearch, setCategorySearch] = useState(form.shopifyCategoryName || categoryHint || '');
   const [categoryResults, setCategoryResults] = useState([]);
   const [searchingCategories, setSearchingCategories] = useState(false);
+
+  useEffect(() => {
+    if (!form.shopifyCategoryId && !form.shopifyCategoryName && categoryHint) {
+      setCategorySearch(categoryHint);
+    }
+  }, [categoryHint, form.shopifyCategoryId, form.shopifyCategoryName]);
 
   useEffect(() => {
     const query = categorySearch.trim();
@@ -728,8 +804,8 @@ function ShopifyProductFields({ form, setForm }) {
     <div className="consignment-shopify-fields">
       <div className="consignment-detail-grid">
         <div className="consignment-field wide">
-          <label className="consignment-label">Shopify title *</label>
-          <input className="consignment-input" value={form.shopifyTitle || ''} onChange={set('shopifyTitle')} placeholder="Required Shopify product title" />
+          <label className="consignment-label">Shopify title</label>
+          <input className="consignment-input" value={form.shopifyTitle || ''} onChange={set('shopifyTitle')} placeholder="Auto-filled from item details" />
         </div>
         <div className="consignment-field">
           <label className="consignment-label">Shopify price</label>
@@ -737,11 +813,11 @@ function ShopifyProductFields({ form, setForm }) {
         </div>
         <div className="consignment-field">
           <label className="consignment-label">Vendor</label>
-          <input className="consignment-input" value={form.vendor} onChange={set('vendor')} placeholder="Defaults to store name" />
+          <input className="consignment-input" value={form.vendor} onChange={set('vendor')} placeholder="Auto-filled from brand" />
         </div>
         <div className="consignment-field">
           <label className="consignment-label">Tags</label>
-          <input className="consignment-input" value={form.tags} onChange={set('tags')} placeholder="summer, baby" />
+          <input className="consignment-input" value={form.tags} onChange={set('tags')} placeholder="Auto-filled from item details" />
         </div>
         <div className="consignment-field wide">
           <label className="consignment-label">Shopify product category</label>
@@ -798,15 +874,15 @@ function ShopifyProductFields({ form, setForm }) {
         </div>
         <div className="consignment-field wide">
           <label className="consignment-label">Product description</label>
-          <textarea className="consignment-textarea" rows={3} value={form.productDescription} onChange={set('productDescription')} placeholder="Shown to customers on Shopify" />
+          <textarea className="consignment-textarea" rows={3} value={form.productDescription} onChange={set('productDescription')} placeholder="Auto-filled from item details" />
         </div>
         <div className="consignment-field">
           <label className="consignment-label">SEO title</label>
-          <input className="consignment-input" value={form.seoTitle} onChange={set('seoTitle')} placeholder="Defaults to item title" />
+          <input className="consignment-input" value={form.seoTitle} onChange={set('seoTitle')} placeholder="Auto-filled from item title" />
         </div>
         <div className="consignment-field">
           <label className="consignment-label">SEO description</label>
-          <textarea className="consignment-textarea" rows={2} value={form.seoDescription} onChange={set('seoDescription')} placeholder="Optional search description" />
+          <textarea className="consignment-textarea" rows={2} value={form.seoDescription} onChange={set('seoDescription')} placeholder="Auto-filled from item details" />
         </div>
       </div>
     </div>
@@ -901,6 +977,7 @@ function productAdminUrl(productId) {
 function ShopifyProductSection({
   shopifyForm,
   setShopifyForm,
+  categoryHint = '',
   linkedProductId = '',
   linkedStatus = '',
   disabled = false,
@@ -940,7 +1017,7 @@ function ShopifyProductSection({
         </p>
         <div className="consignment-shopify-photo-row">
           <PhotoPicker value={shopifyForm.photo} onChange={(value) => setShopifyForm((current) => ({ ...current, photo: value }))} />
-          <ShopifyProductFields form={shopifyForm} setForm={setShopifyForm} />
+          <ShopifyProductFields form={shopifyForm} setForm={setShopifyForm} categoryHint={categoryHint} />
         </div>
         <label className="consignment-product-choice">
           <input type="checkbox" checked={shopifyForm.publishToPos !== false} onChange={(event) => setShopifyForm((current) => ({ ...current, publishToPos: event.target.checked }))} />
@@ -963,13 +1040,13 @@ function ShopifyProductSection({
           </p>
         )}
         {!linkedProductId ? (
-          <button className="consignment-btn" style={{ marginTop: 14 }} disabled={!canSync || disabled || syncing || shopifyForm.publishToPos === false || !String(shopifyForm.shopifyTitle || '').trim()} onClick={onSync}>
+          <button className="consignment-btn" style={{ marginTop: 14 }} disabled={!canSync || disabled || syncing || shopifyForm.publishToPos === false} onClick={onSync}>
             {syncing ? <Loader2 className="consignment-spin" size={16} /> : <ShoppingBag size={16} />}
             Create Shopify product
           </button>
         ) : (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
-            <button className="consignment-btn" disabled={!canSync || disabled || syncing || shopifyForm.publishToPos === false || !String(shopifyForm.shopifyTitle || '').trim()} onClick={onSync}>
+            <button className="consignment-btn" disabled={!canSync || disabled || syncing || shopifyForm.publishToPos === false} onClick={onSync}>
               {syncing ? <Loader2 className="consignment-spin" size={16} /> : <Check size={16} />}
               Update Shopify product
             </button>
@@ -1000,7 +1077,11 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
     publishOnline: false,
   };
   const [form, setForm] = useState(emptyForm);
-  const [shopifyForm, setShopifyForm] = useState(emptyShopifyForm);
+  const [shopifyForm, setShopifyForm] = useState(() => ({
+    ...emptyShopifyForm,
+    ...buildShopifyDefaults(emptyForm, consignor),
+  }));
+  const autoShopifyDefaultsRef = useRef(buildShopifyDefaults(emptyForm, consignor));
   const [batch, setBatch] = useState([]);
   const [syncing, setSyncing] = useState(false);
   const canAdd = form.description.trim() && form.price !== '';
@@ -1010,10 +1091,40 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
     .reduce((max, item) => Math.max(max, Number(item.itemNumber.split('-').pop()) || 0), 0);
   const nextItemNumber = `${consignor.number}-${String(savedSequence + batch.length + 1).padStart(3, '0')}`;
 
+  useEffect(() => {
+    const nextDefaults = buildShopifyDefaults(form, consignor);
+    setShopifyForm((current) => mergeAutoShopifyFields(
+      current,
+      autoShopifyDefaultsRef.current,
+      nextDefaults,
+    ));
+    autoShopifyDefaultsRef.current = nextDefaults;
+  }, [
+    form.description,
+    form.price,
+    form.brand,
+    form.size,
+    form.condition,
+    form.category,
+    form.type,
+    consignor,
+  ]);
+
   function addToBatch() {
     if (!canAdd) return;
     setBatch((current) => [...current, form]);
-    setForm({ ...emptyForm, category: form.category, brand: form.brand });
+
+    const nextForm = { ...emptyForm, category: form.category, brand: form.brand };
+    const nextDefaults = buildShopifyDefaults(nextForm, consignor);
+    autoShopifyDefaultsRef.current = nextDefaults;
+
+    setForm(nextForm);
+    setShopifyForm((current) => ({
+      ...emptyShopifyForm,
+      ...nextDefaults,
+      publishToPos: current.publishToPos !== false,
+      publishOnline: current.publishOnline === true,
+    }));
   }
 
   return (
@@ -1052,6 +1163,7 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
         <ShopifyProductSection
           shopifyForm={shopifyForm}
           setShopifyForm={setShopifyForm}
+          categoryHint={form.category}
           tier2Enabled={tier2Enabled}
           syncing={syncing}
           onSync={canAdd ? async () => {
@@ -1102,6 +1214,7 @@ function EditItemScreen({
     publishToPos: true,
     publishOnline: item.publishOnline === true,
   });
+  const editAutoShopifyDefaultsRef = useRef(buildShopifyDefaults(form));
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [statusSaving, setStatusSaving] = useState(false);
@@ -1110,6 +1223,24 @@ function EditItemScreen({
   const isSold = item.status === 'Sold' || Boolean(item.dateSold);
   const isPaid = item.paidOut === true;
   const canSave = form.description.trim() && form.price !== '';
+
+  useEffect(() => {
+    const nextDefaults = buildShopifyDefaults(form);
+    setShopifyForm((current) => mergeAutoShopifyFields(
+      current,
+      editAutoShopifyDefaultsRef.current,
+      nextDefaults,
+    ));
+    editAutoShopifyDefaultsRef.current = nextDefaults;
+  }, [
+    form.description,
+    form.price,
+    form.brand,
+    form.size,
+    form.condition,
+    form.category,
+    form.type,
+  ]);
 
   return (
     <>
@@ -1145,6 +1276,7 @@ function EditItemScreen({
         <ShopifyProductSection
           shopifyForm={shopifyForm}
           setShopifyForm={setShopifyForm}
+          categoryHint={form.category}
           linkedProductId={item.shopifyProductId}
           linkedStatus={item.shopifyProductStatus}
           disabled={isSold}

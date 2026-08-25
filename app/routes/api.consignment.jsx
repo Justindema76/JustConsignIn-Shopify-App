@@ -692,6 +692,82 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
+function buildShopifyDefaults(item = {}, consignor = null, merchantName = '') {
+  const description = String(item.description || '').trim();
+  const brand = String(item.brand || '').trim();
+  const size = String(item.size || '').trim();
+  const condition = String(item.condition || '').trim();
+  const category = String(item.category || '').trim();
+  const type = String(item.type || '').trim();
+
+  const title = [
+    brand && !description.toLowerCase().includes(brand.toLowerCase()) ? brand : '',
+    description,
+    size && !description.toLowerCase().includes(size.toLowerCase()) ? `Size ${size}` : '',
+  ].filter(Boolean).join(' ').trim()
+    || description
+    || type
+    || category
+    || (item.itemNumber ? `Consignment item ${item.itemNumber}` : 'Consignment item');
+
+  const productDescription = [
+    description,
+    brand ? `Brand: ${brand}` : '',
+    condition ? `Condition: ${condition}` : '',
+    size ? `Size: ${size}` : '',
+    category ? `Category: ${category}` : '',
+  ].filter(Boolean).join('\n');
+
+  const tags = [...new Set([
+    'Consignment',
+    consignor?.number ? `Consignor ${consignor.number}` : '',
+    category,
+    type,
+    brand,
+    condition,
+  ].filter(Boolean))];
+
+  const seoDescription = [
+    description,
+    brand ? `by ${brand}` : '',
+    condition ? `${condition} condition` : '',
+    size ? `Size ${size}` : '',
+  ].filter(Boolean).join(' · ').slice(0, 320);
+
+  return {
+    shopifyTitle: title,
+    shopifyPrice: item.price ?? 0,
+    productDescription,
+    vendor: brand || merchantName || 'Consignment',
+    tags,
+    seoTitle: title,
+    seoDescription,
+  };
+}
+
+function withShopifyDefaults(item = {}, consignor = null, merchantName = '') {
+  const defaults = buildShopifyDefaults(item, consignor, merchantName);
+  const customTags = Array.isArray(item.tags)
+    ? item.tags
+    : String(item.tags || '')
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+
+  return {
+    ...item,
+    shopifyTitle: String(item.shopifyTitle || '').trim() || defaults.shopifyTitle,
+    shopifyPrice: item.shopifyPrice === '' || item.shopifyPrice == null
+      ? defaults.shopifyPrice
+      : Number(item.shopifyPrice),
+    productDescription: String(item.productDescription || '').trim() || defaults.productDescription,
+    vendor: String(item.vendor || '').trim() || defaults.vendor,
+    tags: [...new Set([...defaults.tags, ...customTags].filter(Boolean))],
+    seoTitle: String(item.seoTitle || '').trim() || defaults.seoTitle,
+    seoDescription: String(item.seoDescription || '').trim() || defaults.seoDescription,
+  };
+}
+
 function itemFields(item, overrides = {}) {
   const value = { ...item, ...overrides };
   return [
@@ -875,6 +951,7 @@ async function activateForPos(admin, productId) {
 }
 
 async function syncPosProduct(admin, item, consignor, merchantName) {
+  const normalizedItem = withShopifyDefaults(item, consignor, merchantName);
   const {
     location,
     posPublication,
@@ -885,19 +962,19 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
       'No active Shopify location was found. Check Settings → Locations.',
     );
   }
-  if (item.publishToPos !== false && !posPublication?.id) {
+  if (normalizedItem.publishToPos !== false && !posPublication?.id) {
     throw new Error(
       'The Point of Sale sales channel is not available. Add Shopify POS, then try again.',
     );
   }
-  if (item.publishOnline && !onlineStorePublication?.id) {
+  if (normalizedItem.publishOnline && !onlineStorePublication?.id) {
     throw new Error(
       'The Online Store sales channel is not available. Add Online Store or turn off online publishing.',
     );
   }
   const publications = [
-    ...(item.publishToPos !== false ? [posPublication] : []),
-    ...(item.publishOnline ? [onlineStorePublication] : []),
+    ...(normalizedItem.publishToPos !== false ? [posPublication] : []),
+    ...(normalizedItem.publishOnline ? [onlineStorePublication] : []),
   ];
   if (!publications.length) {
     throw new Error(
@@ -906,39 +983,25 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
   }
   const collection = await ensureConsignmentCollection(admin, publications);
 
-  const files = item.photoId ? [{ id: item.photoId }] : undefined;
-  const customTags = Array.isArray(item.tags)
-    ? item.tags
-    : String(item.tags || '')
-      .split(',')
-      .map((tag) => tag.trim())
-      .filter(Boolean);
+  const files = normalizedItem.photoId ? [{ id: normalizedItem.photoId }] : undefined;
   const input = {
-    ...(item.shopifyProductId ? { id: item.shopifyProductId } : {}),
-    title: String(item.shopifyTitle || '').trim(),
-    descriptionHtml: item.productDescription
-      ? `<p>${escapeHtml(item.productDescription).replaceAll('\n', '<br>')}</p>`
+    ...(normalizedItem.shopifyProductId ? { id: normalizedItem.shopifyProductId } : {}),
+    title: normalizedItem.shopifyTitle,
+    descriptionHtml: normalizedItem.productDescription
+      ? `<p>${escapeHtml(normalizedItem.productDescription).replaceAll('\n', '<br>')}</p>`
       : [
-        `<p>${escapeHtml(item.description)}</p>`,
-        item.condition ? `<p><strong>Condition:</strong> ${escapeHtml(item.condition)}</p>` : '',
-        item.size ? `<p><strong>Size:</strong> ${escapeHtml(item.size)}</p>` : '',
+        `<p>${escapeHtml(normalizedItem.description)}</p>`,
+        normalizedItem.condition ? `<p><strong>Condition:</strong> ${escapeHtml(normalizedItem.condition)}</p>` : '',
+        normalizedItem.size ? `<p><strong>Size:</strong> ${escapeHtml(normalizedItem.size)}</p>` : '',
       ].join(''),
-    productType: item.type || item.category,
-    vendor: item.vendor || merchantName || 'Consignment',
+    productType: normalizedItem.type || normalizedItem.category,
+    vendor: normalizedItem.vendor || merchantName || 'Consignment',
     status: 'ACTIVE',
-    tags: [
-      'Consignment',
-      item.category,
-      item.type,
-      item.condition,
-      item.brand,
-      `Consignor ${consignor.number}`,
-      ...customTags,
-    ].filter(Boolean),
-    category: item.shopifyCategoryId || undefined,
-    seo: (item.seoTitle || item.seoDescription) ? {
-      title: item.seoTitle || item.shopifyTitle || undefined,
-      description: item.seoDescription || undefined,
+    tags: normalizedItem.tags,
+    category: normalizedItem.shopifyCategoryId || undefined,
+    seo: (normalizedItem.seoTitle || normalizedItem.seoDescription) ? {
+      title: normalizedItem.seoTitle || normalizedItem.shopifyTitle || undefined,
+      description: normalizedItem.seoDescription || undefined,
     } : undefined,
     files,
     productOptions: [{
@@ -948,12 +1011,12 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
     }],
     variants: [{
       optionValues: [{ optionName: 'Title', name: 'Default Title' }],
-      price: Number(item.shopifyPrice ?? item.price ?? 0).toFixed(2),
-      sku: item.itemNumber,
+      price: Number(normalizedItem.shopifyPrice ?? normalizedItem.price ?? 0).toFixed(2),
+      sku: normalizedItem.itemNumber,
       inventoryPolicy: 'DENY',
       taxable: true,
       inventoryItem: {
-        sku: item.itemNumber,
+        sku: normalizedItem.itemNumber,
         tracked: true,
         requiresShipping: true,
       },
@@ -966,11 +1029,11 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
   };
 
   const data = await adminGraphql(admin, PRODUCT_SET_MUTATION, { input });
-  assertNoErrors(data.productSet, item.shopifyProductId ? 'Could not update the Shopify product' : 'Could not create the Shopify product');
+  assertNoErrors(data.productSet, normalizedItem.shopifyProductId ? 'Could not update the Shopify product' : 'Could not create the Shopify product');
   if (!data.productSet.product?.id) {
     throw new Error('Shopify did not return the new product.');
   }
-  if (!item.shopifyProductId && collection?.isManual) {
+  if (!normalizedItem.shopifyProductId && collection?.isManual) {
     await addProductToManualCollection(
       admin,
       collection.id,
@@ -1130,9 +1193,16 @@ export async function action({ request }) {
       const wantsShopifyProduct = (row) => asBoolean(
         row.create_shopify_product ?? row.createShopifyProduct,
       );
-      const importedShopifyFields = (row, fallbackPrice) => {
+      const importedShopifyFields = (row, fallbackPrice, consignor = null) => {
         const rawTags = text(row.shopify_tags ?? row.shopifyTags);
-        return {
+        const base = {
+          description: text(row.item_description || row.description || row.title),
+          price: Number(fallbackPrice || 0),
+          category: text(row.category),
+          type: text(row.item_type || row.itemType),
+          brand: text(row.brand),
+          size: text(row.size),
+          condition: text(row.condition),
           shopifyTitle: text(row.shopify_title ?? row.shopifyTitle),
           shopifyPrice: optionalNumber(row.shopify_price ?? row.shopifyPrice) ?? Number(fallbackPrice || 0),
           productDescription: text(row.shopify_description ?? row.shopifyDescription),
@@ -1145,6 +1215,7 @@ export async function action({ request }) {
           publishToPos: asBoolean(row.publish_to_pos ?? row.publishToPos),
           publishOnline: asBoolean(row.publish_online ?? row.publishOnline),
         };
+        return withShopifyDefaults(base, consignor, current.shop?.name);
       };
 
       // Combined imports always create/match consignors and consignment items.
@@ -1249,15 +1320,10 @@ export async function action({ request }) {
             const commissionPct = Number(row.commission_pct || row.commissionPct || consignor.commissionPct || 50);
             const payoutAmount = sold ? ((salePrice ?? price) * commissionPct) / 100 : 0;
             const createShopifyProduct = wantsShopifyProduct(row);
-            const shopify = importedShopifyFields(row, price);
+            const shopify = importedShopifyFields(row, price, consignor);
 
             if (createShopifyProduct) {
               await requireTier2(admin);
-              if (!shopify.shopifyTitle) {
-                throw new Error(
-                  `Row ${entry.index + 2}: shopify_title is required when create_shopify_product is true.`,
-                );
-              }
               if (!Number.isFinite(Number(shopify.shopifyPrice)) || Number(shopify.shopifyPrice) <= 0) {
                 throw new Error(
                   `Row ${entry.index + 2}: shopify_price must be greater than 0 when create_shopify_product is true.`,
@@ -1561,30 +1627,24 @@ export async function action({ request }) {
         return Response.json({ error: 'Consignor not found' }, { status: 404 });
       }
       const productInput = body.product || {};
-      const productSource = {
+      const productSource = withShopifyDefaults({
         ...existing,
         photoId: productInput.photoId || existing.photoId,
         photo: productInput.photo || existing.photo,
-        tags: productInput.tags || '',
-        vendor: productInput.vendor || '',
-        productDescription: productInput.productDescription || '',
+        tags: productInput.tags || existing.tags || '',
+        vendor: productInput.vendor || existing.vendor || '',
+        productDescription: productInput.productDescription || existing.productDescription || '',
         shopifyTitle: String(productInput.shopifyTitle || existing.shopifyTitle || '').trim(),
         shopifyPrice: productInput.shopifyPrice === '' || productInput.shopifyPrice == null
           ? (existing.shopifyPrice ?? existing.price)
           : Number(productInput.shopifyPrice),
-        shopifyCategoryId: productInput.shopifyCategoryId || '',
-        shopifyCategoryName: productInput.shopifyCategoryName || '',
-        seoTitle: productInput.seoTitle || '',
-        seoDescription: productInput.seoDescription || '',
+        shopifyCategoryId: productInput.shopifyCategoryId || existing.shopifyCategoryId || '',
+        shopifyCategoryName: productInput.shopifyCategoryName || existing.shopifyCategoryName || '',
+        seoTitle: productInput.seoTitle || existing.seoTitle || '',
+        seoDescription: productInput.seoDescription || existing.seoDescription || '',
         publishOnline: productInput.publishOnline === true,
         publishToPos: productInput.publishToPos !== false,
-      };
-      if (!productSource.shopifyTitle) {
-        return Response.json(
-          { error: 'Enter a Shopify product title before creating or updating the Shopify product.' },
-          { status: 400 },
-        );
-      }
+      }, consignor, current.shop?.name);
       const sellPrice = Number(productSource.shopifyPrice ?? productSource.price);
       if (!Number.isFinite(sellPrice) || sellPrice <= 0) {
         return Response.json(
