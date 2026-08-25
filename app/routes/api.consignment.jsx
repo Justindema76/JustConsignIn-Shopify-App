@@ -1498,6 +1498,7 @@ export async function action({ request }) {
           field('commission_pct', consignor.commissionPct),
           field('status', 'Draft'),
           field('brand', input.brand),
+          field('photo', input.photoId),
           field('notes', itemDetails({ ...input, type: '' })),
         ]);
         savedItems.push(mapItem(saved));
@@ -1530,6 +1531,7 @@ export async function action({ request }) {
           price: Number(input.price || 0).toFixed(2),
           notes: input.notes,
           brand: input.brand,
+          photoId: input.photoId !== undefined ? input.photoId : existing.photoId,
           type: '',
         }),
       );

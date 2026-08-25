@@ -97,35 +97,41 @@ async function prepareItemPhoto(item) {
 }
 
 
-export function createConsignmentItems(consignorId, items) {
-  const manualItems = items.map((item) => ({
-    category: item.category,
-    type: '',
-    description: item.description,
-    size: item.size,
-    condition: item.condition,
-    price: item.price,
-    brand: item.brand,
-    notes: item.notes,
-    consignmentTerm: item.consignmentTerm,
+export async function createConsignmentItems(consignorId, items) {
+  const manualItems = await Promise.all(items.map(async (item) => {
+    const prepared = await prepareItemPhoto(item);
+    return {
+      category: prepared.category,
+      type: '',
+      description: prepared.description,
+      size: prepared.size,
+      condition: prepared.condition,
+      price: prepared.price,
+      brand: prepared.brand,
+      notes: prepared.notes,
+      consignmentTerm: prepared.consignmentTerm,
+      photoId: prepared.photoId || null,
+    };
   }));
   return request('POST', { operation: 'createItems', consignorId, items: manualItems });
 }
 
-export function updateConsignmentItem(itemId, item) {
+export async function updateConsignmentItem(itemId, item) {
+  const prepared = await prepareItemPhoto(item);
   return request('PATCH', {
     operation: 'updateItem',
     itemId,
     item: {
-      category: item.category,
+      category: prepared.category,
       type: '',
-      description: item.description,
-      size: item.size,
-      condition: item.condition,
-      price: item.price,
-      brand: item.brand,
-      notes: item.notes,
-      consignmentTerm: item.consignmentTerm,
+      description: prepared.description,
+      size: prepared.size,
+      condition: prepared.condition,
+      price: prepared.price,
+      brand: prepared.brand,
+      notes: prepared.notes,
+      consignmentTerm: prepared.consignmentTerm,
+      photoId: prepared.photoId || null,
     },
   });
 }
