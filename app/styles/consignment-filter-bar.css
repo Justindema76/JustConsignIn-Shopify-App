@@ -71,6 +71,7 @@
 
 @media (max-width: 900px) {
   .consignment-items-toolbar-top { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; }
+   .consignment-items-toolbar-bottom { grid-template-columns: 1fr; gap: 9px; }
 }
 @media (max-width: 640px) {
   .consignment-items-toolbar { gap: 12px; }
@@ -80,4 +81,19 @@
   .consignment-items-toolbar .consignment-view-toggle button { flex: 1; min-height: 44px; font-size: 12px; }
   .consignment-view-toggle button { flex: 1; padding: 9px 5px; font-size: 10px; }
   .consignment-filter-select { width: 100%; }
+}
+@media (max-width: 1024px) {
+  .consignment-items-toolbar-top,
+  .consignment-items-toolbar-bottom {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .consignment-items-toolbar .consignment-view-toggle {
+    width: 100%;
+  }
+
+  .consignment-items-toolbar .consignment-view-toggle button {
+    flex: 1;
+  }
 }
