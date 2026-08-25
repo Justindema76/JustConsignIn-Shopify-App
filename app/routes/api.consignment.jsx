@@ -128,6 +128,25 @@ const TAXONOMY_SEARCH_QUERY = `#graphql
   }
 `;
 
+const SHOPIFY_FILES_QUERY = `#graphql
+  query ConsignmentShopifyFiles($query: String) {
+    files(first: 60, query: $query, sortKey: CREATED_AT, reverse: true) {
+      nodes {
+        ... on MediaImage {
+          id
+          alt
+          createdAt
+          image {
+            url
+            width
+            height
+          }
+        }
+      }
+    }
+  }
+`;
+
 
 const CONSIGNMENT_COLLECTION_QUERY = `#graphql
   query ConsignmentCollection($identifier: CollectionIdentifierInput!) {
@@ -1028,7 +1047,29 @@ export async function loader({ request }) {
     if (!setup.ok) {
       throw new Error(setup.errors.map((error) => error.message).join(', '));
     }
-    const taxonomySearch = new URL(request.url).searchParams.get('taxonomy')?.trim();
+    const url = new URL(request.url);
+
+    if (url.searchParams.get('files') === '1') {
+      const filesQuery = url.searchParams.get('filesQuery')?.trim() || '';
+      const filesData = await adminGraphql(admin, SHOPIFY_FILES_QUERY, {
+        query: filesQuery || null,
+      });
+
+      return Response.json({
+        files: (filesData.files?.nodes || [])
+          .filter((file) => file?.id && file?.image?.url)
+          .map((file) => ({
+            id: file.id,
+            url: file.image.url,
+            width: file.image.width || null,
+            height: file.image.height || null,
+            alt: file.alt || '',
+            createdAt: file.createdAt || '',
+          })),
+      });
+    }
+
+    const taxonomySearch = url.searchParams.get('taxonomy')?.trim();
     if (taxonomySearch) {
       const taxonomyData = await adminGraphql(admin, TAXONOMY_SEARCH_QUERY, {
         search: taxonomySearch,

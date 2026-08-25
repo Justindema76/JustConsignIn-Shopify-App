@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types, jsx-a11y/label-has-associated-control */
 import { useState, useEffect } from 'react';
 import {
-  Plus, Camera, X, ChevronRight, Phone, Mail,
+  Plus, Camera, Image, X, ChevronRight, Phone, Mail,
   Loader2, Tag, Check, Trash2, ShoppingBag, LayoutDashboard,
   Users, ReceiptText, WalletCards, PackageSearch, TrendingUp, CircleDollarSign,
   CalendarDays, FileUp, Download, MapPin, Pencil, List, Grid3X3, ArrowUp,
@@ -15,6 +15,7 @@ import {
   getConsignmentData,
   recordConsignorPayout,
   searchShopifyCategories,
+  searchShopifyFiles,
   updateConsignmentItem,
   updateConsignmentItemStatus,
   updateConsignor,
@@ -31,6 +32,7 @@ import ConsignorDashboard from './pages/consignment/ConsignorDashboard';
 import CreateConsignorScreen from './pages/consignment/CreateConsignorScreen';
 import ConsignmentFilterBar from './components/consignment/ConsignmentFilterBar';
 import './styles/consignment-global.css';
+import './styles/shopify-file-picker.css';
 /* ============================================================================
    STYLING
    All app CSS is external. This intake file contains no embedded GlobalStyle().
@@ -167,36 +169,161 @@ async function handlePhotoFile(e, onChange) {
   onChange(dataUrl);
 }
 
-function PhotoPicker({ value, onChange }) {
+function ShopifyFilePicker({ onClose, onSelect }) {
+  const [search, setSearch] = useState('');
+  const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pickerError, setPickerError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      setPickerError('');
+      try {
+        const results = await searchShopifyFiles(search);
+        if (!cancelled) setFiles(results);
+      } catch (error) {
+        if (!cancelled) {
+          setFiles([]);
+          setPickerError(error instanceof Error ? error.message : 'Could not load Shopify Files.');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }, search.trim() ? 300 : 0);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [search]);
+
   return (
-    <div className="consignment-photo-wrap">
-      <label className="consignment-photo-btn">
-        {value ? (
-          <img src={value} alt="Item" />
-        ) : (
-          <>
-            <Camera size={20} />
-            <span>Take Photo</span>
-          </>
-        )}
-        <input
-          type="file"
-          accept="image/*"
-          capture="environment"
-          style={{ display: 'none' }}
-          onChange={(e) => handlePhotoFile(e, onChange)}
-        />
-      </label>
-      <label className="consignment-photo-alt">
-        {value ? 'Retake or choose' : 'Choose from library'}
-        <input
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={(e) => handlePhotoFile(e, onChange)}
-        />
-      </label>
+    <div
+      className="shopify-file-picker-overlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="shopify-file-picker-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shopify-file-picker-title"
+      >
+        <header className="shopify-file-picker-header">
+          <div className="shopify-file-picker-heading">
+            <strong id="shopify-file-picker-title">Choose from Shopify Files</strong>
+            <span>Select an image already stored in Shopify Content → Files.</span>
+          </div>
+          <button type="button" className="shopify-file-picker-close" onClick={onClose} aria-label="Close Shopify Files">
+            <X size={18} />
+          </button>
+        </header>
+
+        <div className="shopify-file-picker-search">
+          <input
+            className="consignment-input"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search Shopify Files"
+            autoFocus
+          />
+        </div>
+
+        <div className="shopify-file-picker-content">
+          {loading && (
+            <div className="shopify-file-picker-state">
+              <Loader2 className="consignment-spin" size={18} />
+              <span>Loading Shopify Files…</span>
+            </div>
+          )}
+
+          {!loading && pickerError && (
+            <div className="shopify-file-picker-state error">{pickerError}</div>
+          )}
+
+          {!loading && !pickerError && files.length === 0 && (
+            <div className="shopify-file-picker-state">No Shopify images found.</div>
+          )}
+
+          {!loading && !pickerError && files.length > 0 && (
+            <div className="shopify-file-picker-grid">
+              {files.map((file) => (
+                <button
+                  key={file.id}
+                  type="button"
+                  className="shopify-file-picker-card"
+                  onClick={() => onSelect(file)}
+                >
+                  <span className="shopify-file-picker-image">
+                    <img src={file.url} alt={file.alt || 'Shopify file'} />
+                  </span>
+                  <span className="shopify-file-picker-name">
+                    {file.alt || 'Shopify image'}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
     </div>
+  );
+}
+
+function PhotoPicker({ value, onChange, onChooseShopify }) {
+  const [showShopifyFiles, setShowShopifyFiles] = useState(false);
+
+  return (
+    <>
+      <div className="consignment-photo-wrap">
+        <label className="consignment-photo-btn">
+          {value ? (
+            <img src={value} alt="Item" />
+          ) : (
+            <>
+              <Camera size={20} />
+              <span>Take Photo</span>
+            </>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            style={{ display: 'none' }}
+            onChange={(e) => handlePhotoFile(e, onChange)}
+          />
+        </label>
+
+        <label className="consignment-photo-alt">
+          {value ? 'Retake or choose' : 'Choose from library'}
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => handlePhotoFile(e, onChange)}
+          />
+        </label>
+
+        <button type="button" className="shopify-file-picker-trigger" onClick={() => setShowShopifyFiles(true)}>
+          <Image size={15} />
+          <span>Choose from Shopify Files</span>
+        </button>
+      </div>
+
+      {showShopifyFiles && (
+        <ShopifyFilePicker
+          onClose={() => setShowShopifyFiles(false)}
+          onSelect={(file) => {
+            onChooseShopify(file);
+            setShowShopifyFiles(false);
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -976,7 +1103,19 @@ function ShopifyProductSection({
           This section only controls the linked Shopify product. Manual item saving never creates or updates a Shopify product.
         </p>
         <div className="consignment-shopify-photo-row">
-          <PhotoPicker value={shopifyForm.photo} onChange={(value) => setShopifyForm((current) => ({ ...current, photo: value }))} />
+          <PhotoPicker
+            value={shopifyForm.photo}
+            onChange={(value) => setShopifyForm((current) => ({
+              ...current,
+              photo: value,
+              photoId: null,
+            }))}
+            onChooseShopify={(file) => setShopifyForm((current) => ({
+              ...current,
+              photo: file.url,
+              photoId: file.id,
+            }))}
+          />
           <ShopifyProductFields form={shopifyForm} setForm={setShopifyForm} />
         </div>
         <label className="consignment-product-choice">
@@ -1032,7 +1171,7 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
     price: '', brand: '', notes: '', consignmentTerm: '',
   };
   const emptyShopifyForm = {
-    photo: null, shopifyTitle: '', shopifyPrice: '', tags: '', vendor: '', productDescription: '', shopifyCategoryId: '',
+    photo: null, photoId: null, shopifyTitle: '', shopifyPrice: '', tags: '', vendor: '', productDescription: '', shopifyCategoryId: '',
     shopifyCategoryName: '', seoTitle: '', seoDescription: '', publishToPos: true,
     publishOnline: false,
   };
@@ -1152,6 +1291,7 @@ function EditItemScreen({
   });
   const [shopifyForm, setShopifyForm] = useState({
     photo: item.shopifyPhoto || item.photo || null,
+    photoId: item.photoId || null,
     shopifyTitle: item.shopifyTitle || '',
     shopifyPrice: item.shopifyPrice ?? item.price ?? '',
     tags: Array.isArray(item.tags) ? item.tags.join(', ') : (item.tags || ''),
