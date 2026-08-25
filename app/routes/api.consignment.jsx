@@ -416,6 +416,22 @@ function mapConsignor(node) {
   };
 }
 
+function shopifyDescriptionToPlainText(value) {
+  return String(value || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0*39;/gi, "'")
+    .replace(/&#x0*27;/gi, "'")
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function mapItem(node) {
   const field = values(node);
   const reference = references(node);
@@ -456,7 +472,7 @@ function mapItem(node) {
     tags: productReference?.tags || (field.shopify_tags ? String(field.shopify_tags).split(',').map((tag) => tag.trim()).filter(Boolean) : savedDetails.tags),
     vendor: productReference?.vendor || field.shopify_vendor || savedDetails.vendor,
     brand: field.brand || savedDetails.brand,
-    productDescription: productReference?.descriptionHtml || field.shopify_description || savedDetails.productDescription,
+    productDescription: shopifyDescriptionToPlainText(productReference?.descriptionHtml || field.shopify_description || savedDetails.productDescription),
     shopifyCategoryId: productReference?.category?.id || field.shopify_category_id || savedDetails.shopifyCategoryId,
     shopifyCategoryName: productReference?.category?.fullName || field.shopify_category_name || savedDetails.shopifyCategoryName,
     seoTitle: productReference?.seo?.title || field.seo_title || savedDetails.seoTitle,
