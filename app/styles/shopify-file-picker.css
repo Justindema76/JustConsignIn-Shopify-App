@@ -201,7 +201,9 @@
 }
 
 @media (max-width: 420px) {
-  .shopify-file-picker-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  .shopify-file-picker-trigger {
+    display: none !important;
   }
+
 }
