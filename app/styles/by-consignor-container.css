@@ -53,7 +53,7 @@
 .consignment-grouped-item-row > :not(:first-child) { text-align:center; justify-self:center; }
 
 /* Match Sales: preserve columns and scroll horizontally whenever they no longer fit. */
-@media (max-width:800px) {
+@media (max-width:760px) {
   .consignment-all-item-row,
   .consignment-all-items-card > .consignment-list-head,
   .consignment-shared-item-table > .consignment-list-head { min-width:1180px; }
@@ -62,7 +62,7 @@
   .consignment-grouped-item-row { min-width:1000px; }
 }
 
-@media (max-width:760px) {
+@media (max-width:800px) {
   .consignment-shared-scroll-hint { display:flex; align-items:center; justify-content:flex-end; gap:5px; margin:-2px 2px 7px; color:var(--green-dark); font-size:11px; font-weight:700; }
   .consignment-shared-scroll-hint span { font-size:16px; }
   .consignment-by-consignor-container .consignment-item-group-summary { grid-template-columns:28px 36px minmax(0,1fr); gap:9px; padding:12px; }
@@ -74,7 +74,7 @@
    Same desktop data, rearranged for mobile
    ========================================================= */
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
 
   /* Stop the desktop tables from becoming horizontal sliders */
   .consignment-all-items-card,
