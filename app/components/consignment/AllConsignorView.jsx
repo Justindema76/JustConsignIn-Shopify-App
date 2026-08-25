@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
+import MarkSoldModal from './MarkSoldModal';
 import { money, productLabel, statusClass, statusLabel } from '../../lib/consignmentHelpers';
 import '../../styles/by-consignor-container.css';
 
@@ -7,22 +8,17 @@ import '../../styles/by-consignor-container.css';
 // which was already working correctly and doesn't need this change.
 export function ItemAction({ item, product, consignor, onMarkSold, onStartPayout }) {
   const [selling, setSelling] = useState(false);
+  const [showMarkSold, setShowMarkSold] = useState(false);
   const isSold = item.status === 'Sold' || Boolean(item.dateSold);
   const isPaid = item.paidOut === true;
   const isManualAvailable = product.className === 'manual' && !isSold && !isPaid && (item.status === 'Available' || item.status === 'Active' || item.status === 'Draft');
 
-  async function quickMarkSold() {
+  async function confirmMarkSold({ salePrice, dateSold }) {
     if (selling || !onMarkSold) return;
-    const amount = window.prompt(`Sale price for ${item.description || item.itemNumber}`, String(item.price ?? ''));
-    if (amount === null) return;
-    const salePrice = Number(amount);
-    if (!Number.isFinite(salePrice) || salePrice < 0) {
-      window.alert('Enter a valid sale price.');
-      return;
-    }
     setSelling(true);
     try {
-      await onMarkSold(item.id, { salePrice, dateSold: new Date().toISOString().slice(0, 10) });
+      await onMarkSold(item.id, { salePrice, dateSold });
+      setShowMarkSold(false);
     } finally {
       setSelling(false);
     }
@@ -30,7 +26,30 @@ export function ItemAction({ item, product, consignor, onMarkSold, onStartPayout
 
   if (isPaid) return null;
   if (isSold && consignor) return <button type="button" className="consignment-sales-pay-btn" onClick={() => onStartPayout?.(consignor.id)}>Pay consignor</button>;
-  if (isManualAvailable) return <button type="button" className="consignment-quick-sold-btn" disabled={selling} onClick={quickMarkSold}>{selling ? 'Saving…' : 'Mark sold'}</button>;
+
+  if (isManualAvailable) {
+    return (
+      <>
+        <button
+          type="button"
+          className="consignment-quick-sold-btn"
+          disabled={selling}
+          onClick={() => setShowMarkSold(true)}
+        >
+          {selling ? 'Saving…' : 'Mark sold'}
+        </button>
+        <MarkSoldModal
+          item={showMarkSold ? item : null}
+          saving={selling}
+          onCancel={() => {
+            if (!selling) setShowMarkSold(false);
+          }}
+          onConfirm={confirmMarkSold}
+        />
+      </>
+    );
+  }
+
   return null;
 }
 
@@ -41,22 +60,17 @@ export function ItemAction({ item, product, consignor, onMarkSold, onStartPayout
 // missed just because the sale synced from Shopify.
 export function ItemRowAction({ item, product, consignor, onOpenItem, onMarkSold, onStartPayout }) {
   const [selling, setSelling] = useState(false);
+  const [showMarkSold, setShowMarkSold] = useState(false);
   const isSold = item.status === 'Sold' || Boolean(item.dateSold);
   const isPaid = item.paidOut === true;
   const isManual = product.className === 'manual';
 
-  async function quickMarkSold() {
+  async function confirmMarkSold({ salePrice, dateSold }) {
     if (selling || !onMarkSold) return;
-    const amount = window.prompt(`Sale price for ${item.description || item.itemNumber}`, String(item.price ?? ''));
-    if (amount === null) return;
-    const salePrice = Number(amount);
-    if (!Number.isFinite(salePrice) || salePrice < 0) {
-      window.alert('Enter a valid sale price.');
-      return;
-    }
     setSelling(true);
     try {
-      await onMarkSold(item.id, { salePrice, dateSold: new Date().toISOString().slice(0, 10) });
+      await onMarkSold(item.id, { salePrice, dateSold });
+      setShowMarkSold(false);
     } finally {
       setSelling(false);
     }
@@ -69,7 +83,28 @@ export function ItemRowAction({ item, product, consignor, onOpenItem, onMarkSold
     return <span className="consignment-action-static">Sold</span>;
   }
 
-  if (isManual) return <button type="button" className="consignment-quick-sold-btn" disabled={selling} onClick={quickMarkSold}>{selling ? 'Saving…' : 'Mark sold'}</button>;
+  if (isManual) {
+    return (
+      <>
+        <button
+          type="button"
+          className="consignment-quick-sold-btn"
+          disabled={selling}
+          onClick={() => setShowMarkSold(true)}
+        >
+          {selling ? 'Saving…' : 'Mark sold'}
+        </button>
+        <MarkSoldModal
+          item={showMarkSold ? item : null}
+          saving={selling}
+          onCancel={() => {
+            if (!selling) setShowMarkSold(false);
+          }}
+          onConfirm={confirmMarkSold}
+        />
+      </>
+    );
+  }
 
   return <button type="button" className="consignment-item-open-btn" onClick={() => onOpenItem?.(item.id)}>Edit</button>;
 }
