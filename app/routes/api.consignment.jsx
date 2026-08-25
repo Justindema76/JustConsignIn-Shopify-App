@@ -128,22 +128,6 @@ const TAXONOMY_SEARCH_QUERY = `#graphql
   }
 `;
 
-const FILES_SEARCH_QUERY = `#graphql
-  query SearchShopifyFiles($query: String) {
-    files(first: 40, sortKey: CREATED_AT, reverse: true, query: $query) {
-      nodes {
-        id
-        alt
-        ... on MediaImage {
-          image {
-            url
-            altText
-          }
-        }
-      }
-    }
-  }
-`;
 
 const CONSIGNMENT_COLLECTION_QUERY = `#graphql
   query ConsignmentCollection($identifier: CollectionIdentifierInput!) {
@@ -1059,22 +1043,6 @@ export async function loader({ request }) {
           })),
       });
     }
-    const filesRequested = new URL(request.url).searchParams.get('files');
-    if (filesRequested != null) {
-      const searchTerm = new URL(request.url).searchParams.get('filesQuery')?.trim();
-      const filesData = await adminGraphql(admin, FILES_SEARCH_QUERY, {
-        query: searchTerm ? `media_type:IMAGE AND ${searchTerm}` : 'media_type:IMAGE',
-      });
-      return Response.json({
-        files: (filesData.files?.nodes || [])
-          .filter((node) => node.image?.url)
-          .map((node) => ({
-            id: node.id,
-            url: node.image.url,
-            alt: node.image.altText || node.alt || '',
-          })),
-      });
-    }
     return Response.json(await loadData(admin));
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -1498,7 +1466,6 @@ export async function action({ request }) {
           field('commission_pct', consignor.commissionPct),
           field('status', 'Draft'),
           field('brand', input.brand),
-          field('photo', input.photoId),
           field('notes', itemDetails({ ...input, type: '' })),
         ]);
         savedItems.push(mapItem(saved));
@@ -1531,7 +1498,6 @@ export async function action({ request }) {
           price: Number(input.price || 0).toFixed(2),
           notes: input.notes,
           brand: input.brand,
-          photoId: input.photoId || existing.photoId,
           type: '',
         }),
       );

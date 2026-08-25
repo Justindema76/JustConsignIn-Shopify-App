@@ -4,7 +4,7 @@ import {
   Plus, Camera, X, ChevronRight, Phone, Mail,
   Loader2, Tag, Check, Trash2, ShoppingBag, LayoutDashboard,
   Users, ReceiptText, WalletCards, PackageSearch, TrendingUp, CircleDollarSign,
-  CalendarDays, FileUp, Download, MapPin, Pencil, List, Grid3X3, ArrowUp, Image,
+  CalendarDays, FileUp, Download, MapPin, Pencil, List, Grid3X3, ArrowUp,
 } from 'lucide-react';
 import {
   createConsignor,
@@ -15,7 +15,6 @@ import {
   getConsignmentData,
   recordConsignorPayout,
   searchShopifyCategories,
-  searchShopifyFiles,
   updateConsignmentItem,
   updateConsignmentItemStatus,
   updateConsignor,
@@ -125,151 +124,13 @@ function useIsDesktopAdmin() {
 }
 
 async function handlePhotoFile(e, onChange) {
-  const input = e.currentTarget;
-  const file = input.files?.[0];
+  const file = e.target.files?.[0];
   if (!file) return;
-
-  try {
-    const dataUrl = await resizeImage(file);
-    onChange(dataUrl, null);
-  } catch (resizeError) {
-    // Some mobile browsers cannot decode HEIC/HEIF through <img>/canvas.
-    // Keep the original image data instead so it can still be uploaded to Shopify.
-    try {
-      const dataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => typeof reader.result === 'string'
-          ? resolve(reader.result)
-          : reject(new Error('Could not read this image'));
-        reader.onerror = () => reject(reader.error || resizeError);
-        reader.readAsDataURL(file);
-      });
-      onChange(dataUrl, null);
-    } catch {
-      window.alert('That photo could not be opened. Try choosing a JPG, PNG, or another photo.');
-    }
-  } finally {
-    // Allow choosing the same photo again after a failed/changed selection.
-    input.value = '';
-  }
-}
-
-function ShopifyFileLibraryModal({ onClose, onSelect }) {
-  const [query, setQuery] = useState('');
-  const [files, setFiles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError('');
-    const timer = setTimeout(async () => {
-      try {
-        const results = await searchShopifyFiles(query);
-        if (!cancelled) setFiles(results);
-      } catch (e) {
-        if (!cancelled) setError(e.message || 'Could not load Shopify files');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }, 250);
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [query]);
-
-  return (
-    <div
-      style={{
-        position: 'fixed', inset: 0, background: 'rgba(15,17,20,0.55)', zIndex: 200,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: 'var(--surface)', width: '100%', maxWidth: 560,
-          maxHeight: 'min(600px, calc(100vh - 48px))',
-          borderRadius: 16, display: 'flex', flexDirection: 'column', overflow: 'hidden',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '18px 20px', borderBottom: '1px solid var(--line)', flexShrink: 0,
-          }}
-        >
-          <strong style={{ fontSize: 16 }}>Choose an existing image</strong>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            style={{
-              width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: 'none', background: 'var(--bg)', borderRadius: 999, cursor: 'pointer', color: 'var(--ink)',
-            }}
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div style={{ padding: '16px 20px 0' }}>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search files by name…"
-            style={{
-              width: '100%', border: '1px solid var(--line)', borderRadius: 10,
-              padding: '10px 12px', fontSize: 14, background: 'var(--surface)', color: 'var(--ink)',
-            }}
-            autoFocus
-          />
-        </div>
-        <div style={{ overflowY: 'auto', padding: 20 }}>
-          {loading && (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
-              <Loader2 className="consignment-spin" size={22} />
-            </div>
-          )}
-          {!loading && error && (
-            <div style={{ color: 'var(--danger)', fontSize: 13, padding: '10px 0' }}>{error}</div>
-          )}
-          {!loading && !error && files.length === 0 && (
-            <div style={{ color: 'var(--muted)', fontSize: 13, padding: '40px 0', textAlign: 'center' }}>
-              No images found{query ? ' for that search' : ' in your Shopify Files'}.
-            </div>
-          )}
-          {!loading && !error && files.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-              {files.map((file) => (
-                <button
-                  type="button"
-                  key={file.id}
-                  onClick={() => onSelect(file)}
-                  style={{
-                    padding: 0, border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden',
-                    aspectRatio: '1 / 1', cursor: 'pointer', background: 'var(--bg)',
-                  }}
-                >
-                  <img src={file.url} alt={file.alt || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+  const dataUrl = await resizeImage(file);
+  onChange(dataUrl);
 }
 
 function PhotoPicker({ value, onChange }) {
-  const [libraryOpen, setLibraryOpen] = useState(false);
-  const isDesktop = useIsDesktopAdmin();
-
   return (
     <div className="consignment-photo-wrap">
       <label className="consignment-photo-btn">
@@ -290,7 +151,7 @@ function PhotoPicker({ value, onChange }) {
         />
       </label>
       <label className="consignment-photo-alt">
-        {value ? 'Retake or choose' : 'Upload from device'}
+        {value ? 'Retake or choose' : 'Choose from library'}
         <input
           type="file"
           accept="image/*"
@@ -298,29 +159,6 @@ function PhotoPicker({ value, onChange }) {
           onChange={(e) => handlePhotoFile(e, onChange)}
         />
       </label>
-      {isDesktop && (
-        <button
-          type="button"
-          onClick={() => setLibraryOpen(true)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 5, maxWidth: 128,
-            border: '1px solid var(--line)', background: 'var(--surface)', color: 'var(--ink)',
-            borderRadius: 8, padding: '5px 9px', fontSize: 11, cursor: 'pointer',
-          }}
-        >
-          <Image size={13} />
-          Choose from Shopify Files
-        </button>
-      )}
-      {isDesktop && libraryOpen && (
-        <ShopifyFileLibraryModal
-          onClose={() => setLibraryOpen(false)}
-          onSelect={(file) => {
-            onChange(file.url, file.id);
-            setLibraryOpen(false);
-          }}
-        />
-      )}
     </div>
   );
 }
@@ -1101,14 +939,7 @@ function ShopifyProductSection({
           This section only controls the linked Shopify product. Manual item saving never creates or updates a Shopify product.
         </p>
         <div className="consignment-shopify-photo-row">
-          <PhotoPicker
-            value={shopifyForm.photo}
-            onChange={(value, photoId) => setShopifyForm((current) => ({
-              ...current,
-              photo: value,
-              photoId: photoId || null,
-            }))}
-          />
+          <PhotoPicker value={shopifyForm.photo} onChange={(value) => setShopifyForm((current) => ({ ...current, photo: value }))} />
           <ShopifyProductFields form={shopifyForm} setForm={setShopifyForm} />
         </div>
         <label className="consignment-product-choice">
@@ -1259,7 +1090,6 @@ function EditItemScreen({
   });
   const [shopifyForm, setShopifyForm] = useState({
     photo: item.shopifyPhoto || item.photo || null,
-    photoId: item.photoId || null,
     shopifyTitle: item.shopifyTitle || '',
     shopifyPrice: item.shopifyPrice ?? item.price ?? '',
     tags: Array.isArray(item.tags) ? item.tags.join(', ') : (item.tags || ''),

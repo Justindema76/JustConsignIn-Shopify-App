@@ -29,15 +29,6 @@ export async function searchShopifyCategories(search) {
   return payload.categories || [];
 }
 
-export async function searchShopifyFiles(search) {
-  const query = search ? `&filesQuery=${encodeURIComponent(search.trim())}` : '';
-  const response = await fetch(`${API_URL}?files=1${query}`);
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(payload.error || `Could not load Shopify files (${response.status})`);
-  }
-  return payload.files || [];
-}
 
 export function createConsignor(consignor) {
   return request('POST', { operation: 'createConsignor', consignor });
@@ -71,16 +62,7 @@ async function uploadImage(dataUrl, alt) {
 
   const imageBlob = dataUrlToImageBlob(dataUrl);
   const formData = new FormData();
-  const extensionByMime = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'image/gif': 'gif',
-    'image/heic': 'heic',
-    'image/heif': 'heif',
-    'image/avif': 'avif',
-  };
-  const extension = extensionByMime[imageBlob.type] || 'jpg';
+  const extension = imageBlob.type === 'image/png' ? 'png' : 'jpg';
   formData.append('image', imageBlob, `consignment-${Date.now()}.${extension}`);
   formData.append('alt', alt || 'Consignment item');
 
@@ -106,41 +88,35 @@ async function prepareItemPhoto(item) {
 }
 
 
-export async function createConsignmentItems(consignorId, items) {
-  const manualItems = await Promise.all(items.map(async (item) => {
-    const prepared = await prepareItemPhoto(item);
-    return {
-      category: prepared.category,
-      type: '',
-      description: prepared.description,
-      size: prepared.size,
-      condition: prepared.condition,
-      price: prepared.price,
-      brand: prepared.brand,
-      notes: prepared.notes,
-      consignmentTerm: prepared.consignmentTerm,
-      photoId: prepared.photoId || null,
-    };
+export function createConsignmentItems(consignorId, items) {
+  const manualItems = items.map((item) => ({
+    category: item.category,
+    type: '',
+    description: item.description,
+    size: item.size,
+    condition: item.condition,
+    price: item.price,
+    brand: item.brand,
+    notes: item.notes,
+    consignmentTerm: item.consignmentTerm,
   }));
   return request('POST', { operation: 'createItems', consignorId, items: manualItems });
 }
 
-export async function updateConsignmentItem(itemId, item) {
-  const prepared = await prepareItemPhoto(item);
+export function updateConsignmentItem(itemId, item) {
   return request('PATCH', {
     operation: 'updateItem',
     itemId,
     item: {
-      category: prepared.category,
+      category: item.category,
       type: '',
-      description: prepared.description,
-      size: prepared.size,
-      condition: prepared.condition,
-      price: prepared.price,
-      brand: prepared.brand,
-      notes: prepared.notes,
-      consignmentTerm: prepared.consignmentTerm,
-      photoId: prepared.photoId || null,
+      description: item.description,
+      size: item.size,
+      condition: item.condition,
+      price: item.price,
+      brand: item.brand,
+      notes: item.notes,
+      consignmentTerm: item.consignmentTerm,
     },
   });
 }
