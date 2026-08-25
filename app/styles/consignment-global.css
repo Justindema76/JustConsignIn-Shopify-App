@@ -755,7 +755,7 @@
    
         .consignment-sales-row { grid-template-columns: minmax(200px, 2fr) 80px minmax(120px, 1fr) 88px 100px 86px 118px; }
       }
-      @media (max-width: 640px) {
+      @media (max-width: 1024px) {
         
         
         
