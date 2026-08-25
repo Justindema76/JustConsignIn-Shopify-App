@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types, jsx-a11y/label-has-associated-control */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Plus, Camera, X, ChevronRight, Phone, Mail,
+  Plus, Camera, Image, X, ChevronRight, Phone, Mail,
   Loader2, Tag, Check, Trash2, ShoppingBag, LayoutDashboard,
   Users, ReceiptText, WalletCards, PackageSearch, TrendingUp, CircleDollarSign,
   CalendarDays, FileUp, Download, MapPin, Pencil, List, Grid3X3, ArrowUp,
@@ -82,24 +82,25 @@ function buildShopifyDefaults(item = {}, consignor = null) {
   const condition = String(item.condition || '').trim();
   const category = String(item.category || '').trim();
   const type = String(item.type || '').trim();
-
-  const title = [
-    brand && !description.toLowerCase().includes(brand.toLowerCase()) ? brand : '',
-    description,
-    size && !description.toLowerCase().includes(size.toLowerCase()) ? `Size ${size}` : '',
-  ].filter(Boolean).join(' ').trim()
-    || description
+  const hasEnteredItem = Boolean(
+    description
+    || brand
+    || size
     || type
-    || category
-    || 'Consignment item';
+    || (item.price !== '' && item.price !== null && item.price !== undefined),
+  );
 
-  const productDescription = [
-    description,
-    brand ? `Brand: ${brand}` : '',
-    condition ? `Condition: ${condition}` : '',
-    size ? `Size: ${size}` : '',
-    category ? `Category: ${category}` : '',
-  ].filter(Boolean).join('\n');
+  if (!hasEnteredItem) {
+    return {
+      shopifyTitle: '',
+      shopifyPrice: '',
+      vendor: '',
+      tags: '',
+      productDescription: '',
+      seoTitle: '',
+      seoDescription: '',
+    };
+  }
 
   const tags = [...new Set([
     'Consignment',
@@ -110,39 +111,30 @@ function buildShopifyDefaults(item = {}, consignor = null) {
     condition,
   ].filter(Boolean))].join(', ');
 
+  const productDescription = [
+    description,
+    brand ? `Brand: ${brand}` : '',
+    size ? `Size: ${size}` : '',
+    condition ? `Condition: ${condition}` : '',
+    category ? `Category: ${category}` : '',
+  ].filter(Boolean).join('\n');
+
   const seoDescription = [
     description,
-    brand ? `by ${brand}` : '',
-    condition ? `${condition} condition` : '',
-    size ? `Size ${size}` : '',
+    brand ? `Brand: ${brand}` : '',
+    size ? `Size: ${size}` : '',
+    condition ? `Condition: ${condition}` : '',
   ].filter(Boolean).join(' · ').slice(0, 320);
 
   return {
-    shopifyTitle: title,
+    shopifyTitle: description,
     shopifyPrice: item.price ?? '',
-    vendor: brand || 'Consignment',
+    vendor: brand,
     tags,
     productDescription,
-    seoTitle: title,
+    seoTitle: description,
     seoDescription,
   };
-}
-
-function mergeAutoShopifyFields(current, previousDefaults, nextDefaults) {
-  const next = { ...current };
-
-  Object.entries(nextDefaults).forEach(([key, value]) => {
-    const currentValue = current[key];
-    const previousValue = previousDefaults?.[key];
-    const isEmpty = currentValue === '' || currentValue === null || currentValue === undefined;
-    const isStillAutoValue = String(currentValue ?? '') === String(previousValue ?? '');
-
-    if (isEmpty || isStillAutoValue) {
-      next[key] = value;
-    }
-  });
-
-  return next;
 }
 
 function productLabel(item) {
@@ -200,36 +192,252 @@ async function handlePhotoFile(e, onChange) {
   onChange(dataUrl);
 }
 
-function PhotoPicker({ value, onChange }) {
+async function searchShopifyFiles(search = '') {
+  const params = new URLSearchParams();
+  params.set('files', search.trim());
+  const response = await fetch(`/api/consignment?${params.toString()}`, {
+    headers: { Accept: 'application/json' },
+  });
+  const payload = await response.json();
+  if (!response.ok || payload.error) {
+    throw new Error(payload.error || 'Could not load Shopify Files.');
+  }
+  return Array.isArray(payload.files) ? payload.files : [];
+}
+
+function ShopifyFilePickerModal({ onClose, onSelect }) {
+  const [search, setSearch] = useState('');
+  const [files, setFiles] = useState([]);
+  const [loadingFiles, setLoadingFiles] = useState(true);
+  const [fileError, setFileError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setLoadingFiles(true);
+      setFileError('');
+      try {
+        const results = await searchShopifyFiles(search);
+        if (!cancelled) setFiles(results);
+      } catch (error) {
+        if (!cancelled) {
+          setFiles([]);
+          setFileError(error instanceof Error ? error.message : 'Could not load Shopify Files.');
+        }
+      } finally {
+        if (!cancelled) setLoadingFiles(false);
+      }
+    }, search ? 300 : 0);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [search]);
+
   return (
-    <div className="consignment-photo-wrap">
-      <label className="consignment-photo-btn">
-        {value ? (
-          <img src={value} alt="Item" />
-        ) : (
-          <>
-            <Camera size={20} />
-            <span>Take Photo</span>
-          </>
-        )}
-        <input
-          type="file"
-          accept="image/*"
-          capture="environment"
-          style={{ display: 'none' }}
-          onChange={(e) => handlePhotoFile(e, onChange)}
-        />
-      </label>
-      <label className="consignment-photo-alt">
-        {value ? 'Retake or choose' : 'Choose from library'}
-        <input
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={(e) => handlePhotoFile(e, onChange)}
-        />
-      </label>
+    <div
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 10000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+        background: 'rgba(0, 0, 0, 0.48)',
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Choose from Shopify Files"
+        style={{
+          width: 'min(760px, 100%)',
+          maxHeight: '82vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          borderRadius: 12,
+          background: '#fff',
+          boxShadow: '0 20px 60px rgba(0,0,0,.25)',
+        }}
+      >
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          padding: 16,
+          borderBottom: '1px solid var(--line)',
+        }}>
+          <div>
+            <strong style={{ display: 'block', fontSize: 16 }}>Choose from Shopify Files</strong>
+            <span className="consignment-row-sub">Select an image already stored in Shopify Content → Files.</span>
+          </div>
+          <button
+            type="button"
+            className="consignment-batch-remove"
+            onClick={onClose}
+            aria-label="Close Shopify Files"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div style={{ padding: 16, borderBottom: '1px solid var(--line)' }}>
+          <input
+            className="consignment-input"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search Shopify Files"
+            autoFocus
+          />
+        </div>
+
+        <div style={{ padding: 16, overflowY: 'auto' }}>
+          {loadingFiles && (
+            <div className="consignment-empty-small">
+              <Loader2 className="consignment-spin" size={18} /> Loading Shopify Files…
+            </div>
+          )}
+
+          {!loadingFiles && fileError && (
+            <div className="consignment-empty-small" style={{ color: 'var(--danger)' }}>
+              {fileError}
+            </div>
+          )}
+
+          {!loadingFiles && !fileError && files.length === 0 && (
+            <div className="consignment-empty-small">No Shopify images found.</div>
+          )}
+
+          {!loadingFiles && !fileError && files.length > 0 && (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+              gap: 12,
+            }}>
+              {files.map((file) => (
+                <button
+                  key={file.id}
+                  type="button"
+                  onClick={() => onSelect(file)}
+                  style={{
+                    minWidth: 0,
+                    padding: 8,
+                    border: '1px solid var(--line)',
+                    borderRadius: 10,
+                    background: '#fff',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <span style={{
+                    display: 'block',
+                    width: '100%',
+                    aspectRatio: '1 / 1',
+                    overflow: 'hidden',
+                    borderRadius: 8,
+                    background: 'var(--green-soft)',
+                  }}>
+                    <img
+                      src={file.url}
+                      alt={file.alt || file.filename || ''}
+                      style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </span>
+                  <span
+                    title={file.filename || file.alt || 'Shopify image'}
+                    style={{
+                      display: 'block',
+                      marginTop: 7,
+                      overflow: 'hidden',
+                      color: 'var(--ink)',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {file.filename || file.alt || 'Shopify image'}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
+  );
+}
+
+function PhotoPicker({ value, onChange, onChooseShopify }) {
+  const [showShopifyFiles, setShowShopifyFiles] = useState(false);
+
+  return (
+    <>
+      <div className="consignment-photo-wrap">
+        <label className="consignment-photo-btn">
+          {value ? (
+            <img src={value} alt="Item" />
+          ) : (
+            <>
+              <Camera size={20} />
+              <span>Take Photo</span>
+            </>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            style={{ display: 'none' }}
+            onChange={(e) => handlePhotoFile(e, onChange)}
+          />
+        </label>
+
+        <label className="consignment-photo-alt">
+          {value ? 'Retake or choose' : 'Choose from library'}
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => handlePhotoFile(e, onChange)}
+          />
+        </label>
+
+        <button
+          type="button"
+          className="consignment-photo-alt"
+          onClick={() => setShowShopifyFiles(true)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            width: '100%',
+            cursor: 'pointer',
+          }}
+        >
+          <Image size={15} />
+          Choose from Shopify Files
+        </button>
+      </div>
+
+      {showShopifyFiles && (
+        <ShopifyFilePickerModal
+          onClose={() => setShowShopifyFiles(false)}
+          onSelect={(file) => {
+            onChooseShopify(file);
+            setShowShopifyFiles(false);
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -719,10 +927,13 @@ function EditConsignorScreen({ consignor, onBack, onSave }) {
 }
 
 function ConsignmentItemFields({ form, setForm }) {
-  const set = (key) => (event) => setForm((current) => ({
-    ...current,
-    [key]: event.target.value,
-  }));
+  const set = (key) => (event) => {
+    onFieldEdit?.(key);
+    setForm((current) => ({
+      ...current,
+      [key]: event.target.value,
+    }));
+  };
 
   function setCategory(category) {
     setForm((current) => ({
@@ -768,16 +979,10 @@ function ConsignmentItemFields({ form, setForm }) {
   );
 }
 
-function ShopifyProductFields({ form, setForm, categoryHint = '' }) {
-  const [categorySearch, setCategorySearch] = useState(form.shopifyCategoryName || categoryHint || '');
+function ShopifyProductFields({ form, setForm, onFieldEdit }) {
+  const [categorySearch, setCategorySearch] = useState(form.shopifyCategoryName || '');
   const [categoryResults, setCategoryResults] = useState([]);
   const [searchingCategories, setSearchingCategories] = useState(false);
-
-  useEffect(() => {
-    if (!form.shopifyCategoryId && !form.shopifyCategoryName && categoryHint) {
-      setCategorySearch(categoryHint);
-    }
-  }, [categoryHint, form.shopifyCategoryId, form.shopifyCategoryName]);
 
   useEffect(() => {
     const query = categorySearch.trim();
@@ -825,6 +1030,7 @@ function ShopifyProductFields({ form, setForm, categoryHint = '' }) {
             className="consignment-input"
             value={categorySearch}
             onChange={(event) => {
+              onFieldEdit?.('shopifyCategory');
               setCategorySearch(event.target.value);
               if (event.target.value !== form.shopifyCategoryName) {
                 setForm((current) => ({ ...current, shopifyCategoryId: '', shopifyCategoryName: '' }));
@@ -841,6 +1047,7 @@ function ShopifyProductFields({ form, setForm, categoryHint = '' }) {
                   type="button"
                   className="consignment-category-result"
                   onClick={() => {
+                    onFieldEdit?.('shopifyCategory');
                     setForm((current) => ({
                       ...current,
                       shopifyCategoryId: category.id,
@@ -863,6 +1070,7 @@ function ShopifyProductFields({ form, setForm, categoryHint = '' }) {
                 className="consignment-batch-remove"
                 aria-label="Remove Shopify category"
                 onClick={() => {
+                  onFieldEdit?.('shopifyCategory');
                   setForm((current) => ({ ...current, shopifyCategoryId: '', shopifyCategoryName: '' }));
                   setCategorySearch('');
                 }}
@@ -977,7 +1185,7 @@ function productAdminUrl(productId) {
 function ShopifyProductSection({
   shopifyForm,
   setShopifyForm,
-  categoryHint = '',
+  onShopifyFieldEdit,
   linkedProductId = '',
   linkedStatus = '',
   disabled = false,
@@ -1016,8 +1224,20 @@ function ShopifyProductSection({
           This section only controls the linked Shopify product. Manual item saving never creates or updates a Shopify product.
         </p>
         <div className="consignment-shopify-photo-row">
-          <PhotoPicker value={shopifyForm.photo} onChange={(value) => setShopifyForm((current) => ({ ...current, photo: value }))} />
-          <ShopifyProductFields form={shopifyForm} setForm={setShopifyForm} categoryHint={categoryHint} />
+          <PhotoPicker
+            value={shopifyForm.photo}
+            onChange={(value) => setShopifyForm((current) => ({
+              ...current,
+              photo: value,
+              photoId: null,
+            }))}
+            onChooseShopify={(file) => setShopifyForm((current) => ({
+              ...current,
+              photo: file.url,
+              photoId: file.id,
+            }))}
+          />
+          <ShopifyProductFields form={shopifyForm} setForm={setShopifyForm} onFieldEdit={onShopifyFieldEdit} />
         </div>
         <label className="consignment-product-choice">
           <input type="checkbox" checked={shopifyForm.publishToPos !== false} onChange={(event) => setShopifyForm((current) => ({ ...current, publishToPos: event.target.checked }))} />
@@ -1072,16 +1292,13 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
     price: '', brand: '', notes: '', consignmentTerm: '',
   };
   const emptyShopifyForm = {
-    photo: null, shopifyTitle: '', shopifyPrice: '', tags: '', vendor: '', productDescription: '', shopifyCategoryId: '',
+    photo: null, photoId: null, shopifyTitle: '', shopifyPrice: '', tags: '', vendor: '', productDescription: '', shopifyCategoryId: '',
     shopifyCategoryName: '', seoTitle: '', seoDescription: '', publishToPos: true,
     publishOnline: false,
   };
   const [form, setForm] = useState(emptyForm);
-  const [shopifyForm, setShopifyForm] = useState(() => ({
-    ...emptyShopifyForm,
-    ...buildShopifyDefaults(emptyForm, consignor),
-  }));
-  const autoShopifyDefaultsRef = useRef(buildShopifyDefaults(emptyForm, consignor));
+  const [shopifyForm, setShopifyForm] = useState(emptyShopifyForm);
+  const [shopifyTouchedFields, setShopifyTouchedFields] = useState({});
   const [batch, setBatch] = useState([]);
   const [syncing, setSyncing] = useState(false);
   const canAdd = form.description.trim() && form.price !== '';
@@ -1093,12 +1310,13 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
 
   useEffect(() => {
     const nextDefaults = buildShopifyDefaults(form, consignor);
-    setShopifyForm((current) => mergeAutoShopifyFields(
-      current,
-      autoShopifyDefaultsRef.current,
-      nextDefaults,
-    ));
-    autoShopifyDefaultsRef.current = nextDefaults;
+    setShopifyForm((current) => {
+      const next = { ...current };
+      Object.entries(nextDefaults).forEach(([key, value]) => {
+        if (!shopifyTouchedFields[key]) next[key] = value;
+      });
+      return next;
+    });
   }, [
     form.description,
     form.price,
@@ -1107,7 +1325,8 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
     form.condition,
     form.category,
     form.type,
-    consignor,
+    consignor.number,
+    shopifyTouchedFields,
   ]);
 
   function addToBatch() {
@@ -1115,13 +1334,11 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
     setBatch((current) => [...current, form]);
 
     const nextForm = { ...emptyForm, category: form.category, brand: form.brand };
-    const nextDefaults = buildShopifyDefaults(nextForm, consignor);
-    autoShopifyDefaultsRef.current = nextDefaults;
 
     setForm(nextForm);
+    setShopifyTouchedFields({});
     setShopifyForm((current) => ({
       ...emptyShopifyForm,
-      ...nextDefaults,
       publishToPos: current.publishToPos !== false,
       publishOnline: current.publishOnline === true,
     }));
@@ -1163,7 +1380,7 @@ function IntakeScreen({ consignor, items, onBack, onSaveBatch, onSaveAndSync, ti
         <ShopifyProductSection
           shopifyForm={shopifyForm}
           setShopifyForm={setShopifyForm}
-          categoryHint={form.category}
+          onShopifyFieldEdit={(key) => setShopifyTouchedFields((current) => ({ ...current, [key]: true }))}
           tier2Enabled={tier2Enabled}
           syncing={syncing}
           onSync={canAdd ? async () => {
@@ -1202,6 +1419,7 @@ function EditItemScreen({
   });
   const [shopifyForm, setShopifyForm] = useState({
     photo: item.shopifyPhoto || item.photo || null,
+    photoId: item.photoId || null,
     shopifyTitle: item.shopifyTitle || '',
     shopifyPrice: item.shopifyPrice ?? item.price ?? '',
     tags: Array.isArray(item.tags) ? item.tags.join(', ') : (item.tags || ''),
@@ -1214,7 +1432,20 @@ function EditItemScreen({
     publishToPos: true,
     publishOnline: item.publishOnline === true,
   });
-  const editAutoShopifyDefaultsRef = useRef(buildShopifyDefaults(form));
+  const [shopifyTouchedFields, setShopifyTouchedFields] = useState(() => (
+    item.shopifyProductId
+      ? {
+        shopifyTitle: true,
+        shopifyPrice: true,
+        vendor: true,
+        tags: true,
+        productDescription: true,
+        seoTitle: true,
+        seoDescription: true,
+        shopifyCategory: true,
+      }
+      : {}
+  ));
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [statusSaving, setStatusSaving] = useState(false);
@@ -1226,12 +1457,13 @@ function EditItemScreen({
 
   useEffect(() => {
     const nextDefaults = buildShopifyDefaults(form);
-    setShopifyForm((current) => mergeAutoShopifyFields(
-      current,
-      editAutoShopifyDefaultsRef.current,
-      nextDefaults,
-    ));
-    editAutoShopifyDefaultsRef.current = nextDefaults;
+    setShopifyForm((current) => {
+      const next = { ...current };
+      Object.entries(nextDefaults).forEach(([key, value]) => {
+        if (!shopifyTouchedFields[key]) next[key] = value;
+      });
+      return next;
+    });
   }, [
     form.description,
     form.price,
@@ -1240,6 +1472,7 @@ function EditItemScreen({
     form.condition,
     form.category,
     form.type,
+    shopifyTouchedFields,
   ]);
 
   return (
@@ -1276,7 +1509,7 @@ function EditItemScreen({
         <ShopifyProductSection
           shopifyForm={shopifyForm}
           setShopifyForm={setShopifyForm}
-          categoryHint={form.category}
+          onShopifyFieldEdit={(key) => setShopifyTouchedFields((current) => ({ ...current, [key]: true }))}
           linkedProductId={item.shopifyProductId}
           linkedStatus={item.shopifyProductStatus}
           disabled={isSold}

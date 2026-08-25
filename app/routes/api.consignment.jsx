@@ -128,6 +128,25 @@ const TAXONOMY_SEARCH_QUERY = `#graphql
   }
 `;
 
+const SHOPIFY_FILES_QUERY = `#graphql
+  query ConsignmentShopifyFiles($query: String) {
+    files(first: 60, query: $query, sortKey: CREATED_AT, reverse: true) {
+      nodes {
+        ... on MediaImage {
+          id
+          alt
+          createdAt
+          image {
+            url
+            width
+            height
+          }
+        }
+      }
+    }
+  }
+`;
+
 
 const CONSIGNMENT_COLLECTION_QUERY = `#graphql
   query ConsignmentCollection($identifier: CollectionIdentifierInput!) {
@@ -700,21 +719,15 @@ function buildShopifyDefaults(item = {}, consignor = null, merchantName = '') {
   const category = String(item.category || '').trim();
   const type = String(item.type || '').trim();
 
-  const title = [
-    brand && !description.toLowerCase().includes(brand.toLowerCase()) ? brand : '',
-    description,
-    size && !description.toLowerCase().includes(size.toLowerCase()) ? `Size ${size}` : '',
-  ].filter(Boolean).join(' ').trim()
-    || description
+  const title = description
     || type
-    || category
     || (item.itemNumber ? `Consignment item ${item.itemNumber}` : 'Consignment item');
 
   const productDescription = [
     description,
     brand ? `Brand: ${brand}` : '',
-    condition ? `Condition: ${condition}` : '',
     size ? `Size: ${size}` : '',
+    condition ? `Condition: ${condition}` : '',
     category ? `Category: ${category}` : '',
   ].filter(Boolean).join('\n');
 
@@ -729,9 +742,9 @@ function buildShopifyDefaults(item = {}, consignor = null, merchantName = '') {
 
   const seoDescription = [
     description,
-    brand ? `by ${brand}` : '',
-    condition ? `${condition} condition` : '',
-    size ? `Size ${size}` : '',
+    brand ? `Brand: ${brand}` : '',
+    size ? `Size: ${size}` : '',
+    condition ? `Condition: ${condition}` : '',
   ].filter(Boolean).join(' · ').slice(0, 320);
 
   return {
@@ -740,7 +753,7 @@ function buildShopifyDefaults(item = {}, consignor = null, merchantName = '') {
     productDescription,
     vendor: brand || merchantName || 'Consignment',
     tags,
-    seoTitle: title,
+    seoTitle: description || title,
     seoDescription,
   };
 }
@@ -1091,7 +1104,35 @@ export async function loader({ request }) {
     if (!setup.ok) {
       throw new Error(setup.errors.map((error) => error.message).join(', '));
     }
-    const taxonomySearch = new URL(request.url).searchParams.get('taxonomy')?.trim();
+    const url = new URL(request.url);
+    const filesRequested = url.searchParams.has('files');
+    if (filesRequested) {
+      const fileSearch = url.searchParams.get('files')?.trim() || '';
+      const filesData = await adminGraphql(admin, SHOPIFY_FILES_QUERY, {
+        query: fileSearch || null,
+      });
+      return Response.json({
+        files: (filesData.files?.nodes || [])
+          .filter((file) => file?.id && file?.image?.url)
+          .map((file) => ({
+            id: file.id,
+            url: file.image.url,
+            width: file.image.width || null,
+            height: file.image.height || null,
+            alt: file.alt || '',
+            filename: (() => {
+              try {
+                return decodeURIComponent(new URL(file.image.url).pathname.split('/').pop() || '');
+              } catch {
+                return '';
+              }
+            })(),
+            createdAt: file.createdAt || '',
+          })),
+      });
+    }
+
+    const taxonomySearch = url.searchParams.get('taxonomy')?.trim();
     if (taxonomySearch) {
       const taxonomyData = await adminGraphql(admin, TAXONOMY_SEARCH_QUERY, {
         search: taxonomySearch,
