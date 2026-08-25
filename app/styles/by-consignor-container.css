@@ -59,7 +59,7 @@
   .consignment-shared-item-table > .consignment-list-head { min-width:1180px; }
   .consignment-all-items-card,
   .consignment-shared-item-table { box-shadow:inset -14px 0 14px -16px rgba(20,63,115,.75); }
-  .consignment-grouped-item-row { min-width:1000px; }
+  .consignment-grouped-item-row { min-width:800px; }
 }
 
 @media (max-width:800px) {
