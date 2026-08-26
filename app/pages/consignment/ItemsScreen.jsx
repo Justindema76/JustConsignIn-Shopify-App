@@ -6,18 +6,17 @@ import {
   List,
   Plus,
   Search,
-  Tag,
   Users,
 } from 'lucide-react';
 
 import Header from '../../components/consignment/Header';
-import AllConsignorView from '../../components/consignment/AllConsignorView';
+import AllConsignorView, {
+  ItemRowAction,
+} from '../../components/consignment/AllConsignorView';
 import AllListView from '../../components/consignment/AllListView';
-import MarkSoldModal from '../../components/consignment/MarkSoldModal';
+import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
 import {
-  money,
   productLabel,
-  statusClass,
   statusLabel,
 } from '../../lib/consignmentHelpers';
 
@@ -36,8 +35,6 @@ export default function ItemsScreen({
   const [productFilter, setProductFilter] = useState('All');
   const [sort, setSort] = useState('consignor');
   const [viewMode, setViewMode] = useState('list');
-  const [sellingItemId, setSellingItemId] = useState(null);
-  const [markSoldItem, setMarkSoldItem] = useState(null);
 
   const statuses = [
     'Current',
@@ -168,72 +165,8 @@ export default function ItemsScreen({
     },
   );
 
-  function openMarkSold(item) {
-    if (sellingItemId || !onMarkSold) return;
-    setMarkSoldItem(item);
-  }
-
-  async function confirmMarkSold({ salePrice, dateSold }) {
-    if (!markSoldItem || sellingItemId || !onMarkSold) return;
-
-    setSellingItemId(markSoldItem.id);
-
-    try {
-      await onMarkSold(markSoldItem.id, {
-        salePrice,
-        dateSold,
-      });
-      setMarkSoldItem(null);
-    } finally {
-      setSellingItemId(null);
-    }
-  }
-
-  function ItemAction({ item, product, compact = false }) {
-    const isManualAvailable =
-      product.className === 'manual' &&
-      (item.status === 'Available' || item.status === 'Active') &&
-      !item.paidOut;
-
-    if (isManualAvailable) {
-      return (
-        <button
-          type="button"
-          className="consignment-quick-sold-btn"
-          disabled={sellingItemId === item.id}
-          onClick={() => openMarkSold(item)}
-        >
-          {sellingItemId === item.id ? 'Saving…' : 'Mark sold'}
-        </button>
-      );
-    }
-
-    return (
-      <button
-        type="button"
-        className={
-          compact
-            ? 'consignment-grid-open-btn'
-            : 'consignment-item-open-btn'
-        }
-        onClick={() => onOpenItem(item.id)}
-      >
-        Open item
-      </button>
-    );
-  }
-
   return (
     <>
-      <MarkSoldModal
-        item={markSoldItem}
-        saving={Boolean(markSoldItem && sellingItemId === markSoldItem.id)}
-        onCancel={() => {
-          if (!sellingItemId) setMarkSoldItem(null);
-        }}
-        onConfirm={confirmMarkSold}
-      />
-
       <Header
         eyebrow="Inventory"
         title="Items"
@@ -404,7 +337,14 @@ export default function ItemsScreen({
             onOpenItem={onOpenItem}
             onOpenConsignor={onOpenConsignor}
             renderAction={(item, product) => (
-              <ItemAction item={item} product={product} />
+              <ItemRowAction
+                item={item}
+                product={product}
+                consignor={consignorById[item.consignorId]}
+                onOpenItem={onOpenItem}
+                onMarkSold={onMarkSold}
+                onStartPayout={onStartPayout}
+              />
             )}
           />
         )}
@@ -427,109 +367,17 @@ export default function ItemsScreen({
 
         {viewMode === 'grid' && (
           <div className="consignment-readable-grid">
-            {filtered.map((item) => {
-              const consignor = consignorById[item.consignorId];
-              const product = productLabel(item);
-
-              return (
-                <article
-                  className="consignment-readable-card"
-                  key={item.id}
-                >
-                  <div className="consignment-readable-card-top">
-                    <div className="consignment-grid-thumb-row">
-                      <div className="consignment-grid-thumb">
-                        {(item.shopifyPhoto || item.photo) ? (
-                          <img
-                            src={item.shopifyPhoto || item.photo}
-                            alt=""
-                          />
-                        ) : (
-                          <Tag size={16} color="var(--muted)" />
-                        )}
-                      </div>
-
-                      <div style={{ minWidth: 0 }}>
-                        <strong>
-                          {item.description ||
-                            item.type ||
-                            'Consignment item'}
-                        </strong>
-
-                        <small className="consignment-readable-card-sku">
-                          <b>SKU {item.itemNumber || '—'}</b>
-                          {item.size ? <span> · {item.size}</span> : null}
-                        </small>
-                      </div>
-                    </div>
-
-                    <span
-                      className={`consignment-product-badge ${product.className}`}
-                    >
-                      {product.text}
-                    </span>
-                  </div>
-
-                  {consignor ? (
-                    <button
-                      type="button"
-                      className="consignment-readable-consignor-link"
-                      onClick={() => onOpenConsignor(consignor.id)}
-                    >
-                      {consignor.firstName} {consignor.lastName}
-                    </button>
-                  ) : (
-                    <span
-                      className="consignment-readable-consignor-link"
-                      style={{
-                        cursor: 'default',
-                        color: 'var(--muted)',
-                      }}
-                    >
-                      Unassigned
-                    </span>
-                  )}
-
-                  <div className="consignment-readable-card-meta consignment-sales-money-rows">
-                    <span>
-                      <small>Price</small>
-                      <strong>{money(item.price)}</strong>
-                    </span>
-
-                    <span>
-                      <small>Commission</small>
-                      <strong>{item.commissionPct}%</strong>
-                    </span>
-                  </div>
-
-                  <div className="consignment-readable-card-details">
-                    <span>
-                      <small>Status</small>
-                    </span>
-
-                    <span
-                      className={`consignment-badge ${
-                        item.paidOut
-                          ? 'sold'
-                          : statusClass(item.status)
-                      }`}
-                    >
-                      {item.paidOut
-                        ? 'Paid'
-                        : statusLabel(item.status)}
-                    </span>
-                  </div>
-
-                  <div className="consignment-readable-card-actions">
-                    <ItemAction
-                      item={item}
-                      product={product}
-                      compact
-                    />
-                  </div>
-                </article>
-              );
-            })}
+            {filtered.map((item) => (
+              <ItemGridCardContainer
+                key={item.id}
+                item={item}
+                consignor={consignorById[item.consignorId]}
+                onOpenItem={onOpenItem}
+                onOpenConsignor={onOpenConsignor}
+                onMarkSold={onMarkSold}
+                onStartPayout={onStartPayout}
+              />
+            ))}
           </div>
         )}
       </div>
