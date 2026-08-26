@@ -9,19 +9,10 @@ export default function ManualSaleStatus({
   money,
 }) {
   const [statusSaving, setStatusSaving] = useState(false);
-
-  const [salePrice, setSalePrice] = useState(
-    item.salePrice ?? item.price ?? '',
-  );
-
-  const [dateSold] = useState(
-    item.dateSold ||
-      new Date().toISOString().slice(0, 10),
-  );
-
+  const [salePrice, setSalePrice] = useState(item.salePrice ?? item.price ?? '');
+  const [dateSold] = useState(item.dateSold || new Date().toISOString().slice(0, 10));
   const [soldLocally, setSoldLocally] = useState(
-    item.status === 'Sold' ||
-    Boolean(item.dateSold),
+    item.status === 'Sold' || Boolean(item.dateSold),
   );
 
   const isSold =
@@ -29,17 +20,10 @@ export default function ManualSaleStatus({
     item.status === 'Sold' ||
     Boolean(item.dateSold);
 
-  const isPaid =
-    item.paidOut === true;
+  const isPaid = item.paidOut === true;
 
   async function handleSold() {
-    if (
-      statusSaving ||
-      !onMarkSold ||
-      salePrice === ''
-    ) {
-      return;
-    }
+    if (statusSaving || !onMarkSold || salePrice === '') return;
 
     setStatusSaving(true);
 
@@ -49,9 +33,6 @@ export default function ManualSaleStatus({
         dateSold,
       });
 
-      // Sale succeeded.
-      // Keep this popup open and immediately show
-      // SOLD · UNPAID.
       setSoldLocally(true);
     } finally {
       setStatusSaving(false);
@@ -60,24 +41,16 @@ export default function ManualSaleStatus({
 
   return (
     <div className="consignment-status-card">
-
       {!isSold && (
         <div className="consignment-manual-sale">
-
           <div className="consignment-manual-sale-copy">
             <strong>Manual sale</strong>
-
-            <span>
-              Only use for a sale outside Shopify.
-            </span>
+            <span>Only use for a sale outside Shopify.</span>
           </div>
 
           <div className="consignment-manual-sale-controls">
-
             <div className="consignment-field">
-              <label className="consignment-label">
-                Sale price
-              </label>
+              <label className="consignment-label">Sale price</label>
 
               <input
                 className="consignment-input"
@@ -86,9 +59,7 @@ export default function ManualSaleStatus({
                 min="0"
                 step="0.01"
                 value={salePrice}
-                onChange={(event) =>
-                  setSalePrice(event.target.value)
-                }
+                onChange={(event) => setSalePrice(event.target.value)}
                 disabled={statusSaving}
               />
             </div>
@@ -96,24 +67,17 @@ export default function ManualSaleStatus({
             <button
               type="button"
               className="consignment-btn consignment-sold-btn"
-              disabled={
-                statusSaving ||
-                salePrice === ''
-              }
+              disabled={statusSaving || salePrice === ''}
               onClick={handleSold}
             >
-              {statusSaving
-                ? 'Saving…'
-                : 'Sold'}
+              {statusSaving ? 'Saving…' : 'Sold'}
             </button>
-
           </div>
         </div>
       )}
 
       {isSold && !isPaid && (
         <div className="consignment-sold-status">
-
           <span className="consignment-badge unpaid">
             Sold · unpaid
           </span>
@@ -121,13 +85,11 @@ export default function ManualSaleStatus({
           <span className="consignment-row-sub">
             Waiting in Payouts for payment.
           </span>
-
         </div>
       )}
 
       {isPaid && (
         <div className="consignment-status-actions">
-
           <span className="consignment-badge paid">
             Paid
           </span>
@@ -139,10 +101,8 @@ export default function ManualSaleStatus({
             {' · '}
             {money?.(item.payoutAmount)}
           </span>
-
         </div>
       )}
-
     </div>
   );
 }
