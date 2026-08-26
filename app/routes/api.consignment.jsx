@@ -1294,18 +1294,24 @@ export async function action({ request }) {
             const next = (sequences.get(consignor.id) || 0) + 1;
             sequences.set(consignor.id, next);
             const itemNumber = `${consignor.number}-${String(next).padStart(3, '0')}`;
-            const rawStatus = text(row.status || 'Available');
+            const rawStatus = text(row.status || 'Draft');
             const payoutStatus = text(row.payout_status || row.payoutStatus).toLowerCase();
             const paidOut = payoutStatus === 'paid' || asBoolean(row.paid_out ?? row.paidOut);
             const sold = paidOut || rawStatus.toLowerCase() === 'sold' || Boolean(text(row.sale_date || row.date_sold || row.dateSold));
-            const status = sold ? 'Sold' : (rawStatus || 'Available');
-            if (!['Draft', 'Available', 'Sold', 'Returned', 'Donated'].includes(status)) {
+            if (!['Draft', 'Available', 'Sold', 'Returned', 'Donated'].includes(rawStatus)) {
               throw new Error(`Row ${entry.index + 2}: status must be Draft, Available, Sold, Returned, or Donated.`);
             }
             const salePrice = optionalNumber(row.sale_price ?? row.salePrice);
             const commissionPct = Number(row.commission_pct || row.commissionPct || consignor.commissionPct || 50);
             const payoutAmount = sold ? ((salePrice ?? price) * commissionPct) / 100 : 0;
             const createShopifyProduct = wantsShopifyProduct(row);
+            const status = sold
+              ? 'Sold'
+              : createShopifyProduct
+                ? 'Available'
+                : ['Returned', 'Donated'].includes(rawStatus)
+                  ? rawStatus
+                  : 'Draft';
             const shopify = importedShopifyFields(row, price);
 
             if (createShopifyProduct) {
@@ -1469,15 +1475,20 @@ export async function action({ request }) {
         sequences.set(consignor.id, next);
         const itemNumber = `${consignor.number}-${String(next).padStart(3, '0')}`;
         if (existingItemNumbers.has(itemNumber)) throw new Error(`Row ${index + 2}: generated item number ${itemNumber} already exists.`);
-        const status = text(row.status || 'Available');
-        const sold = status === 'Sold' || Boolean(text(row.sale_date || row.date_sold));
+        const rawStatus = text(row.status || 'Draft');
+        const sold = rawStatus === 'Sold' || Boolean(text(row.sale_date || row.date_sold));
+        const status = sold
+          ? 'Sold'
+          : ['Returned', 'Donated'].includes(rawStatus)
+            ? rawStatus
+            : 'Draft';
         const paidOut = text(row.payout_status).toLowerCase() === 'paid';
         await upsert(admin, 'consignment_item', safeHandle(itemNumber), itemFields({
           itemNumber, consignorId: consignor.id, dateReceived: text(row.date_received) || today(),
           category: text(row.category), type: '', description, size: text(row.size),
           condition: text(row.condition) || 'Good', price,
           commissionPct: Number(row.commission_pct || consignor.commissionPct || 50),
-          status: sold ? 'Sold' : status, brand: text(row.brand), notes: text(row.item_notes || row.notes),
+          status, brand: text(row.brand), notes: text(row.item_notes || row.notes),
           importKey: itemImportKey, tags: [], vendor: '', productDescription: '', shopifyTitle: '',
           salePrice: sold ? (optionalNumber(row.sale_price) ?? price) : null,
           dateSold: sold ? (text(row.sale_date || row.date_sold) || today()) : null,
