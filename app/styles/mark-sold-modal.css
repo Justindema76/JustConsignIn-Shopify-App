@@ -225,7 +225,7 @@
 
 /* =========================================================
    MOBILE
-   Bottom sheet with large touch targets and decimal keyboard.
+   Bottom sheet lifted above Shopify's mobile navigation.
    ========================================================= */
 
 @media (max-width: 760px) {
@@ -238,12 +238,13 @@
 
   .mark-sold-modal {
     width: 100%;
-    max-height: 88vh;
+    max-height: calc(88dvh - 104px);
+    margin-bottom: calc(104px + env(safe-area-inset-bottom));
 
-    border-right: 0;
-    border-bottom: 0;
-    border-left: 0;
-    border-radius: 16px 16px 0 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    border-radius: 16px;
   }
 
   .mark-sold-header {
@@ -276,7 +277,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 10px;
 
-    padding: 14px 18px calc(18px + env(safe-area-inset-bottom));
+    padding: 14px 18px 18px;
   }
 
   .mark-sold-cancel,
