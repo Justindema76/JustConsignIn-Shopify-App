@@ -181,7 +181,7 @@ export default function AllConsignorView({
   onOpenConsignor,
   onOpenItem,
   onStartPayout,
-  defaultOpen = true,
+  defaultOpen = false,
 }) {
   const [open, setOpen] =
     useState(defaultOpen);
