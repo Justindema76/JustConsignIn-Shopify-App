@@ -52,7 +52,7 @@ function resizeImage(file, maxWidth = 320, quality = 0.55) {
         reject(new Error('Could not read this image'));
         return;
       }
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         const scale = Math.min(1, maxWidth / img.width);
         const canvas = document.createElement('canvas');
