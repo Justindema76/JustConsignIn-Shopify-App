@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 
-
-
 import {
   money,
   productLabel,
@@ -14,6 +12,28 @@ import '../../styles/by-consignor-container.css';
 
 
 /* =========================================================
+   SHARED MANUAL ITEM BUTTON
+   ========================================================= */
+
+function ManualMarkSoldButton({
+  item,
+  onOpenItem,
+}) {
+  return (
+    <button
+      type="button"
+      className="consignment-quick-sold-btn"
+      onClick={() =>
+        onOpenItem?.(item.id)
+      }
+    >
+      Mark sold
+    </button>
+  );
+}
+
+
+/* =========================================================
    GRID CARD ACTION
    ========================================================= */
 
@@ -21,11 +41,9 @@ export function ItemAction({
   item,
   product,
   consignor,
-  onMarkSold,
+  onOpenItem,
   onStartPayout,
 }) {
-  const [showMarkSold, setShowMarkSold] = useState(false);
-
   const isSold =
     item.status === 'Sold' ||
     Boolean(item.dateSold);
@@ -63,30 +81,10 @@ export function ItemAction({
 
   if (isManualAvailable) {
     return (
-      <>
-        <button
-          type="button"
-          className="consignment-quick-sold-btn"
-          onClick={() =>
-            setShowMarkSold(true)
-          }
-        >
-          Mark sold
-        </button>
-
-        <MarkSoldModal
-          item={
-            showMarkSold
-              ? item
-              : null
-          }
-          onMarkSold={onMarkSold}
-          money={money}
-          onCancel={() =>
-            setShowMarkSold(false)
-          }
-        />
-      </>
+      <ManualMarkSoldButton
+        item={item}
+        onOpenItem={onOpenItem}
+      />
     );
   }
 
@@ -103,11 +101,8 @@ export function ItemRowAction({
   product,
   consignor,
   onOpenItem,
-  onMarkSold,
   onStartPayout,
 }) {
-  const [showMarkSold, setShowMarkSold] = useState(false);
-
   const isSold =
     item.status === 'Sold' ||
     Boolean(item.dateSold);
@@ -154,30 +149,10 @@ export function ItemRowAction({
 
   if (isManual) {
     return (
-      <>
-        <button
-          type="button"
-          className="consignment-quick-sold-btn"
-          onClick={() =>
-            setShowMarkSold(true)
-          }
-        >
-          Mark sold
-        </button>
-
-        <MarkSoldModal
-          item={
-            showMarkSold
-              ? item
-              : null
-          }
-          onMarkSold={onMarkSold}
-          money={money}
-          onCancel={() =>
-            setShowMarkSold(false)
-          }
-        />
-      </>
+      <ManualMarkSoldButton
+        item={item}
+        onOpenItem={onOpenItem}
+      />
     );
   }
 
@@ -205,7 +180,6 @@ export default function AllConsignorView({
   itemLabel,
   onOpenConsignor,
   onOpenItem,
-  onMarkSold,
   onStartPayout,
   defaultOpen = true,
 }) {
@@ -553,7 +527,6 @@ export default function AllConsignorView({
                       product={product}
                       consignor={consignor}
                       onOpenItem={onOpenItem}
-                      onMarkSold={onMarkSold}
                       onStartPayout={onStartPayout}
                     />
 
