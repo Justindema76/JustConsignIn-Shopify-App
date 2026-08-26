@@ -894,3 +894,152 @@
         .consignment-consignor-items-tools { width: 100%; justify-content: space-between; }
         .consignment-consignor-view-toggle { margin-left: auto; }
       }
+/* =========================================================
+   CREATE PAYOUT - MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .consignment-payout-create-body {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Stack items + payout summary */
+  .consignment-payout-create-body .consignment-section-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .consignment-payout-create-body section,
+  .consignment-payout-create-body aside {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Tighten cards */
+  .consignment-payout-create-body .consignment-card {
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  /* Header inside cards */
+  .consignment-payout-create-body .consignment-section-title {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .consignment-payout-create-body .consignment-section-title h2 {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  /* Item payout rows */
+  .consignment-payout-create-body .consignment-row-btn {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 0;
+  }
+
+  .consignment-payout-create-body .consignment-row-btn > input {
+    margin: 0;
+  }
+
+  .consignment-payout-create-body .consignment-item-primary {
+    min-width: 0;
+  }
+
+  .consignment-payout-create-body .consignment-item-primary > span:last-child {
+    min-width: 0;
+  }
+
+  .consignment-payout-create-body .consignment-item-primary strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .consignment-payout-create-body .consignment-item-primary span span {
+    display: block;
+    margin-top: 3px;
+
+    color: var(--muted);
+    font-size: 11px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .consignment-payout-create-body .consignment-batch-thumb {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+  }
+
+  /* Keep amount due visible */
+  .consignment-payout-create-body .consignment-row-btn > strong:last-child {
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  /* Payout fields stack */
+  .consignment-payout-create-body .consignment-payout-fields {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Inputs need comfortable mobile tap size */
+  .consignment-payout-create-body .consignment-input,
+  .consignment-payout-create-body .consignment-select,
+  .consignment-payout-create-body .consignment-textarea {
+    width: 100%;
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .consignment-payout-create-body .consignment-input,
+  .consignment-payout-create-body .consignment-select {
+    min-height: 46px;
+  }
+
+  /* Store credit message */
+  .consignment-payout-create-body .consignment-store-credit-note {
+    align-items: flex-start;
+    font-size: 12px;
+  }
+
+  /* Record payout button */
+  .consignment-payout-create-body aside > .consignment-btn {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+  }
+}
+@media (max-width: 420px) {
+
+  .consignment-payout-create-body {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .consignment-payout-create-body .consignment-card {
+    padding: 12px;
+  }
+
+  .consignment-payout-create-body .consignment-row-btn {
+    grid-template-columns: 20px minmax(0, 1fr);
+  }
+
+  /* Put amount due on its own line */
+  .consignment-payout-create-body .consignment-row-btn > strong:last-child {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 3px;
+    font-size: 14px;
+  }
+}
