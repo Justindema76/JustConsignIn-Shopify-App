@@ -6,19 +6,11 @@ import '../../styles/mark-sold-modal.css';
 
 export default function MarkSoldModal({
   item,
-  onUpdateStatus,
-  onConfirm,
+  onMarkSold,
   money,
   onCancel,
 }) {
   if (!item) return null;
-
-  const handleUpdateStatus =
-    onUpdateStatus ||
-    (async (_itemId, status, details) => {
-      if (status !== 'Sold' || !onConfirm) return;
-      await onConfirm(details);
-    });
 
   return (
     <div
@@ -66,7 +58,7 @@ export default function MarkSoldModal({
         <div className="mark-sold-body">
           <ManualSaleStatus
             item={item}
-            onUpdateStatus={handleUpdateStatus}
+            onMarkSold={onMarkSold}
             money={money}
           />
         </div>

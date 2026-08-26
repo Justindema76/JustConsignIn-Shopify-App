@@ -5,7 +5,7 @@ import '../../styles/consignment-global.css';
 
 export default function ManualSaleStatus({
   item,
-  onUpdateStatus,
+  onMarkSold,
   money,
 }) {
   const [statusSaving, setStatusSaving] = useState(false);
@@ -19,12 +19,48 @@ export default function ManualSaleStatus({
       new Date().toISOString().slice(0, 10),
   );
 
+  const [soldLocally, setSoldLocally] = useState(
+    item.status === 'Sold' ||
+      Boolean(item.dateSold),
+  );
+
   const isSold =
+    soldLocally ||
     item.status === 'Sold' ||
     Boolean(item.dateSold);
 
   const isPaid =
     item.paidOut === true;
+
+  async function handleSold() {
+    if (
+      statusSaving ||
+      !onMarkSold ||
+      salePrice === ''
+    ) {
+      return;
+    }
+
+    setStatusSaving(true);
+
+    try {
+      await onMarkSold(
+        item.id,
+        {
+          salePrice,
+          dateSold,
+        },
+      );
+
+      /*
+       * Keep the modal open and immediately
+       * show SOLD · UNPAID.
+       */
+      setSoldLocally(true);
+    } finally {
+      setStatusSaving(false);
+    }
+  }
 
   return (
     <div className="consignment-status-card">
@@ -33,7 +69,10 @@ export default function ManualSaleStatus({
         <div className="consignment-manual-sale">
 
           <div className="consignment-manual-sale-copy">
-            <strong>Manual sale</strong>
+            <strong>
+              Manual sale
+            </strong>
+
             <span>
               Only use for a sale outside Shopify.
             </span>
@@ -55,8 +94,11 @@ export default function ManualSaleStatus({
                 step="0.01"
                 value={salePrice}
                 onChange={(event) =>
-                  setSalePrice(event.target.value)
+                  setSalePrice(
+                    event.target.value,
+                  )
                 }
+                disabled={statusSaving}
               />
 
             </div>
@@ -68,27 +110,15 @@ export default function ManualSaleStatus({
                 statusSaving ||
                 salePrice === ''
               }
-              onClick={async () => {
-                setStatusSaving(true);
-
-                try {
-                  await onUpdateStatus(
-                    item.id,
-                    'Sold',
-                    {
-                      salePrice,
-                      dateSold,
-                    },
-                  );
-                } finally {
-                  setStatusSaving(false);
-                }
-              }}
+              onClick={handleSold}
             >
-              Sold
+              {statusSaving
+                ? 'Saving…'
+                : 'Sold'}
             </button>
 
           </div>
+
         </div>
       )}
 
@@ -116,9 +146,10 @@ export default function ManualSaleStatus({
           <span className="consignment-paid-detail">
             {item.payoutDate || ''}
             {' · '}
-            {item.payoutMethod || 'Payment recorded'}
+            {item.payoutMethod ||
+              'Payment recorded'}
             {' · '}
-            {money(item.payoutAmount)}
+            {money?.(item.payoutAmount)}
           </span>
 
         </div>
