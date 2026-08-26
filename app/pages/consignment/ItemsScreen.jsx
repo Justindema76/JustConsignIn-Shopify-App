@@ -10,9 +10,7 @@ import {
 } from 'lucide-react';
 
 import Header from '../../components/consignment/Header';
-import AllConsignorView, {
-  ItemRowAction,
-} from '../../components/consignment/AllConsignorView';
+import AllConsignorView from '../../components/consignment/AllConsignorView';
 import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
 import {
@@ -336,16 +334,8 @@ export default function ItemsScreen({
             consignors={consignors}
             onOpenItem={onOpenItem}
             onOpenConsignor={onOpenConsignor}
-            renderAction={(item, product) => (
-              <ItemRowAction
-                item={item}
-                product={product}
-                consignor={consignorById[item.consignorId]}
-                onOpenItem={onOpenItem}
-                onMarkSold={onMarkSold}
-                onStartPayout={onStartPayout}
-              />
-            )}
+            onMarkSold={onMarkSold}
+            onStartPayout={onStartPayout}
           />
         )}
 
