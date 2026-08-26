@@ -110,13 +110,13 @@ export default function DashboardScreen({
 
       <div className="consignment-body consignment-dashboard-body">
         <div className="consignment-dashboard-context">
-          <p>Live sales, inventory, and consignor balances from Shopify.</p>
+          {/* <p>Live sales, inventory, and consignor balances from Shopify.</p>
           <div className="consignment-date-tabs" aria-label="Dashboard period">
             <button type="button">Week</button>
             <button type="button" className="active">Month</button>
             <button type="button">Year</button>
             <button type="button">All time</button>
-          </div>
+          </div> */}
         </div>
 
         <div className="consignment-dashboard-grid consignment-dashboard-metrics">
