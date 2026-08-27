@@ -276,43 +276,48 @@
   word-break: normal;
 }
 
-/* ---------- STATUS ---------- */
+/* ---------- DATES / STATUS ---------- */
 
 .consignment-readable-card-details {
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 6px;
-
+  display: block;
+  width: 100%;
   margin-bottom: 7px;
 }
 
-.consignment-readable-card-details > span:first-child {
+.consignment-readable-card-date-rows {
+  display: grid;
+  width: 100%;
+}
+
+.consignment-readable-card-date-row {
   min-width: 0;
-
   display: flex;
-  flex-direction: column;
-
-  gap: 2px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
 }
 
-.consignment-readable-card-details small {
+.consignment-readable-card-date-row + .consignment-readable-card-date-row {
+  border-top: 1px solid var(--line);
+}
+
+.consignment-readable-card-date-row small {
   color: var(--muted);
-
   font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.consignment-readable-card-details strong {
+.consignment-readable-card-date-row strong {
   color: var(--ink);
-
   font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.consignment-readable-card-details .consignment-badge {
+.consignment-readable-card-date-row .consignment-badge {
   padding: 4px 7px;
-
   font-size: 8px;
 }
 
