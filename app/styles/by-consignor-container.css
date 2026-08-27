@@ -47,6 +47,37 @@
 .consignment-shared-item-table > .consignment-list-head { position:sticky; top:0; z-index:8; padding:12px 14px; background:var(--surface); border-bottom:1px solid var(--line); }
 .consignment-expiry-date { white-space:nowrap; }
 
+.consignment-item-dates {
+  display:grid;
+  gap:5px;
+  width:100%;
+  min-width:0;
+  font-size:11px;
+  line-height:1.25;
+}
+
+.consignment-item-date-line {
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:8px;
+  white-space:nowrap;
+}
+
+.consignment-item-date-label {
+  color:var(--muted);
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+}
+
+.consignment-item-date-value {
+  color:var(--text);
+  font-size:11px;
+  font-weight:600;
+}
+
 /* Legacy selector kept for any remaining caller; shared views above do not use it. */
 .consignment-grouped-item-row { display:grid; grid-template-columns:minmax(235px,2fr) 82px 90px 100px 108px 110px 100px 120px; gap:12px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--line); font-size:13px; }
 .consignment-grouped-item-row:last-child { border-bottom:0; }
@@ -216,18 +247,35 @@
     white-space: nowrap;
   }
 
-  /* Expiry */
+  /* Dates */
   .consignment-all-item-row > :nth-child(6) {
     grid-area: expiry;
-    justify-self: start;
+    justify-self: stretch;
     text-align: left;
-    color: var(--muted);
-    font-size: 11px;
-    white-space: nowrap;
+    width: 100%;
   }
 
   .consignment-all-item-row > :nth-child(6)::before {
-    content: "Expiry ";
+    content: none;
+  }
+
+  .consignment-item-dates {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 18px;
+  }
+
+  .consignment-item-date-line {
+    display: grid;
+    justify-content: initial;
+    gap: 2px;
+  }
+
+  .consignment-item-date-label {
+    font-size: 9px;
+  }
+
+  .consignment-item-date-value {
+    font-size: 11px;
   }
 
   /* Product badge */
