@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { Grid3X3, List, Mail, MapPin, Pencil, Phone, Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, Grid3X3, List, Mail, MapPin, Pencil, Phone, Plus, Trash2 } from 'lucide-react';
 import Header from '../../components/consignment/Header';
 import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
@@ -87,8 +87,8 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
         title={`${consignor.firstName} ${consignor.lastName}`}
         onBack={onBack}
         action={(
-          <div className="consignment-header-actions">
-            <button className="consignment-btn" onClick={onStartIntake}>
+          <div className="consignment-header-actions consignment-consignor-header-actions">
+            <button className="consignment-btn consignment-consignor-add-items" onClick={onStartIntake}>
               <Plus size={17} /> Add items
             </button>
             <button className="consignment-btn secondary" onClick={onEditConsignor}>
@@ -105,7 +105,12 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
         )}
       />
       <div className="consignment-body">
-        <section className="consignment-card consignment-consignor-profile" aria-label="Consignor profile information">
+        <details className="consignment-card consignment-consignor-profile-details">
+          <summary className="consignment-consignor-profile-summary">
+            <span>Contact &amp; account details</span>
+            <ChevronDown size={20} aria-hidden="true" />
+          </summary>
+          <section className="consignment-consignor-profile" aria-label="Consignor profile information">
           <div className="consignment-profile-column">
             <div className="consignment-profile-title">Contact</div>
             <div className="consignment-profile-row">
@@ -136,7 +141,8 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
             <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Joined</span><span className="consignment-profile-value">{consignor.dateJoined || '—'}</span></span></div>
             <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Unsold items</span><span className="consignment-profile-value">{consignor.unsoldPreference || 'Please return'}</span></span></div>
           </div>
-        </section>
+          </section>
+        </details>
 
         <div className="consignment-consignor-stats">
           <div className="consignment-consignor-stat"><span>Amount due</span><strong>{money(amountDue)}</strong></div>
