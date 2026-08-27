@@ -16,14 +16,10 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
   const [confirmingDeleteConsignor, setConfirmingDeleteConsignor] = useState(false);
 
   const consignorItems = items.filter((item) => item.consignorId === consignor.id);
-  const currentCount = consignorItems.filter((item) => !item.paidOut).length;
-  const draftCount = consignorItems.filter((item) => item.status === 'Draft').length;
   const soldItems = consignorItems.filter((item) => isSold(item));
   const availableItems = consignorItems.filter((item) => !isSold(item));
   const unpaidItems = soldItems.filter((item) => !item.paidOut);
   const paidItems = soldItems.filter((item) => item.paidOut);
-  const paidCount = paidItems.length;
-  const archivedCount = paidCount;
   const totalSales = soldItems.reduce((sum, item) => sum + Number(item.salePrice ?? item.price ?? 0), 0);
   const activeCount = consignorItems.filter((item) => ['Available', 'Active'].includes(item.status)).length;
   const amountDue = unpaidItems.reduce(
@@ -142,13 +138,13 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
           <div className="consignment-consignor-stat"><span>Amount due</span><strong>{money(amountDue)}</strong></div>
           <div className="consignment-consignor-stat"><span>Total sales</span><strong>{money(totalSales)}</strong></div>
           <div className="consignment-consignor-stat"><span>Active items</span><strong>{activeCount}</strong></div>
-          <div className="consignment-consignor-stat"><span>Store credit</span><strong aria-label="Not available yet">&nbsp;</strong></div>
+          <div className="consignment-consignor-stat"><span>Unpaid items</span><strong>{unpaidItems.length}</strong></div>
         </div>
 
         <div className="consignment-consignor-items-head">
           <h3>Items on file</h3>
           <span className="consignment-consignor-items-count">
-            {currentCount} current · {archivedCount} archived · {draftCount} draft
+            {availableItems.length} available · {unpaidItems.length} sold / unpaid · {paidItems.length} paid / archived · {consignorItems.length} total
           </span>
         </div>
 
