@@ -103,8 +103,12 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
 
         {visibleItems.length === 0 && (
           <div className="consignment-empty">
-            <h3>No items yet</h3>
-            <p>Add what they brought in today.</p>
+            <h3>{archivedCount > 0 ? 'No current items' : 'No items yet'}</h3>
+            <p>
+              {archivedCount > 0
+                ? `${archivedCount} paid item${archivedCount === 1 ? '' : 's'} archived. View them from Items using the Archived filter.`
+                : 'Add what they brought in today.'}
+            </p>
           </div>
         )}
 
