@@ -60,7 +60,7 @@
   display:flex;
   align-items:baseline;
   justify-content:space-between;
-  gap:8px;
+  gap:4px;
   white-space:nowrap;
 }
 
@@ -79,7 +79,7 @@
 }
 
 /* Legacy selector kept for any remaining caller; shared views above do not use it. */
-.consignment-grouped-item-row { display:grid; grid-template-columns:minmax(235px,2fr) 82px 90px 100px 108px 110px 100px 120px; gap:12px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--line); font-size:13px; }
+.consignment-grouped-item-row { display:grid; grid-template-columns:minmax(235px,2fr) 82px 90px 100px 108px 110px 1300px 130px; gap:12px; align-items:center; padding:12px 14px; border-bottom:1px solid var(--line); font-size:13px; }
 .consignment-grouped-item-row:last-child { border-bottom:0; }
 .consignment-grouped-item-row > :not(:first-child) { text-align:center; justify-self:center; }
 
