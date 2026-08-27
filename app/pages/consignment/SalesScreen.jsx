@@ -11,7 +11,7 @@ import '../../styles/consignment-sales.css';
 
 export default function SalesScreen({ items, consignors, onOpenItem, onOpenConsignor, onStartPayout }) {
   const [query, setQuery] = useState('');
-  const [payoutFilter, setPayoutFilter] = useState('All');
+  const [payoutFilter, setPayoutFilter] = useState('Unpaid');
   const [consignorFilter, setConsignorFilter] = useState('All');
   const [productFilter, setProductFilter] = useState('All');
   const [sort, setSort] = useState('newest');
