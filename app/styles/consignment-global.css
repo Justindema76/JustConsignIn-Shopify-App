@@ -823,6 +823,22 @@
       }
 
       /* Consignor dashboard */
+      .consignment-consignor-profile-details {
+        overflow: hidden;
+        padding: 0;
+        margin-bottom: 10px;
+      }
+      .consignment-consignor-profile-summary { display: none; }
+      .consignment-consignor-profile-details > .consignment-consignor-profile {
+        margin-bottom: 0;
+        border: 0;
+        border-radius: inherit;
+      }
+      @media (min-width: 641px) {
+        .consignment-consignor-profile-details:not([open]) > .consignment-consignor-profile {
+          display: grid;
+        }
+      }
       .consignment-consignor-profile {
         display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
         overflow: hidden; padding: 0; margin-bottom: 10px;
@@ -879,6 +895,45 @@
       .consignment-consignor-view-toggle button.active { background: #EAF2FC; color: #153E7A; }
 
       @media (max-width: 640px) {
+        .consignment-consignor-header-actions {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          width: 100%;
+          gap: 8px;
+        }
+        .consignment-consignor-header-actions .consignment-consignor-add-items {
+          grid-column: 1 / -1;
+        }
+        .consignment-consignor-header-actions .consignment-btn {
+          justify-content: center;
+        }
+
+        .consignment-consignor-profile-summary {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          min-height: 48px;
+          padding: 12px 14px;
+          color: var(--ink);
+          font-size: 13px;
+          font-weight: 800;
+          cursor: pointer;
+          list-style: none;
+        }
+        .consignment-consignor-profile-summary::-webkit-details-marker { display: none; }
+        .consignment-consignor-profile-summary svg {
+          flex: 0 0 auto;
+          color: var(--muted);
+          transition: transform .18s ease;
+        }
+        .consignment-consignor-profile-details[open] > .consignment-consignor-profile-summary {
+          border-bottom: 1px solid var(--line);
+        }
+        .consignment-consignor-profile-details[open] > .consignment-consignor-profile-summary svg {
+          transform: rotate(180deg);
+        }
+
         .consignment-consignor-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .consignment-profile-column { padding: 9px 10px; }
         .consignment-profile-row { min-height: 54px; grid-template-columns: 20px minmax(0, 1fr); gap: 6px; }
@@ -886,10 +941,16 @@
         .consignment-profile-icon { width: 20px; height: 20px; }
         .consignment-profile-label { font-size: 8px; }
         .consignment-profile-value { font-size: 10px; }
-        .consignment-consignor-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
-        .consignment-consignor-stat { min-height: 58px; padding: 9px 7px; }
-        .consignment-consignor-stat span { font-size: 9px; }
-        .consignment-consignor-stat strong { font-size: 17px; }
+
+        .consignment-consignor-stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+          margin-bottom: 14px;
+        }
+        .consignment-consignor-stat { min-height: 66px; padding: 10px 12px; }
+        .consignment-consignor-stat span { font-size: 10px; }
+        .consignment-consignor-stat strong { font-size: 19px; }
+
         .consignment-consignor-items-head { align-items: flex-start; flex-direction: column; }
         .consignment-consignor-items-tools { width: 100%; justify-content: space-between; }
         .consignment-consignor-view-toggle { margin-left: auto; }
