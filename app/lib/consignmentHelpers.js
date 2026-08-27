@@ -22,6 +22,53 @@ export function productLabel(item) {
     : { text: 'POS', className: 'pos' };
 }
 
+export function normalizeSaleSource(value) {
+  const source = String(value || '').trim().toLowerCase();
+
+  if (!source) return '';
+  if (source === 'manual') return 'Manual';
+  if (source === 'pos' || source.includes('point of sale')) return 'POS';
+  if (
+    source === 'online'
+    || source === 'web'
+    || source.includes('online')
+    || source.includes('web')
+  ) return 'Online';
+  if (source.includes('shopify')) return 'Shopify';
+
+  return 'Shopify';
+}
+
+export function saleSourceLabel(value) {
+  const source = normalizeSaleSource(value);
+
+  if (source === 'Manual') {
+    return { text: 'Manual sale', className: 'manual' };
+  }
+
+  if (source === 'POS') {
+    return { text: 'Point of Sale', className: 'pos' };
+  }
+
+  if (source === 'Online') {
+    return { text: 'Shopify Online', className: 'online' };
+  }
+
+  if (source === 'Shopify') {
+    return { text: 'Shopify', className: 'online' };
+  }
+
+  return { text: 'Sale source unknown', className: 'draft' };
+}
+
+export function saleSourceMatches(item, filter) {
+  return filter === 'All' || normalizeSaleSource(item?.saleSource) === filter;
+}
+
+export function itemBadge(item) {
+  return isSold(item) ? saleSourceLabel(item?.saleSource) : productLabel(item);
+}
+
 export function statusClass(status) {
   return String(status || 'Draft').toLowerCase();
 }
