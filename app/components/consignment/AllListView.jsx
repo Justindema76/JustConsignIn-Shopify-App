@@ -130,12 +130,14 @@ export default function AllListView({
                   </span>
                 </span>
 
+                    {item.dateSold && (
                 <span className="consignment-item-date-line">
                   <span className="consignment-item-date-label">Sold</span>
                   <span className="consignment-item-date-value">
                     {formatItemDate(item.dateSold)}
                   </span>
                 </span>
+                )}
 
                 {item.expiryDate && (
                   <span className="consignment-item-date-line">
