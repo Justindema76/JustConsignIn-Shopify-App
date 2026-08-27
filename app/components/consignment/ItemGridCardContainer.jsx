@@ -2,7 +2,7 @@
 
 import {
   money,
-  productLabel,
+  itemBadge,
   statusClass,
   statusLabel,
 } from '../../lib/consignmentHelpers';
@@ -23,7 +23,7 @@ export default function ItemGridCardContainer({
   onOpenConsignor,
   onStartPayout,
 }) {
-  const product = productLabel(item);
+  const product = itemBadge(item);
 
   const photo =
     item.shopifyPhoto ||
