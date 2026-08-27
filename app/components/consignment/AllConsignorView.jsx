@@ -10,6 +10,22 @@ import {
 
 import '../../styles/by-consignor-container.css';
 
+function formatItemDate(value) {
+  if (!value) return 'â€”';
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleDateString('en-CA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
 
 /* =========================================================
    SHARED MANUAL ITEM BUTTON
@@ -187,8 +203,8 @@ export default function AllConsignorView({
     useState(defaultOpen);
 
   const initials = consignor
-    ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` || '—'
-    : '—';
+    ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` || 'â€”'
+    : 'â€”';
 
   const availableCount =
     items.filter(
@@ -325,12 +341,12 @@ export default function AllConsignorView({
           <span className="consignment-item-group-meta">
 
             <strong className="consignment-item-group-number">
-              #{consignor?.number || '—'}
+              #{consignor?.number || 'â€”'}
             </strong>
 
             <span className="consignment-item-group-count">
               {' '}
-              · {items.length} {label}
+              Â· {items.length} {label}
             </span>
 
           </span>
@@ -365,7 +381,7 @@ export default function AllConsignorView({
             aria-hidden="true"
           >
             Swipe to see more{' '}
-            <span>→</span>
+            <span>â†’</span>
           </div>
 
           <div className="consignment-item-group-items consignment-shared-item-table">
@@ -376,7 +392,7 @@ export default function AllConsignorView({
               <span>Consignor</span>
               <span>Price</span>
               <span>Commission</span>
-              <span>Expiry</span>
+              <span>Dates</span>
               <span>Product</span>
               <span>Status</span>
               <span>Action</span>
@@ -440,11 +456,11 @@ export default function AllConsignorView({
                         {item.itemNumber}
 
                         {item.size
-                          ? ` · ${item.size}`
+                          ? ` Â· ${item.size}`
                           : ''}
 
                         {item.brand
-                          ? ` · ${item.brand}`
+                          ? ` Â· ${item.brand}`
                           : ''}
                       </span>
 
@@ -454,7 +470,7 @@ export default function AllConsignorView({
 
 
                   <strong>
-                    {item.itemNumber || '—'}
+                    {item.itemNumber || 'â€”'}
                   </strong>
 
 
@@ -491,8 +507,32 @@ export default function AllConsignorView({
                   </span>
 
 
-                  <span className="consignment-expiry-date">
-                    {item.expiryDate || '—'}
+                  <span
+                    className="consignment-expiry-date"
+                    style={{ display: 'grid', gap: 3 }}
+                  >
+                    <span>
+                      <strong>Entered:</strong>{' '}
+                      {formatItemDate(
+                        item.dateReceived ||
+                          item.createdAt ||
+                          item.created_at,
+                      )}
+                    </span>
+
+                    <span>
+                      <strong>Sold:</strong>{' '}
+                      {formatItemDate(
+                        item.dateSold || item.soldAt,
+                      )}
+                    </span>
+
+                    {item.expiryDate && (
+                      <span>
+                        <strong>Expires:</strong>{' '}
+                        {formatItemDate(item.expiryDate)}
+                      </span>
+                    )}
                   </span>
 
 
