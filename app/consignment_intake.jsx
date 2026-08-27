@@ -626,11 +626,26 @@ function IntakeScreen({
                 aria-hidden="true"
               />
 
-              <div>
-                <h2>Manual consignment item</h2>
-                <p>Item {nextItemNumber}</p>
-              </div>
-            </div>
+             <div
+  style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    flexWrap: 'wrap',
+  }}
+>
+  <h2>Manual consignment item</h2>
+
+  <span
+    style={{
+      fontSize: 18,
+      fontWeight: 700,
+      color: 'var(--green-dark)',
+    }}
+  >
+    Item {nextItemNumber}
+  </span>
+</div>
 
             <div className="consignment-form-section-body">
               <ManualItemCore
