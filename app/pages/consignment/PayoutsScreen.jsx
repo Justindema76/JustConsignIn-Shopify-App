@@ -8,7 +8,7 @@ import AllConsignorView from '../../components/consignment/AllConsignorView';
 import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
 import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
-import { money, productLabel, recordedPayoutGroups } from '../../lib/consignmentHelpers';
+import { money, recordedPayoutGroups, saleSourceMatches } from '../../lib/consignmentHelpers';
 import '../../styles/consignment-payouts.css';
 
 // Both tabs render the same four filter slots — Consignor, Sort, Sale
@@ -18,20 +18,12 @@ import '../../styles/consignment-payouts.css';
 // there's nothing left to filter within a single tab. Rather than fake a
 // working dropdown, it's shown disabled with the one status that tab can
 // ever contain — same position, same label, honest about what it does.
-function sourceMatches(sourceFilter, product) {
-  return sourceFilter === 'All'
-    || (sourceFilter === 'Manual' && product.className === 'manual')
-    || (sourceFilter === 'POS' && product.text === 'POS')
-    || (sourceFilter === 'Online' && product.text === 'Online')
-    || (sourceFilter === 'POS + Online' && product.text === 'POS + Online');
-}
-
 const SOURCE_OPTIONS = [
   { value: 'All', label: 'All sale sources' },
-  { value: 'Manual', label: 'Manual' },
-  { value: 'POS', label: 'POS' },
-  { value: 'Online', label: 'Online' },
-  { value: 'POS + Online', label: 'POS + Online' },
+  { value: 'Manual', label: 'Manual sale' },
+  { value: 'POS', label: 'Point of Sale' },
+  { value: 'Online', label: 'Shopify Online' },
+  { value: 'Shopify', label: 'Shopify (other)' },
 ];
 
 function OwedTab({ items, consignors, onOpenItem, onOpenConsignor, onStartPayout }) {
@@ -54,7 +46,7 @@ function OwedTab({ items, consignors, onOpenItem, onOpenConsignor, onStartPayout
     const consignor = consignorById[item.consignorId];
     const matchesQuery = !q || `${item.description} ${item.itemNumber} ${item.type} ${item.brand || ''} ${consignor?.firstName || ''} ${consignor?.lastName || ''} ${consignor?.number || ''}`.toLowerCase().includes(q);
     const matchesConsignor = consignorFilter === 'All' || item.consignorId === consignorFilter;
-    const matchesSource = sourceMatches(sourceFilter, productLabel(item));
+    const matchesSource = saleSourceMatches(item, sourceFilter);
     return matchesQuery && matchesConsignor && matchesSource;
   }).sort((a, b) => {
     const aConsignor = consignorById[a.consignorId];
@@ -187,7 +179,7 @@ function HistoryTab({ items, consignors, onOpenConsignor }) {
     const name = group.consignor ? `${group.consignor.firstName} ${group.consignor.lastName} #${group.consignor.number}` : '';
     const matchesQuery = !q || `${name} ${group.payoutMethod} ${group.payoutReference}`.toLowerCase().includes(q);
     const matchesConsignor = consignorFilter === 'All' || group.consignorId === consignorFilter;
-    const matchesSource = sourceFilter === 'All' || group.items.some((item) => sourceMatches(sourceFilter, productLabel(item)));
+    const matchesSource = sourceFilter === 'All' || group.items.some((item) => saleSourceMatches(item, sourceFilter));
     return matchesQuery && matchesConsignor && matchesSource;
   }).sort((a, b) => {
     if (sort === 'oldest') return String(a.payoutDate || '').localeCompare(String(b.payoutDate || ''));
