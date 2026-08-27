@@ -12,7 +12,7 @@ import {
 import '../../styles/by-consignor-container.css';
 
 function formatItemDate(value) {
-  if (!value) return 'â€”';
+  if (!value) return '—';
 
   const date = new Date(value);
 
@@ -205,8 +205,8 @@ export default function AllConsignorView({
     useState(defaultOpen);
 
   const initials = consignor
-    ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` || 'â€”'
-    : 'â€”';
+    ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` || '—'
+    : '—';
 
   const availableCount =
     items.filter(
@@ -343,7 +343,7 @@ export default function AllConsignorView({
           <span className="consignment-item-group-meta">
 
             <strong className="consignment-item-group-number">
-              #{consignor?.number || 'â€”'}
+              #{consignor?.number || '—'}
             </strong>
 
           <span className="consignment-item-group-count">
@@ -383,7 +383,7 @@ export default function AllConsignorView({
             aria-hidden="true"
           >
             Swipe to see more{' '}
-            <span>â†’</span>
+            <span>→</span>
           </div>
 
           <div className="consignment-item-group-items consignment-shared-item-table">
@@ -458,11 +458,11 @@ export default function AllConsignorView({
                         {item.itemNumber}
 
                         {item.size
-                          ? ` Â· ${item.size}`
+                          ? ` · ${item.size}`
                           : ''}
 
                         {item.brand
-                          ? ` Â· ${item.brand}`
+                          ? ` · ${item.brand}`
                           : ''}
                       </span>
 
@@ -472,7 +472,7 @@ export default function AllConsignorView({
 
 
                   <strong>
-                    {item.itemNumber || 'â€”'}
+                    {item.itemNumber || '—'}
                   </strong>
 
 
