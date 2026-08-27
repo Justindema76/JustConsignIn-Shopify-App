@@ -5,12 +5,13 @@ import Header from '../../components/consignment/Header';
 import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
 import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
-import { money, saleSourceMatches } from '../../lib/consignmentHelpers';
+import { isSold, money, saleSourceMatches } from '../../lib/consignmentHelpers';
 
 export default function ConsignorDashboard({ consignor, items, onBack, onStartIntake, onOpenItem, onDeleteConsignor, onEditConsignor, onStartPayout }) {
   const [viewMode, setViewMode] = useState('grid');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState('newest');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [sourceFilter, setSourceFilter] = useState('All');
   const [payoutFilter, setPayoutFilter] = useState('Unpaid');
   const [confirmingDeleteConsignor, setConfirmingDeleteConsignor] = useState(false);
@@ -20,7 +21,8 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
   const unpaidCount = consignorItems.filter((item) => !item.paidOut).length;
   const archivedCount = paidCount;
   const draftCount = consignorItems.filter((item) => item.status === 'Draft').length;
-  const soldItems = consignorItems.filter((item) => item.status === 'Sold' || item.dateSold);
+  const soldItems = consignorItems.filter((item) => isSold(item));
+  const availableItems = consignorItems.filter((item) => !isSold(item));
   const unpaidItems = soldItems.filter((item) => !item.paidOut);
   const totalSales = soldItems.reduce((sum, item) => sum + Number(item.salePrice ?? item.price ?? 0), 0);
   const activeCount = consignorItems.filter((item) => ['Available', 'Active'].includes(item.status)).length;
@@ -34,12 +36,15 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
     const matchesQuery = !q || `${item.description || ''} ${item.itemNumber || ''} ${item.type || ''} ${item.brand || ''}`
       .toLowerCase()
       .includes(q);
+    const matchesStatus = statusFilter === 'All'
+      || (statusFilter === 'Available' && !isSold(item))
+      || (statusFilter === 'Sold' && isSold(item));
     const matchesSource = saleSourceMatches(item, sourceFilter);
     const matchesPayout = payoutFilter === 'All'
       || (payoutFilter === 'Paid' && item.paidOut)
       || (payoutFilter === 'Unpaid' && !item.paidOut);
 
-    return matchesQuery && matchesSource && matchesPayout;
+    return matchesQuery && matchesStatus && matchesSource && matchesPayout;
   }).sort((a, b) => {
     const itemDate = (item) => String(
       item.dateSold
@@ -161,6 +166,18 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
                 { value: 'price', label: 'Highest sale price' },
                 { value: 'due', label: 'Highest consignor due' },
                 { value: 'sku', label: 'SKU / item number' },
+              ],
+            },
+            {
+              key: 'itemStatus',
+              label: 'Item status',
+              value: statusFilter,
+              onChange: setStatusFilter,
+              ariaLabel: 'Filter by item status',
+              options: [
+                { value: 'All', label: `All item statuses (${consignorItems.length})` },
+                { value: 'Available', label: `Available (${availableItems.length})` },
+                { value: 'Sold', label: `Sold (${soldItems.length})` },
               ],
             },
             {
