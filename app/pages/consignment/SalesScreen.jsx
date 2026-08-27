@@ -6,7 +6,7 @@ import AllConsignorView from '../../components/consignment/AllConsignorView';
 import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
 import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
-import { downloadCsv, productLabel } from '../../lib/consignmentHelpers';
+import { downloadCsv, saleSourceLabel, saleSourceMatches } from '../../lib/consignmentHelpers';
 import '../../styles/consignment-sales.css';
 
 export default function SalesScreen({ items, consignors, onOpenItem, onOpenConsignor, onStartPayout }) {
@@ -27,12 +27,7 @@ export default function SalesScreen({ items, consignors, onOpenItem, onOpenConsi
     const consignor = consignorById[item.consignorId];
     const matchesQuery = !q || `${item.description} ${item.itemNumber} ${item.type} ${item.brand || ''} ${consignor?.firstName || ''} ${consignor?.lastName || ''} ${consignor?.number || ''}`.toLowerCase().includes(q);
     const matchesConsignor = consignorFilter === 'All' || item.consignorId === consignorFilter;
-    const product = productLabel(item);
-    const matchesProduct = productFilter === 'All'
-      || (productFilter === 'Manual' && product.className === 'manual')
-      || (productFilter === 'POS' && product.text === 'POS')
-      || (productFilter === 'Online' && product.text === 'Online')
-      || (productFilter === 'POS + Online' && product.text === 'POS + Online');
+    const matchesProduct = saleSourceMatches(item, productFilter);
     const matchesPayout = payoutFilter === 'All'
       || (payoutFilter === 'Paid' && item.paidOut)
       || (payoutFilter === 'Unpaid' && !item.paidOut);
@@ -79,7 +74,7 @@ export default function SalesScreen({ items, consignors, onOpenItem, onOpenConsi
       const consignor = consignorById[item.consignorId];
       const price = Number(item.salePrice ?? item.price ?? 0);
       const due = (price * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100;
-      return [item.itemNumber || '', item.description || '', consignor ? `${consignor.firstName} ${consignor.lastName}` : '', productLabel(item).text, price, due, item.paidOut ? 'Paid' : 'Unpaid', item.dateSold || '', item.orderName || ''];
+      return [item.itemNumber || '', item.description || '', consignor ? `${consignor.firstName} ${consignor.lastName}` : '', saleSourceLabel(item.saleSource).text, price, due, item.paidOut ? 'Paid' : 'Unpaid', item.dateSold || '', item.orderName || ''];
     });
     downloadCsv(`sales-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows);
   }
@@ -136,10 +131,10 @@ export default function SalesScreen({ items, consignors, onOpenItem, onOpenConsi
               ariaLabel: 'Filter by sale source',
               options: [
                 { value: 'All', label: 'All sale sources' },
-                { value: 'Manual', label: 'Manual' },
-                { value: 'POS', label: 'POS' },
-                { value: 'Online', label: 'Online' },
-                { value: 'POS + Online', label: 'POS + Online' },
+                { value: 'Manual', label: 'Manual sale' },
+                { value: 'POS', label: 'Point of Sale' },
+                { value: 'Online', label: 'Shopify Online' },
+                { value: 'Shopify', label: 'Shopify (other)' },
               ],
             },
             {
