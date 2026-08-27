@@ -135,7 +135,8 @@
     grid-template-columns: auto auto minmax(0, 1fr) auto;
     grid-template-areas:
       "item item item item"
-      "price commission product status"
+      "price commission product product"
+      "expiry expiry status status"
       "expiry expiry action action";
     gap: 10px 12px;
     align-items: center;
@@ -281,8 +282,8 @@
   /* Product badge */
   .consignment-all-item-row > :nth-child(7) {
     grid-area: product;
-    justify-self: start;
-    text-align: left;
+    justify-self: end;
+    text-align: right;
   }
 
   /* Status badge */
