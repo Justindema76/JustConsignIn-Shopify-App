@@ -3,6 +3,7 @@
 import {
   money,
   itemBadge,
+  productLabel,
   statusClass,
   statusLabel,
 } from '../../lib/consignmentHelpers';
@@ -22,8 +23,9 @@ export default function ItemGridCardContainer({
   onOpenItem,
   onOpenConsignor,
   onStartPayout,
+  saleSourceMode = false,
 }) {
-  const product = itemBadge(item);
+  const product = saleSourceMode ? itemBadge(item) : productLabel(item);
 
   const photo =
     item.shopifyPhoto ||
