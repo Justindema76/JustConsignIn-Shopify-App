@@ -333,8 +333,178 @@ function ShopifyProductFields({ form, setForm }) {
   return <div className="consignment-shopify-fields"><div className="consignment-detail-grid"><div className="consignment-field wide"><label className="consignment-label">Shopify title</label><input className="consignment-input" value={form.shopifyTitle||''} onChange={set('shopifyTitle')} placeholder="Auto-filled from item description"/></div><div className="consignment-field"><label className="consignment-label">Shopify price</label><input className="consignment-input" type="number" inputMode="decimal" min="0" step="0.01" value={form.shopifyPrice??''} onChange={set('shopifyPrice')} placeholder="Defaults to the manual item price"/></div><div className="consignment-field"><label className="consignment-label">Vendor</label><input className="consignment-input" value={form.vendor} onChange={set('vendor')} placeholder="Defaults to store name"/></div><div className="consignment-field"><label className="consignment-label">Tags</label><input className="consignment-input" value={form.tags} onChange={set('tags')} placeholder="summer, baby"/></div><div className="consignment-field wide"><label className="consignment-label">Shopify product category</label><input className="consignment-input" value={categorySearch} onChange={(event)=>{setCategorySearch(event.target.value);if(event.target.value!==form.shopifyCategoryName){setForm((current)=>({...current,shopifyCategoryId:'',shopifyCategoryName:''}));}}} placeholder="Search Shopify categories"/>{searchingCategories&&<div className="consignment-row-sub" style={{ marginTop:6 }}>Searching Shopifyâ€¦</div>}{categoryResults.length>0&&<div className="consignment-category-results">{categoryResults.map((category)=><button key={category.id} type="button" className="consignment-category-result" onClick={()=>{setForm((current)=>({...current,shopifyCategoryId:category.id,shopifyCategoryName:category.name}));setCategorySearch(category.name);setCategoryResults([]);}}>{category.name}</button>)}</div>}{form.shopifyCategoryId&&<div className="consignment-selected-category"><span>{form.shopifyCategoryName}</span><button type="button" className="consignment-batch-remove" aria-label="Remove Shopify category" onClick={()=>{setForm((current)=>({...current,shopifyCategoryId:'',shopifyCategoryName:''}));setCategorySearch('');}}><X size={13}/></button></div>}</div><div className="consignment-field wide"><label className="consignment-label">Product description</label><textarea className="consignment-textarea" rows={3} value={form.productDescription} onChange={set('productDescription')} placeholder="Shown to customers on Shopify"/></div><div className="consignment-field"><label className="consignment-label">SEO title</label><input className="consignment-input" value={form.seoTitle} onChange={set('seoTitle')} placeholder="Defaults to item title"/></div><div className="consignment-field"><label className="consignment-label">SEO description</label><textarea className="consignment-textarea" rows={2} value={form.seoDescription} onChange={set('seoDescription')} placeholder="Optional search description"/></div></div></div>;
 }
 
-function ManualItemCore({ form,setForm,onSave,saveLabel='Save manual item',saveDisabled=false,helperText='Saves only the consignment metaobject record. No Shopify product is created.' }) { const set=(key)=>(event)=>setForm((current)=>({...current,[key]:event.target.value})); const setCategory=(category)=>setForm((current)=>({...current,category,type:''})); return <><div className="consignment-form-grid consignment-form-grid-2"><div className="consignment-form-field"><label className="consignment-label">Item description *</label><input className="consignment-input" value={form.description} onChange={set('description')} placeholder="What is it?"/></div><div className="consignment-form-field"><label className="consignment-label">Price *</label><input className="consignment-input" type="number" inputMode="decimal" min="0" step="0.01" value={form.price} onChange={set('price')} placeholder="0.00"/></div></div><div className="consignment-form-grid consignment-form-grid-2"><div className="consignment-form-field"><label className="consignment-label">Category</label><select className="consignment-select" value={form.category} onChange={(event)=>setCategory(event.target.value)}>{CATEGORIES.map((category)=><option key={category} value={category}>{category}</option>)}</select></div><div className="consignment-form-field"><label className="consignment-label">Brand</label><input className="consignment-input" value={form.brand} onChange={set('brand')} placeholder="e.g. Gap"/></div><div className="consignment-form-field"><label className="consignment-label">Size</label><input className="consignment-input" value={form.size} onChange={set('size')} placeholder="Optional"/></div><div className="consignment-form-field"><label className="consignment-label">Condition</label><select className="consignment-select" value={form.condition} onChange={set('condition')}>{CONDITIONS.map((condition)=><option key={condition} value={condition}>{condition}</option>)}</select></div><div className="consignment-form-field"><label className="consignment-label">Consignment term</label><select className="consignment-select" value={form.consignmentTerm||''} onChange={set('consignmentTerm')}><option value="">No term</option><option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option></select></div><div className="consignment-form-field"><label className="consignment-label">Internal notes</label><textarea className="consignment-textarea" rows={2} value={form.notes} onChange={set('notes')} placeholder="Notes about this consigned item"/></div></div><div className="consignment-form-help">{helperText}</div><div className="consignment-form-actions-inner"><button className="consignment-btn" disabled={saveDisabled} onClick={onSave}><Check size={18}/> {saveLabel}</button></div></>; }
+function ManualItemCore({
+  form,
+  setForm,
+  onSave,
+  saveLabel = 'Save manual item',
+  saveDisabled = false,
+  helperText = 'Saves only the consignment metaobject record. No Shopify product is created.',
+}) {
+  const set = (key) => (event) => {
+    setForm((current) => ({
+      ...current,
+      [key]: event.target.value,
+    }));
+  };
 
+  const setCategory = (category) => {
+    setForm((current) => ({
+      ...current,
+      category,
+      type: '',
+    }));
+  };
+
+  return (
+    <>
+      <div className="consignment-form-grid consignment-form-grid-2">
+        <div className="consignment-form-field">
+          <label className="consignment-label">
+            Item description *
+          </label>
+
+          <input
+            className="consignment-input"
+            value={form.description}
+            onChange={set('description')}
+            placeholder="What is it?"
+          />
+        </div>
+
+        <div className="consignment-form-field">
+          <label className="consignment-label">
+            Price *
+          </label>
+
+          <input
+            className="consignment-input"
+            type="number"
+            inputMode="decimal"
+            min="0"
+            step="0.01"
+            value={form.price}
+            onChange={set('price')}
+            placeholder="0.00"
+          />
+        </div>
+      </div>
+
+      <div className="consignment-form-grid consignment-form-grid-2">
+        <div className="consignment-form-field">
+          <label className="consignment-label">
+            Category
+          </label>
+
+          <select
+            className="consignment-select"
+            value={form.category}
+            onChange={(event) => setCategory(event.target.value)}
+          >
+            {CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="consignment-form-field">
+          <label className="consignment-label">
+            Brand
+          </label>
+
+          <input
+            className="consignment-input"
+            value={form.brand}
+            onChange={set('brand')}
+            placeholder="e.g. Gap"
+          />
+        </div>
+
+        <div className="consignment-form-field">
+          <label className="consignment-label">
+            Size
+          </label>
+
+          <input
+            className="consignment-input"
+            value={form.size}
+            onChange={set('size')}
+            placeholder="Optional"
+          />
+        </div>
+
+        <div className="consignment-form-field">
+          <label className="consignment-label">
+            Condition
+          </label>
+
+          <select
+            className="consignment-select"
+            value={form.condition}
+            onChange={set('condition')}
+          >
+            {CONDITIONS.map((condition) => (
+              <option key={condition} value={condition}>
+                {condition}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="consignment-form-field">
+          <label className="consignment-label">
+            Consignment term
+          </label>
+
+          <select
+            className="consignment-select"
+            value={form.consignmentTerm || ''}
+            onChange={set('consignmentTerm')}
+          >
+            <option value="">No term</option>
+            <option value="30">30 days</option>
+            <option value="60">60 days</option>
+            <option value="90">90 days</option>
+          </select>
+        </div>
+
+        <div className="consignment-form-field">
+          <label className="consignment-label">
+            Internal notes
+          </label>
+
+          <textarea
+            className="consignment-textarea"
+            rows={2}
+            value={form.notes}
+            onChange={set('notes')}
+            placeholder="Notes about this consigned item"
+          />
+        </div>
+      </div>
+
+      <div className="consignment-form-help">
+        {helperText}
+      </div>
+
+      <div
+        className="consignment-form-actions-inner"
+        style={{ marginBottom: 14 }}
+      >
+        <button
+          className="consignment-btn"
+          disabled={saveDisabled}
+          onClick={onSave}
+        >
+          <Check size={18} />
+          {saveLabel}
+        </button>
+      </div>
+    </>
+  );
+}
 function productAdminUrl(productId){const numericId=String(productId||'').split('/').pop();return `shopify://admin/products/${numericId}`;}
 function ShopifyProductSection({shopifyForm,setShopifyForm,linkedProductId='',linkedStatus='',disabled=false,onSync=null,syncing=false,tier2Enabled=true}){const canSync=Boolean(onSync)&&tier2Enabled;return <details className="consignment-card consignment-shopify-section" ><summary className="consignment-shopify-summary"><span><ShoppingBag size={17}/><strong>Shopify product</strong></span><span className="consignment-row-sub">{!tier2Enabled?'Requires Manual + Shopify Sync plan':linkedProductId?'Connected':'Separate optional workflow'}</span></summary><div className="consignment-shopify-content"><p className="consignment-shopify-help">This section only controls the linked Shopify product. Manual item saving never creates or updates a Shopify product.</p><div className="consignment-shopify-photo-row"><PhotoPicker value={shopifyForm.photo} onChange={(value)=>setShopifyForm((current)=>({...current,photo:value,photoId:null}))} onChooseShopify={(file)=>setShopifyForm((current)=>({...current,photo:file.url,photoId:file.id}))}/><ShopifyProductFields form={shopifyForm} setForm={setShopifyForm}/></div><label className="consignment-product-choice"><input type="checkbox" checked={shopifyForm.publishToPos!==false} onChange={(event)=>setShopifyForm((current)=>({...current,publishToPos:event.target.checked}))}/><span><strong>Create Shopify POS Product</strong><span>Creates or updates an Active product with inventory of one and publishes it to Point of Sale.</span></span></label><label className="consignment-product-choice online"><input type="checkbox" checked={shopifyForm.publishOnline===true} onChange={(event)=>setShopifyForm((current)=>({...current,publishOnline:event.target.checked}))}/><span><strong>Also publish to Online Store</strong><span>Publishes the same synced product to the Online Store.</span></span></label>{linkedProductId&&<p style={{ margin:'12px 0 0',color:'var(--green-dark)',fontSize:12 }}><Check size={14} style={{ verticalAlign:'middle',marginRight:5 }}/>Linked Shopify product Â· {linkedStatus||'Connected'}</p>}{!linkedProductId?<button className="consignment-btn" style={{ marginTop:14 }} disabled={!canSync||disabled||syncing||shopifyForm.publishToPos===false} onClick={onSync}>{syncing?<Loader2 className="consignment-spin" size={16}/>:<ShoppingBag size={16}/>}Create Shopify product</button>:<div style={{ display:'flex',flexWrap:'wrap',gap:10,marginTop:14 }}><button className="consignment-btn" disabled={!canSync||disabled||syncing||shopifyForm.publishToPos===false} onClick={onSync}>{syncing?<Loader2 className="consignment-spin" size={16}/>:<Check size={16}/>}Update Shopify product</button><a className="consignment-btn secondary" href={productAdminUrl(linkedProductId)} target="_top"><span aria-hidden="true">â†—</span> Edit in Shopify</a></div>}</div></details>}
 
