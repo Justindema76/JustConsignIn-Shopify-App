@@ -186,3 +186,42 @@
     width: 100%;
   }
 }
+/* Collapsible form-section headers */
+summary.consignment-form-section-head {
+  width: 100%;
+  cursor: pointer;
+  list-style: none;
+}
+
+summary.consignment-form-section-head::-webkit-details-marker {
+  display: none;
+}
+
+.consignment-form-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.consignment-form-item-number {
+  color: var(--green-dark);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+summary.consignment-form-section-head::after {
+  content: "›";
+  margin-left: auto;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+}
+
+details:not([open]) > summary.consignment-form-section-head::after {
+  transform: rotate(0deg);
+}

@@ -72,7 +72,7 @@ function resizeImage(file, maxWidth = 320, quality = 0.55) {
 }
 
 const CATEGORIES = [
-  'Clothing', 'Shoes', 'Jewellery', 'Handbags', 'Home DÃ©cor', 'Furniture',
+  'Clothing', 'Shoes', 'Jewellery', 'Handbags', 'Home DÃƒÂ©cor', 'Furniture',
   'Electronics', 'Appliances', 'Books', 'Movies & Music', 'Video Games',
   'Collectibles', 'Sporting Goods', 'Tools', 'Toys', 'Baby Gear',
   'Pet Supplies', 'Outdoor & Garden', 'Art', 'Automotive', 'Other',
@@ -112,7 +112,7 @@ function buildShopifyAutoFill(item = {}, consignor = null) {
       brand ? `Brand: ${brand}` : '',
       size ? `Size: ${size}` : '',
       condition ? `Condition: ${condition}` : '',
-    ].filter(Boolean).join(' Â· ').slice(0, 320),
+    ].filter(Boolean).join(' Ã‚Â· ').slice(0, 320),
   };
 }
 
@@ -199,7 +199,7 @@ function ShopifyFilePicker({ onClose, onSelect }) {
         <header className="shopify-file-picker-header">
           <div className="shopify-file-picker-heading">
             <strong id="shopify-file-picker-title">Choose from Shopify Files</strong>
-            <span>Select an image already stored in Shopify Content â†’ Files.</span>
+            <span>Select an image already stored in Shopify Content Ã¢â€ â€™ Files.</span>
           </div>
           <button type="button" className="shopify-file-picker-close" onClick={onClose} aria-label="Close Shopify Files"><X size={18} /></button>
         </header>
@@ -207,7 +207,7 @@ function ShopifyFilePicker({ onClose, onSelect }) {
           <input className="consignment-input" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search Shopify Files" autoFocus />
         </div>
         <div className="shopify-file-picker-content">
-          {loading && <div className="shopify-file-picker-state"><Loader2 className="consignment-spin" size={18} /><span>Loading Shopify Filesâ€¦</span></div>}
+          {loading && <div className="shopify-file-picker-state"><Loader2 className="consignment-spin" size={18} /><span>Loading Shopify FilesÃ¢â‚¬Â¦</span></div>}
           {!loading && pickerError && <div className="shopify-file-picker-state error">{pickerError}</div>}
           {!loading && !pickerError && files.length === 0 && <div className="shopify-file-picker-state">No Shopify images found.</div>}
           {!loading && !pickerError && files.length > 0 && (
@@ -282,7 +282,7 @@ function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
             <div className="consignment-card">
               <div className="consignment-section-title"><div><h2>Items in this payout</h2><p style={{ margin:'4px 0 0', color:'var(--muted)', fontSize:12 }}>Select the eligible sales to include.</p></div><button type="button" className="consignment-link-button" onClick={() => setSelectedIds(selectedIds.length === eligible.length ? [] : eligible.map((item) => item.id))}>{selectedIds.length === eligible.length ? 'Exclude all' : 'Select all'}</button></div>
               {eligible.length === 0 && <div className="consignment-empty-small">This consignor has no eligible unpaid sales.</div>}
-              {eligible.map((item) => { const salePrice=Number(item.salePrice ?? item.price ?? 0); const rate=Number(item.commissionPct ?? consignor.commissionPct ?? 0); const due=(salePrice*rate)/100; return <label key={item.id} className="consignment-row-btn" style={{ cursor:'pointer' }}><input type="checkbox" checked={selectedIds.includes(item.id)} onChange={() => toggleItem(item.id)} style={{ width:18,height:18,accentColor:'var(--green)' }} /><span className="consignment-item-primary" style={{ flex:1 }}><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || item.itemNumber} Â· {money(salePrice)} Ã— {rate}%</span></span></span><strong>{money(due)}</strong></label>; })}
+              {eligible.map((item) => { const salePrice=Number(item.salePrice ?? item.price ?? 0); const rate=Number(item.commissionPct ?? consignor.commissionPct ?? 0); const due=(salePrice*rate)/100; return <label key={item.id} className="consignment-row-btn" style={{ cursor:'pointer' }}><input type="checkbox" checked={selectedIds.includes(item.id)} onChange={() => toggleItem(item.id)} style={{ width:18,height:18,accentColor:'var(--green)' }} /><span className="consignment-item-primary" style={{ flex:1 }}><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || item.itemNumber} Ã‚Â· {money(salePrice)} Ãƒâ€” {rate}%</span></span></span><strong>{money(due)}</strong></label>; })}
             </div>
           </section>
           <aside>
@@ -316,7 +316,7 @@ function ImportScreen({ kind, onBack, onImport, fixedConsignor = null }) {
   const template=isConsignors?`consignor_import_key,first_name,last_name,phone,email,address,city,province,postal_code,date_joined,commission_pct,unsold_preference,consignor_notes,${itemColumns}\njane-smith-9055550100,Jane,Smith,905-555-0100,jane@example.com,123 Main Street,Hamilton,Ontario,L8E 1A1,2026-07-30,50,Please return,,jane-001,Blue winter coat,45.00,Clothing,Jacket,Gap,Medium,Like new,,Available,2026-07-30,90,Please return,true,Blue winter coat,45.00,Warm blue winter coat,Gap,winter|coat,true,true,Blue winter coat,Warm blue winter coat for sale,,,`:fixedConsignor?`${itemColumns},consignor_number\nitem-001,Blue baby sweater,18.00,Clothing,Sweater,Gap,12M,Good,,Available,2026-07-30,60,Please return,true,Blue baby sweater,18.00,Soft blue baby sweater,Gap,baby|sweater,true,false,Blue baby sweater,Soft blue baby sweater,,,${templateConsignorNumber}`:`consignor_import_key,email,phone,${itemColumns}\njane-smith-9055550100,jane@example.com,905-555-0100,jane-001,Blue winter coat,45.00,Clothing,Jacket,Gap,Medium,Like new,,Available,2026-07-30,90,Please return,true,Blue winter coat,45.00,Warm blue winter coat,Gap,winter|coat,true,true,Blue winter coat,Warm blue winter coat for sale,,,`;
   function downloadTemplate(){const blob=new Blob([template],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`${kind}-import-template.csv`;link.click();URL.revokeObjectURL(url);}
   async function chooseFile(event){const file=event.target.files?.[0];if(!file)return;try{let parsed=parseCsv(await file.text());if(!isConsignors&&fixedConsignor){parsed=parsed.map((row)=>({...row,consignor_number:fixedConsignor.number}));}setRows(parsed);setFileName(file.name);setLocalError('');}catch(error){setRows([]);setFileName(file.name);setLocalError(error.message);}}
-  return (<><Header eyebrow="Data import" title={isConsignors?'Import consignors and items':fixedConsignor?`Import items for ${fixedConsignor.firstName} ${fixedConsignor.lastName}`:'Import items'} onBack={onBack} /><div className="consignment-body"><div className="consignment-card"><strong style={{ fontSize:14 }}>Start with the template</strong><p className="consignment-import-help">Required columns: {required}. The app assigns consignor and item numbers automatically. Keep the headings unchanged, fill in your rows, then save as CSV.{fixedConsignor&&!isConsignors?` Every row will be assigned to consignor #${fixedConsignor.number}.`:''}</p><button className="consignment-btn secondary" onClick={downloadTemplate}><Download size={16} /> Download template</button></div><div className="consignment-import-drop"><label><FileUp size={24} /><span>{fileName||'Choose CSV file'}</span><input type="file" accept=".csv,text/csv" onChange={chooseFile} /></label><div className="consignment-import-help">Nothing is imported until you review the count and press Import.</div></div>{localError&&<div className="consignment-card" style={{ color:'var(--danger)' }}>{localError}</div>}{rows.length>0&&<><div className="consignment-import-preview"><div><span>File</span><strong style={{ fontSize:12 }}>{fileName}</strong></div><div><span>Rows ready</span><strong>{rows.length}</strong></div><div><span>Importing</span><strong style={{ fontSize:13 }}>{isConsignors?'Consignors + items Â· Shopify supported':'Items Â· Shopify supported'}</strong></div></div><div className="consignment-import-actions"><button className="consignment-btn" disabled={saving} onClick={async()=>{setSaving(true);try{await onImport(kind,rows);}finally{setSaving(false);}}}>{saving?<Loader2 className="consignment-spin" size={16}/>:<FileUp size={16}/>} Import {rows.length} row{rows.length===1?'':'s'}</button></div></>}</div></>);
+  return (<><Header eyebrow="Data import" title={isConsignors?'Import consignors and items':fixedConsignor?`Import items for ${fixedConsignor.firstName} ${fixedConsignor.lastName}`:'Import items'} onBack={onBack} /><div className="consignment-body"><div className="consignment-card"><strong style={{ fontSize:14 }}>Start with the template</strong><p className="consignment-import-help">Required columns: {required}. The app assigns consignor and item numbers automatically. Keep the headings unchanged, fill in your rows, then save as CSV.{fixedConsignor&&!isConsignors?` Every row will be assigned to consignor #${fixedConsignor.number}.`:''}</p><button className="consignment-btn secondary" onClick={downloadTemplate}><Download size={16} /> Download template</button></div><div className="consignment-import-drop"><label><FileUp size={24} /><span>{fileName||'Choose CSV file'}</span><input type="file" accept=".csv,text/csv" onChange={chooseFile} /></label><div className="consignment-import-help">Nothing is imported until you review the count and press Import.</div></div>{localError&&<div className="consignment-card" style={{ color:'var(--danger)' }}>{localError}</div>}{rows.length>0&&<><div className="consignment-import-preview"><div><span>File</span><strong style={{ fontSize:12 }}>{fileName}</strong></div><div><span>Rows ready</span><strong>{rows.length}</strong></div><div><span>Importing</span><strong style={{ fontSize:13 }}>{isConsignors?'Consignors + items Ã‚Â· Shopify supported':'Items Ã‚Â· Shopify supported'}</strong></div></div><div className="consignment-import-actions"><button className="consignment-btn" disabled={saving} onClick={async()=>{setSaving(true);try{await onImport(kind,rows);}finally{setSaving(false);}}}>{saving?<Loader2 className="consignment-spin" size={16}/>:<FileUp size={16}/>} Import {rows.length} row{rows.length===1?'':'s'}</button></div></>}</div></>);
 }
 
 function EditConsignorScreen({ consignor, onBack, onSave }) {
@@ -330,7 +330,7 @@ function ShopifyProductFields({ form, setForm }) {
   const [categorySearch,setCategorySearch]=useState(form.shopifyCategoryName||''); const [categoryResults,setCategoryResults]=useState([]); const [searchingCategories,setSearchingCategories]=useState(false);
   useEffect(()=>{const query=categorySearch.trim();if(query.length<2||query===form.shopifyCategoryName){setCategoryResults([]);return undefined;}const timer=setTimeout(()=>{setSearchingCategories(true);searchShopifyCategories(query).then(setCategoryResults).catch(()=>setCategoryResults([])).finally(()=>setSearchingCategories(false));},350);return()=>clearTimeout(timer);},[categorySearch,form.shopifyCategoryName]);
   const set=(key)=>(event)=>setForm((current)=>({...current,[key]:event.target.value}));
-  return <div className="consignment-shopify-fields"><div className="consignment-detail-grid"><div className="consignment-field wide"><label className="consignment-label">Shopify title</label><input className="consignment-input" value={form.shopifyTitle||''} onChange={set('shopifyTitle')} placeholder="Auto-filled from item description"/></div><div className="consignment-field"><label className="consignment-label">Shopify price</label><input className="consignment-input" type="number" inputMode="decimal" min="0" step="0.01" value={form.shopifyPrice??''} onChange={set('shopifyPrice')} placeholder="Defaults to the manual item price"/></div><div className="consignment-field"><label className="consignment-label">Vendor</label><input className="consignment-input" value={form.vendor} onChange={set('vendor')} placeholder="Defaults to store name"/></div><div className="consignment-field"><label className="consignment-label">Tags</label><input className="consignment-input" value={form.tags} onChange={set('tags')} placeholder="summer, baby"/></div><div className="consignment-field wide"><label className="consignment-label">Shopify product category</label><input className="consignment-input" value={categorySearch} onChange={(event)=>{setCategorySearch(event.target.value);if(event.target.value!==form.shopifyCategoryName){setForm((current)=>({...current,shopifyCategoryId:'',shopifyCategoryName:''}));}}} placeholder="Search Shopify categories"/>{searchingCategories&&<div className="consignment-row-sub" style={{ marginTop:6 }}>Searching Shopifyâ€¦</div>}{categoryResults.length>0&&<div className="consignment-category-results">{categoryResults.map((category)=><button key={category.id} type="button" className="consignment-category-result" onClick={()=>{setForm((current)=>({...current,shopifyCategoryId:category.id,shopifyCategoryName:category.name}));setCategorySearch(category.name);setCategoryResults([]);}}>{category.name}</button>)}</div>}{form.shopifyCategoryId&&<div className="consignment-selected-category"><span>{form.shopifyCategoryName}</span><button type="button" className="consignment-batch-remove" aria-label="Remove Shopify category" onClick={()=>{setForm((current)=>({...current,shopifyCategoryId:'',shopifyCategoryName:''}));setCategorySearch('');}}><X size={13}/></button></div>}</div><div className="consignment-field wide"><label className="consignment-label">Product description</label><textarea className="consignment-textarea" rows={3} value={form.productDescription} onChange={set('productDescription')} placeholder="Shown to customers on Shopify"/></div><div className="consignment-field"><label className="consignment-label">SEO title</label><input className="consignment-input" value={form.seoTitle} onChange={set('seoTitle')} placeholder="Defaults to item title"/></div><div className="consignment-field"><label className="consignment-label">SEO description</label><textarea className="consignment-textarea" rows={2} value={form.seoDescription} onChange={set('seoDescription')} placeholder="Optional search description"/></div></div></div>;
+  return <div className="consignment-shopify-fields"><div className="consignment-detail-grid"><div className="consignment-field wide"><label className="consignment-label">Shopify title</label><input className="consignment-input" value={form.shopifyTitle||''} onChange={set('shopifyTitle')} placeholder="Auto-filled from item description"/></div><div className="consignment-field"><label className="consignment-label">Shopify price</label><input className="consignment-input" type="number" inputMode="decimal" min="0" step="0.01" value={form.shopifyPrice??''} onChange={set('shopifyPrice')} placeholder="Defaults to the manual item price"/></div><div className="consignment-field"><label className="consignment-label">Vendor</label><input className="consignment-input" value={form.vendor} onChange={set('vendor')} placeholder="Defaults to store name"/></div><div className="consignment-field"><label className="consignment-label">Tags</label><input className="consignment-input" value={form.tags} onChange={set('tags')} placeholder="summer, baby"/></div><div className="consignment-field wide"><label className="consignment-label">Shopify product category</label><input className="consignment-input" value={categorySearch} onChange={(event)=>{setCategorySearch(event.target.value);if(event.target.value!==form.shopifyCategoryName){setForm((current)=>({...current,shopifyCategoryId:'',shopifyCategoryName:''}));}}} placeholder="Search Shopify categories"/>{searchingCategories&&<div className="consignment-row-sub" style={{ marginTop:6 }}>Searching ShopifyÃ¢â‚¬Â¦</div>}{categoryResults.length>0&&<div className="consignment-category-results">{categoryResults.map((category)=><button key={category.id} type="button" className="consignment-category-result" onClick={()=>{setForm((current)=>({...current,shopifyCategoryId:category.id,shopifyCategoryName:category.name}));setCategorySearch(category.name);setCategoryResults([]);}}>{category.name}</button>)}</div>}{form.shopifyCategoryId&&<div className="consignment-selected-category"><span>{form.shopifyCategoryName}</span><button type="button" className="consignment-batch-remove" aria-label="Remove Shopify category" onClick={()=>{setForm((current)=>({...current,shopifyCategoryId:'',shopifyCategoryName:''}));setCategorySearch('');}}><X size={13}/></button></div>}</div><div className="consignment-field wide"><label className="consignment-label">Product description</label><textarea className="consignment-textarea" rows={3} value={form.productDescription} onChange={set('productDescription')} placeholder="Shown to customers on Shopify"/></div><div className="consignment-field"><label className="consignment-label">SEO title</label><input className="consignment-input" value={form.seoTitle} onChange={set('seoTitle')} placeholder="Defaults to item title"/></div><div className="consignment-field"><label className="consignment-label">SEO description</label><textarea className="consignment-textarea" rows={2} value={form.seoDescription} onChange={set('seoDescription')} placeholder="Optional search description"/></div></div></div>;
 }
 
 function ManualItemCore({
@@ -506,7 +506,183 @@ function ManualItemCore({
   );
 }
 function productAdminUrl(productId){const numericId=String(productId||'').split('/').pop();return `shopify://admin/products/${numericId}`;}
-function ShopifyProductSection({shopifyForm,setShopifyForm,linkedProductId='',linkedStatus='',disabled=false,onSync=null,syncing=false,tier2Enabled=true}){const canSync=Boolean(onSync)&&tier2Enabled;return <details className="consignment-card consignment-shopify-section" ><summary className="consignment-shopify-summary"><span><ShoppingBag size={17}/><strong>Shopify product</strong></span><span className="consignment-row-sub">{!tier2Enabled?'Requires Manual + Shopify Sync plan':linkedProductId?'Connected':'Separate optional workflow'}</span></summary><div className="consignment-shopify-content"><p className="consignment-shopify-help">This section only controls the linked Shopify product. Manual item saving never creates or updates a Shopify product.</p><div className="consignment-shopify-photo-row"><PhotoPicker value={shopifyForm.photo} onChange={(value)=>setShopifyForm((current)=>({...current,photo:value,photoId:null}))} onChooseShopify={(file)=>setShopifyForm((current)=>({...current,photo:file.url,photoId:file.id}))}/><ShopifyProductFields form={shopifyForm} setForm={setShopifyForm}/></div><label className="consignment-product-choice"><input type="checkbox" checked={shopifyForm.publishToPos!==false} onChange={(event)=>setShopifyForm((current)=>({...current,publishToPos:event.target.checked}))}/><span><strong>Create Shopify POS Product</strong><span>Creates or updates an Active product with inventory of one and publishes it to Point of Sale.</span></span></label><label className="consignment-product-choice online"><input type="checkbox" checked={shopifyForm.publishOnline===true} onChange={(event)=>setShopifyForm((current)=>({...current,publishOnline:event.target.checked}))}/><span><strong>Also publish to Online Store</strong><span>Publishes the same synced product to the Online Store.</span></span></label>{linkedProductId&&<p style={{ margin:'12px 0 0',color:'var(--green-dark)',fontSize:12 }}><Check size={14} style={{ verticalAlign:'middle',marginRight:5 }}/>Linked Shopify product Â· {linkedStatus||'Connected'}</p>}{!linkedProductId?<button className="consignment-btn" style={{ marginTop:14 }} disabled={!canSync||disabled||syncing||shopifyForm.publishToPos===false} onClick={onSync}>{syncing?<Loader2 className="consignment-spin" size={16}/>:<ShoppingBag size={16}/>}Create Shopify product</button>:<div style={{ display:'flex',flexWrap:'wrap',gap:10,marginTop:14 }}><button className="consignment-btn" disabled={!canSync||disabled||syncing||shopifyForm.publishToPos===false} onClick={onSync}>{syncing?<Loader2 className="consignment-spin" size={16}/>:<Check size={16}/>}Update Shopify product</button><a className="consignment-btn secondary" href={productAdminUrl(linkedProductId)} target="_top"><span aria-hidden="true">â†—</span> Edit in Shopify</a></div>}</div></details>}
+function ShopifyProductSection({
+  shopifyForm,
+  setShopifyForm,
+  linkedProductId = '',
+  linkedStatus = '',
+  disabled = false,
+  onSync = null,
+  syncing = false,
+  tier2Enabled = true,
+}) {
+  const canSync = Boolean(onSync) && tier2Enabled;
+
+  return (
+    <details className="consignment-form-section">
+      <summary className="consignment-form-section-head consignment-shopify-summary">
+        <span>
+          <span
+            className="consignment-form-section-marker"
+            aria-hidden="true"
+          />
+          <ShoppingBag size={17} />
+          <h2>Shopify product</h2>
+        </span>
+
+        <span className="consignment-row-sub">
+          {!tier2Enabled
+            ? 'Requires Manual + Shopify Sync plan'
+            : linkedProductId
+              ? 'Connected'
+              : 'Separate optional workflow'}
+        </span>
+      </summary>
+
+      <div className="consignment-form-section-body">
+        <p className="consignment-shopify-help">
+          This section only controls the linked Shopify product. Manual item
+          saving never creates or updates a Shopify product.
+        </p>
+
+        <div className="consignment-shopify-photo-row">
+          <PhotoPicker
+            value={shopifyForm.photo}
+            onChange={(value) =>
+              setShopifyForm((current) => ({
+                ...current,
+                photo: value,
+                photoId: null,
+              }))
+            }
+            onChooseShopify={(file) =>
+              setShopifyForm((current) => ({
+                ...current,
+                photo: file.url,
+                photoId: file.id,
+              }))
+            }
+          />
+
+          <ShopifyProductFields
+            form={shopifyForm}
+            setForm={setShopifyForm}
+          />
+        </div>
+
+        <label className="consignment-product-choice">
+          <input
+            type="checkbox"
+            checked={shopifyForm.publishToPos !== false}
+            onChange={(event) =>
+              setShopifyForm((current) => ({
+                ...current,
+                publishToPos: event.target.checked,
+              }))
+            }
+          />
+          <span>
+            <strong>Create Shopify POS Product</strong>
+            <span>
+              Creates or updates an Active product with inventory of one and
+              publishes it to Point of Sale.
+            </span>
+          </span>
+        </label>
+
+        <label className="consignment-product-choice online">
+          <input
+            type="checkbox"
+            checked={shopifyForm.publishOnline === true}
+            onChange={(event) =>
+              setShopifyForm((current) => ({
+                ...current,
+                publishOnline: event.target.checked,
+              }))
+            }
+          />
+          <span>
+            <strong>Also publish to Online Store</strong>
+            <span>Publishes the same synced product to the Online Store.</span>
+          </span>
+        </label>
+
+        {linkedProductId && (
+          <p
+            style={{
+              margin: '12px 0 0',
+              color: 'var(--green-dark)',
+              fontSize: 12,
+            }}
+          >
+            <Check
+              size={14}
+              style={{ verticalAlign: 'middle', marginRight: 5 }}
+            />
+            Linked Shopify product Â· {linkedStatus || 'Connected'}
+          </p>
+        )}
+
+        {!linkedProductId ? (
+          <button
+            className="consignment-btn"
+            style={{ marginTop: 14 }}
+            disabled={
+              !canSync ||
+              disabled ||
+              syncing ||
+              shopifyForm.publishToPos === false
+            }
+            onClick={onSync}
+          >
+            {syncing ? (
+              <Loader2 className="consignment-spin" size={16} />
+            ) : (
+              <ShoppingBag size={16} />
+            )}
+            Create Shopify product
+          </button>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 10,
+              marginTop: 14,
+            }}
+          >
+            <button
+              className="consignment-btn"
+              disabled={
+                !canSync ||
+                disabled ||
+                syncing ||
+                shopifyForm.publishToPos === false
+              }
+              onClick={onSync}
+            >
+              {syncing ? (
+                <Loader2 className="consignment-spin" size={16} />
+              ) : (
+                <Check size={16} />
+              )}
+              Update Shopify product
+            </button>
+
+            <a
+              className="consignment-btn secondary"
+              href={productAdminUrl(linkedProductId)}
+              target="_top"
+            >
+              <span aria-hidden="true">â†—</span>
+              Edit in Shopify
+            </a>
+          </div>
+        )}
+      </div>
+    </details>
+  );
+}
 
 function IntakeScreen({
   consignor,
@@ -612,7 +788,7 @@ function IntakeScreen({
   return (
     <>
       <Header
-        eyebrow={`For ${consignor.firstName} ${consignor.lastName} · #${consignor.number}`}
+        eyebrow={`For ${consignor.firstName} ${consignor.lastName} Â· #${consignor.number}`}
         title="Add item"
         onBack={onBack}
       />
@@ -698,12 +874,12 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
   async function handleImport(kind,rows){try{setError('');const result=await importConsignmentData(kind,rows);await refreshData();if(kind==='consignors')flash(`${result.consignorsCreated||0} created, ${result.consignorsUpdated||0} matched/updated, ${result.itemsImported||0} items imported, ${result.shopifyProductsCreated||0} Shopify products created`);else{const importedCount=result.itemsImported??result.imported;flash(`${importedCount} item${importedCount===1?'':'s'} imported, ${result.shopifyProductsCreated||0} Shopify products created`);}setView(importBack);}catch(e){setError(errorMessage(e,'Could not import this CSV'));throw e;}}
   function startImport(kind,backView,consignorId=null){setImportKind(kind);setImportBack(backView);setImportConsignorId(consignorId);setView('import');}
   async function handleSaveBatch(batch){try{setError('');const saved=await createConsignmentItems(activeId,batch);await refreshData();flash(`${saved.length} item${saved.length===1?'':'s'} saved`);setView('consignor');}catch(e){setError(errorMessage(e,'Could not save items'));}}
-  async function handleSaveAndSync(currentEntry,queuedBatch,shopifyForm){try{setError('');const saved=await createConsignmentItems(activeId,[...queuedBatch,currentEntry]);const newItem=saved[saved.length-1];await syncShopifyProduct(newItem.id,shopifyForm);await refreshData();flash(`${saved.length} item${saved.length===1?'':'s'} saved Â· Shopify product created`);setView('consignor');}catch(e){setError(errorMessage(e,'Could not save the item and create the Shopify product'));throw e;}}
+  async function handleSaveAndSync(currentEntry,queuedBatch,shopifyForm){try{setError('');const saved=await createConsignmentItems(activeId,[...queuedBatch,currentEntry]);const newItem=saved[saved.length-1];await syncShopifyProduct(newItem.id,shopifyForm);await refreshData();flash(`${saved.length} item${saved.length===1?'':'s'} saved Ã‚Â· Shopify product created`);setView('consignor');}catch(e){setError(errorMessage(e,'Could not save the item and create the Shopify product'));throw e;}}
   async function handleUpdateConsignor(consignorId,form){try{setError('');await updateConsignor(consignorId,form);await refreshData();flash('Consignor updated');setView('consignor');}catch(e){setError(errorMessage(e,'Could not update consignor'));}}
   async function handleDeleteConsignor(consignorId){try{setError('');await deleteConsignor(consignorId);await refreshData();setActiveId(null);setView('home');flash('Consignor deleted');}catch(e){setError(errorMessage(e,'Could not delete consignor'));}}
   async function handleDeleteItem(itemId){try{setError('');await deleteConsignmentItem(itemId);await refreshData();flash('Item deleted');}catch(e){setError(errorMessage(e,'Could not delete item'));}}
   async function handleUpdateItem(itemId,form){try{setError('');await updateConsignmentItem(itemId,form);await refreshData();flash('Item updated');setView('consignor');}catch(e){setError(errorMessage(e,'Could not update item'));}}
-  async function handleUpdateItemStatus(itemId,status,details={}){try{setError('');await updateConsignmentItemStatus(itemId,status,details);await refreshData();flash(status==='Paid'?'Item marked paid':status==='Sold'?'Item marked sold Â· unpaid':'Item returned to available');}catch(e){setError(errorMessage(e,'Could not update item status'));throw e;}}
+  async function handleUpdateItemStatus(itemId,status,details={}){try{setError('');await updateConsignmentItemStatus(itemId,status,details);await refreshData();flash(status==='Paid'?'Item marked paid':status==='Sold'?'Item marked sold Ã‚Â· unpaid':'Item returned to available');}catch(e){setError(errorMessage(e,'Could not update item status'));throw e;}}
   async function handleSyncProduct(itemId,shopifyForm){try{setError('');const wasAlreadyLinked=Boolean(items.find((entry)=>entry.id===itemId)?.shopifyProductId);await syncShopifyProduct(itemId,shopifyForm);await refreshData();flash(wasAlreadyLinked?'Your product has been updated':'Shopify product created','success');}catch(e){setError(errorMessage(e,'Could not sync the Shopify product'));throw e;}}
   async function handleRecordPayout(payout){try{setError('');const result=await recordConsignorPayout(payout);await refreshData();flash(`Payout of ${money(result.payout.total)} recorded`);setView('payouts');}catch(e){setError(errorMessage(e,'Could not record payout'));throw e;}}
   async function handleDeleteItemFromEdit(itemId){await handleDeleteItem(itemId);setView('consignor');}
