@@ -61,12 +61,39 @@ export function saleSourceLabel(value) {
   return { text: 'Unknown', className: 'draft' };
 }
 
+export function saleSourceForItem(item) {
+  const recordedSource = normalizeSaleSource(item?.saleSource);
+
+  if (recordedSource === 'Manual' || recordedSource === 'POS' || recordedSource === 'Online') {
+    return recordedSource;
+  }
+
+  if (!item?.shopifyProductId) return 'Manual';
+  if (!item?.publishOnline) return 'POS';
+
+  return '';
+}
+
 export function saleSourceMatches(item, filter) {
-  return filter === 'All' || normalizeSaleSource(item?.saleSource) === filter;
+  return filter === 'All' || saleSourceForItem(item) === filter;
 }
 
 export function itemBadge(item) {
-  return isSold(item) ? saleSourceLabel(item?.saleSource) : productLabel(item);
+  const product = productLabel(item);
+
+  if (!isSold(item) || !item?.shopifyProductId) {
+    return product;
+  }
+
+  const saleSource = saleSourceForItem(item);
+
+  if (saleSource === 'POS' || saleSource === 'Online') {
+    return saleSourceLabel(saleSource);
+  }
+
+  return item.publishOnline
+    ? { text: 'POS + Online', className: 'online' }
+    : { text: 'POS', className: 'pos' };
 }
 
 export function statusClass(status) {
