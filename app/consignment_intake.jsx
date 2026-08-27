@@ -673,7 +673,38 @@ function EditItemScreen({ item,onBack,onSave,onDelete,onSyncProduct,onUpdateStat
 export default function ConsignmentIntakeApp({ activePlan = null }) {
   const tier2Enabled=activePlan==='TIER2'; const [ready,setReady]=useState(false); const [consignors,setConsignors]=useState([]); const [items,setItems]=useState([]); const [view,setView]=useState('dashboard'); const [activeId,setActiveId]=useState(null); const [activeItemId,setActiveItemId]=useState(null); const [query,setQuery]=useState(''); const [newConsignorNext,setNewConsignorNext]=useState('consignor'); const [newConsignorBack,setNewConsignorBack]=useState('home'); const [importKind,setImportKind]=useState('consignors'); const [importBack,setImportBack]=useState('home'); const [importConsignorId,setImportConsignorId]=useState(null); const [toast,setToast]=useState(''); const [toastTone,setToastTone]=useState(''); const [error,setError]=useState(''); const [showBackToTop,setShowBackToTop]=useState(false);
   function errorMessage(value,fallback){return value instanceof Error?value.message:fallback;} async function refreshData(){const data=await getConsignmentData();setConsignors(data.consignors);setItems(data.items);return data;}
-  useEffect(()=>{refreshData().catch((e)=>setError(errorMessage(e,'Could not load Shopify data'))).finally(()=>setReady(true));},[]);
+  useEffect(()=>{refreshData().catch((e)=>setError(errorMessage(e,'Could not load Shopify data'))).finally(()=>setReady(true));},[]); 
+  useEffect(() => {
+  function refreshWhenActive() {
+    if (document.visibilityState === 'visible') {
+      refreshData().catch((error) => {
+        setError(
+          errorMessage(error, 'Could not refresh Shopify data'),
+        );
+      });
+    }
+  }
+
+  window.addEventListener('focus', refreshWhenActive);
+  document.addEventListener(
+    'visibilitychange',
+    refreshWhenActive,
+  );
+
+  const refreshInterval = window.setInterval(
+    refreshWhenActive,
+    15000,
+  );
+
+  return () => {
+    window.removeEventListener('focus', refreshWhenActive);
+    document.removeEventListener(
+      'visibilitychange',
+      refreshWhenActive,
+    );
+    window.clearInterval(refreshInterval);
+  };
+}, []);
   useEffect(()=>{window.scrollTo({top:0,left:0,behavior:'auto'});document.querySelector('.consignment-body')?.scrollTo({top:0,left:0,behavior:'auto'});setShowBackToTop(false);},[view]);
   useEffect(()=>{if(!ready)return undefined;const body=document.querySelector('.consignment-body');const updateBackToTop=()=>setShowBackToTop(window.scrollY>280||(body?.scrollTop||0)>280);updateBackToTop();window.addEventListener('scroll',updateBackToTop,{passive:true});body?.addEventListener('scroll',updateBackToTop,{passive:true});return()=>{window.removeEventListener('scroll',updateBackToTop);body?.removeEventListener('scroll',updateBackToTop);};},[ready,view]);
   function scrollToTop(){window.scrollTo({top:0,left:0,behavior:'smooth'});document.querySelector('.consignment-body')?.scrollTo({top:0,left:0,behavior:'smooth'});} function flash(msg,tone=''){setToast(msg);setToastTone(tone);setTimeout(()=>{setToast('');setToastTone('');},2000);}
