@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react';
 import {
   money,
   itemBadge,
+  productLabel,
   statusClass,
   statusLabel,
 } from '../../lib/consignmentHelpers';
@@ -198,6 +199,7 @@ export default function AllConsignorView({
   onOpenItem,
   onStartPayout,
   defaultOpen = false,
+  saleSourceMode = false,
 }) {
   const [open, setOpen] =
     useState(defaultOpen);
@@ -401,7 +403,7 @@ export default function AllConsignorView({
 
             {items.map((item) => {
               const product =
-                itemBadge(item);
+                saleSourceMode ? itemBadge(item) : productLabel(item);
 
               const photo =
                 item.shopifyPhoto ||
