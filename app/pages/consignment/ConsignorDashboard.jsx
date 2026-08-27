@@ -4,36 +4,21 @@ import { Grid3X3, List, Mail, MapPin, Pencil, Phone, Plus, Trash2 } from 'lucide
 import Header from '../../components/consignment/Header';
 import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
-import { money } from '../../lib/consignmentHelpers';
-import '../../styles/consignor-dashboard.css';
+import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
+import { money, saleSourceMatches } from '../../lib/consignmentHelpers';
 
 export default function ConsignorDashboard({ consignor, items, onBack, onStartIntake, onOpenItem, onDeleteConsignor, onEditConsignor, onStartPayout }) {
   const [viewMode, setViewMode] = useState('grid');
-  const [itemSort, setItemSort] = useState('newest');
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState('newest');
+  const [sourceFilter, setSourceFilter] = useState('All');
+  const [payoutFilter, setPayoutFilter] = useState('Unpaid');
   const [confirmingDeleteConsignor, setConfirmingDeleteConsignor] = useState(false);
+
   const consignorItems = items.filter((item) => item.consignorId === consignor.id);
-  const visibleItems = consignorItems.filter((item) => !item.paidOut);
-  const sortedVisibleItems = [...visibleItems].sort((a, b) => {
-    const receivedTime = (item) => {
-      const value = item.dateReceived || item.createdAt || item.created_at || '';
-      const time = Date.parse(value);
-      return Number.isNaN(time) ? 0 : time;
-    };
-
-    if (itemSort === 'oldest') return receivedTime(a) - receivedTime(b);
-    if (itemSort === 'price-high') return Number(b.price || 0) - Number(a.price || 0);
-    if (itemSort === 'price-low') return Number(a.price || 0) - Number(b.price || 0);
-    if (itemSort === 'item-number') {
-      return String(a.itemNumber || '').localeCompare(
-        String(b.itemNumber || ''),
-        undefined,
-        { numeric: true },
-      );
-    }
-
-    return receivedTime(b) - receivedTime(a);
-  });
-  const archivedCount = consignorItems.length - visibleItems.length;
+  const paidCount = consignorItems.filter((item) => item.paidOut).length;
+  const unpaidCount = consignorItems.filter((item) => !item.paidOut).length;
+  const archivedCount = paidCount;
   const draftCount = consignorItems.filter((item) => item.status === 'Draft').length;
   const soldItems = consignorItems.filter((item) => item.status === 'Sold' || item.dateSold);
   const unpaidItems = soldItems.filter((item) => !item.paidOut);
@@ -43,6 +28,44 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
     (sum, item) => sum + (Number(item.salePrice ?? item.price ?? 0) * Number(item.commissionPct ?? consignor.commissionPct ?? 0)) / 100,
     0,
   );
+
+  const filteredItems = consignorItems.filter((item) => {
+    const q = query.trim().toLowerCase();
+    const matchesQuery = !q || `${item.description || ''} ${item.itemNumber || ''} ${item.type || ''} ${item.brand || ''}`
+      .toLowerCase()
+      .includes(q);
+    const matchesSource = saleSourceMatches(item, sourceFilter);
+    const matchesPayout = payoutFilter === 'All'
+      || (payoutFilter === 'Paid' && item.paidOut)
+      || (payoutFilter === 'Unpaid' && !item.paidOut);
+
+    return matchesQuery && matchesSource && matchesPayout;
+  }).sort((a, b) => {
+    const itemDate = (item) => String(
+      item.dateSold
+      || item.dateReceived
+      || item.createdAt
+      || item.created_at
+      || '',
+    );
+    const aPrice = Number(a.salePrice ?? a.price ?? 0);
+    const bPrice = Number(b.salePrice ?? b.price ?? 0);
+    const aDue = (aPrice * Number(a.commissionPct ?? consignor.commissionPct ?? 0)) / 100;
+    const bDue = (bPrice * Number(b.commissionPct ?? consignor.commissionPct ?? 0)) / 100;
+
+    if (sort === 'oldest') return itemDate(a).localeCompare(itemDate(b));
+    if (sort === 'price') return bPrice - aPrice;
+    if (sort === 'due') return bDue - aDue;
+    if (sort === 'sku') {
+      return String(a.itemNumber || '').localeCompare(
+        String(b.itemNumber || ''),
+        undefined,
+        { numeric: true },
+      );
+    }
+
+    return itemDate(b).localeCompare(itemDate(a));
+  });
   const fullAddress = [consignor.address, consignor.city, consignor.province, consignor.postalCode]
     .filter(Boolean)
     .join(', ');
@@ -71,7 +94,7 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
           </div>
         )}
       />
-      <div className="consignment-body consignment-consignor-dashboard">
+      <div className="consignment-body">
         <section className="consignment-card consignment-consignor-profile" aria-label="Consignor profile information">
           <div className="consignment-profile-column">
             <div className="consignment-profile-title">Contact</div>
@@ -114,48 +137,84 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
 
         <div className="consignment-consignor-items-head">
           <h3>Items on file</h3>
-          <div className="consignment-consignor-items-tools">
-            <span className="consignment-consignor-items-count">{visibleItems.length} current · {archivedCount} archived · {draftCount} draft</span>
-            <label className="consignment-consignor-sort">
-              <span>Sort</span>
-              <select
-                value={itemSort}
-                onChange={(event) => setItemSort(event.target.value)}
-                aria-label="Sort consignor items"
-              >
-                <option value="newest">Newest received</option>
-                <option value="oldest">Oldest received</option>
-                <option value="item-number">Item number</option>
-                <option value="price-high">Price: high to low</option>
-                <option value="price-low">Price: low to high</option>
-              </select>
-            </label>
-            <div className="consignment-consignor-view-toggle" aria-label="Choose item view">
-              <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={14} /> List</button>
-              <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={14} /> Grid</button>
-            </div>
-          </div>
+          <span className="consignment-consignor-items-count">
+            {unpaidCount} current · {archivedCount} archived · {draftCount} draft
+          </span>
         </div>
 
-        {visibleItems.length === 0 && (
+        <ConsignmentFilterBar
+          search={{
+            value: query,
+            onChange: setQuery,
+            placeholder: 'Search item, SKU, or brand',
+          }}
+          filters={[
+            {
+              key: 'sort',
+              label: 'Sort',
+              value: sort,
+              onChange: setSort,
+              ariaLabel: 'Sort consignor items',
+              options: [
+                { value: 'newest', label: 'Newest first' },
+                { value: 'oldest', label: 'Oldest first' },
+                { value: 'price', label: 'Highest sale price' },
+                { value: 'due', label: 'Highest consignor due' },
+                { value: 'sku', label: 'SKU / item number' },
+              ],
+            },
+            {
+              key: 'source',
+              label: 'Sale source',
+              value: sourceFilter,
+              onChange: setSourceFilter,
+              ariaLabel: 'Filter by sale source',
+              options: [
+                { value: 'All', label: 'All sale sources' },
+                { value: 'Manual', label: 'Manual' },
+                { value: 'POS', label: 'POS' },
+                { value: 'Online', label: 'Online' },
+              ],
+            },
+            {
+              key: 'payoutStatus',
+              label: 'Payout status',
+              value: payoutFilter,
+              onChange: setPayoutFilter,
+              ariaLabel: 'Filter by payout status',
+              options: [
+                { value: 'All', label: `All payout statuses (${consignorItems.length})` },
+                { value: 'Unpaid', label: `Unpaid (${unpaidCount})` },
+                { value: 'Paid', label: `Paid / archived (${paidCount})` },
+              ],
+            },
+          ]}
+          views={{
+            value: viewMode,
+            onChange: setViewMode,
+            ariaLabel: 'Choose consignor item view',
+            options: [
+              { value: 'list', label: 'List', icon: List },
+              { value: 'grid', label: 'Grid', icon: Grid3X3 },
+            ],
+          }}
+        />
+
+        {filteredItems.length === 0 && (
           <div className="consignment-empty">
-            <h3>{archivedCount > 0 ? 'No current items' : 'No items yet'}</h3>
-            <p>
-              {archivedCount > 0
-                ? `${archivedCount} paid item${archivedCount === 1 ? '' : 's'} archived. View them from Items using the Archived filter.`
-                : 'Add what they brought in today.'}
-            </p>
+            <h3>No items match these filters</h3>
+            <p>Change the search or filter selections to see other items.</p>
           </div>
         )}
 
-        {visibleItems.length > 0 && viewMode === 'list' && (
-          <AllListView items={sortedVisibleItems} consignors={[consignor]} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />
+        {filteredItems.length > 0 && viewMode === 'list' && (
+          <AllListView saleSourceMode items={filteredItems} consignors={[consignor]} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />
         )}
 
-        {visibleItems.length > 0 && viewMode === 'grid' && (
+        {filteredItems.length > 0 && viewMode === 'grid' && (
           <div className="consignment-readable-grid">
-            {sortedVisibleItems.map((item) => (
-              <ItemGridCardContainer key={item.id} item={item} consignor={consignor} showConsignor={false} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />
+            {filteredItems.map((item) => (
+              <ItemGridCardContainer saleSourceMode key={item.id} item={item} consignor={consignor} showConsignor={false} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />
             ))}
           </div>
         )}
