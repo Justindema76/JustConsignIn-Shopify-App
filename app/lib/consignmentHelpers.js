@@ -43,22 +43,22 @@ export function saleSourceLabel(value) {
   const source = normalizeSaleSource(value);
 
   if (source === 'Manual') {
-    return { text: 'Manual sale', className: 'manual' };
+    return { text: 'Manual', className: 'manual' };
   }
 
   if (source === 'POS') {
-    return { text: 'Point of Sale', className: 'pos' };
+    return { text: 'POS', className: 'pos' };
   }
 
   if (source === 'Online') {
-    return { text: 'Shopify Online', className: 'online' };
+    return { text: 'Online', className: 'online' };
   }
 
   if (source === 'Shopify') {
     return { text: 'Shopify', className: 'online' };
   }
 
-  return { text: 'Sale source unknown', className: 'draft' };
+  return { text: 'Unknown', className: 'draft' };
 }
 
 export function saleSourceMatches(item, filter) {
