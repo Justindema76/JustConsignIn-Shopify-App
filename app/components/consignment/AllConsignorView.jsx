@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react';
 
 import {
   money,
-  productLabel,
+  itemBadge,
   statusClass,
   statusLabel,
 } from '../../lib/consignmentHelpers';
@@ -401,7 +401,7 @@ export default function AllConsignorView({
 
             {items.map((item) => {
               const product =
-                productLabel(item);
+                itemBadge(item);
 
               const photo =
                 item.shopifyPhoto ||
