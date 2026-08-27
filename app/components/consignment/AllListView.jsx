@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import {
   money,
-  productLabel,
+  itemBadge,
   statusClass,
   statusLabel,
 } from '../../lib/consignmentHelpers';
@@ -57,7 +57,7 @@ export default function AllListView({
 
         {items.map((item) => {
           const consignor = consignorById[item.consignorId];
-          const product = productLabel(item);
+          const product = itemBadge(item);
           const photo = item.shopifyPhoto || item.photo;
 
           return (
