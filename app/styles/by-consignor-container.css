@@ -34,7 +34,7 @@
 .consignment-all-items-card > .consignment-list-head,
 .consignment-shared-item-table > .consignment-list-head {
   display:grid;
-  grid-template-columns:minmax(235px,2.2fr) 76px minmax(120px,1fr) 82px 88px 165px 104px 94px 118px;
+  grid-template-columns:minmax(220px,2.2fr) 76px minmax(120px,1fr) 90px 95px 150px 104px 94px 118px;
   gap:10px;
   align-items:center;
 }
