@@ -5,12 +5,34 @@ import Header from '../../components/consignment/Header';
 import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
 import { money } from '../../lib/consignmentHelpers';
+import '../../styles/consignor-dashboard.css';
 
 export default function ConsignorDashboard({ consignor, items, onBack, onStartIntake, onOpenItem, onDeleteConsignor, onEditConsignor, onStartPayout }) {
   const [viewMode, setViewMode] = useState('grid');
+  const [itemSort, setItemSort] = useState('newest');
   const [confirmingDeleteConsignor, setConfirmingDeleteConsignor] = useState(false);
   const consignorItems = items.filter((item) => item.consignorId === consignor.id);
   const visibleItems = consignorItems.filter((item) => !item.paidOut);
+  const sortedVisibleItems = [...visibleItems].sort((a, b) => {
+    const receivedTime = (item) => {
+      const value = item.dateReceived || item.createdAt || item.created_at || '';
+      const time = Date.parse(value);
+      return Number.isNaN(time) ? 0 : time;
+    };
+
+    if (itemSort === 'oldest') return receivedTime(a) - receivedTime(b);
+    if (itemSort === 'price-high') return Number(b.price || 0) - Number(a.price || 0);
+    if (itemSort === 'price-low') return Number(a.price || 0) - Number(b.price || 0);
+    if (itemSort === 'item-number') {
+      return String(a.itemNumber || '').localeCompare(
+        String(b.itemNumber || ''),
+        undefined,
+        { numeric: true },
+      );
+    }
+
+    return receivedTime(b) - receivedTime(a);
+  });
   const archivedCount = consignorItems.length - visibleItems.length;
   const draftCount = consignorItems.filter((item) => item.status === 'Draft').length;
   const soldItems = consignorItems.filter((item) => item.status === 'Sold' || item.dateSold);
@@ -49,7 +71,7 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
           </div>
         )}
       />
-      <div className="consignment-body">
+      <div className="consignment-body consignment-consignor-dashboard">
         <section className="consignment-card consignment-consignor-profile" aria-label="Consignor profile information">
           <div className="consignment-profile-column">
             <div className="consignment-profile-title">Contact</div>
@@ -94,6 +116,20 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
           <h3>Items on file</h3>
           <div className="consignment-consignor-items-tools">
             <span className="consignment-consignor-items-count">{visibleItems.length} current · {archivedCount} archived · {draftCount} draft</span>
+            <label className="consignment-consignor-sort">
+              <span>Sort</span>
+              <select
+                value={itemSort}
+                onChange={(event) => setItemSort(event.target.value)}
+                aria-label="Sort consignor items"
+              >
+                <option value="newest">Newest received</option>
+                <option value="oldest">Oldest received</option>
+                <option value="item-number">Item number</option>
+                <option value="price-high">Price: high to low</option>
+                <option value="price-low">Price: low to high</option>
+              </select>
+            </label>
             <div className="consignment-consignor-view-toggle" aria-label="Choose item view">
               <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={14} /> List</button>
               <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={14} /> Grid</button>
@@ -113,12 +149,12 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
         )}
 
         {visibleItems.length > 0 && viewMode === 'list' && (
-          <AllListView items={visibleItems} consignors={[consignor]} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />
+          <AllListView items={sortedVisibleItems} consignors={[consignor]} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />
         )}
 
         {visibleItems.length > 0 && viewMode === 'grid' && (
           <div className="consignment-readable-grid">
-            {visibleItems.map((item) => (
+            {sortedVisibleItems.map((item) => (
               <ItemGridCardContainer key={item.id} item={item} consignor={consignor} showConsignor={false} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />
             ))}
           </div>
