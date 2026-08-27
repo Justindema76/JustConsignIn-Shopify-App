@@ -2,6 +2,7 @@
 import {
   money,
   itemBadge,
+  productLabel,
   statusClass,
   statusLabel,
 } from '../../lib/consignmentHelpers';
@@ -31,6 +32,7 @@ export default function AllListView({
   onOpenConsignor,
   onMarkSold,
   onStartPayout,
+  saleSourceMode = false,
 }) {
   const consignorById = Object.fromEntries(
     consignors.map((consignor) => [consignor.id, consignor]),
@@ -57,7 +59,7 @@ export default function AllListView({
 
         {items.map((item) => {
           const consignor = consignorById[item.consignorId];
-          const product = itemBadge(item);
+          const product = saleSourceMode ? itemBadge(item) : productLabel(item);
           const photo = item.shopifyPhoto || item.photo;
 
           return (
