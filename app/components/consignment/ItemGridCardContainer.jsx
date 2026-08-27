@@ -214,45 +214,44 @@ export default function ItemGridCardContainer({
 
 
 <div className="consignment-readable-card-details">
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: 24,
-      flexWrap: 'wrap',
-    }}
-  >
-    <span>
-      <small>Date received</small>
+        <div className="consignment-readable-card-date-rows">
 
-      <strong>
-        {item.dateReceived || '—'}
-      </strong>
-    </span>
+          <div className="consignment-readable-card-date-row">
+            <small>Date received</small>
 
-    {isSold && (
-      <span>
-        <small>Sale date</small>
+            <strong>
+              {item.dateReceived || '—'}
+            </strong>
+          </div>
 
-        <strong>
-          {item.dateSold || '—'}
-        </strong>
-      </span>
-    )}
-  </div>
+          {isSold && (
+            <div className="consignment-readable-card-date-row">
+              <small>Sale date</small>
 
-  <span
-    className={`consignment-badge ${
-      item.paidOut
-        ? 'paid'
-        : statusClass(item.status)
-    }`}
-  >
-    {item.paidOut
-      ? 'Paid'
-      : statusLabel(item.status)}
-  </span>
-</div>
+              <strong>
+                {item.dateSold || '—'}
+              </strong>
+            </div>
+          )}
+
+          <div className="consignment-readable-card-date-row">
+            <small>Status</small>
+
+            <span
+              className={`consignment-badge ${
+                item.paidOut
+                  ? 'paid'
+                  : statusClass(item.status)
+              }`}
+            >
+              {item.paidOut
+                ? 'Paid'
+                : statusLabel(item.status)}
+            </span>
+          </div>
+
+        </div>
+      </div>
 
       {item.expiryDate && (
         <div className="consignment-sales-grid-order">
