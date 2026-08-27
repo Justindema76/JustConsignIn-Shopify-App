@@ -8,10 +8,11 @@ import { money, productLabel } from '../../lib/consignmentHelpers';
 
 // Same status set and "Available" merge as ItemsScreen — this page had the
 // identical duplicate-Available/Returned/Donated issue, fixed the same way.
-const STATUS_OPTIONS = ['All', 'Available', 'Sold', 'Archived'];
+const STATUS_OPTIONS = ['Current', 'Available', 'Sold', 'Archived', 'All'];
 
 function matchesStatusFilter(item, filter) {
   if (filter === 'All') return true;
+  if (filter === 'Current') return !item.paidOut;
   if (filter === 'Archived') return item.paidOut;
   if (filter === 'Available') return item.status === 'Available' || item.status === 'Active' || item.status === 'Draft';
   return item.status === filter && !item.paidOut;
@@ -23,7 +24,7 @@ function statusCount(items, filter) {
 }
 
 export default function ConsignorsScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpenItem, onMarkSold, onStartPayout, onNewConsignor, onNewItem, onImport, onExport }) {
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('Current');
   const [consignorFilter, setConsignorFilter] = useState('All');
   const [productFilter, setProductFilter] = useState('All');
   const [sort, setSort] = useState('consignor');
@@ -62,7 +63,7 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
     return groups;
   }, new Map());
 
-  if (statusFilter === 'All' && productFilter === 'All') {
+  if ((statusFilter === 'All' || statusFilter === 'Current') && productFilter === 'All') {
     const q = query.trim().toLowerCase();
     for (const consignor of consignors) {
       if (grouped.has(consignor.id)) continue;
