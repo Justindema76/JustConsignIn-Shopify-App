@@ -10,6 +10,8 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
   const [viewMode, setViewMode] = useState('grid');
   const [confirmingDeleteConsignor, setConfirmingDeleteConsignor] = useState(false);
   const consignorItems = items.filter((item) => item.consignorId === consignor.id);
+  const visibleItems = consignorItems.filter((item) => !item.paidOut);
+  const archivedCount = consignorItems.length - visibleItems.length;
   const draftCount = consignorItems.filter((item) => item.status === 'Draft').length;
   const soldItems = consignorItems.filter((item) => item.status === 'Sold' || item.dateSold);
   const unpaidItems = soldItems.filter((item) => !item.paidOut);
@@ -91,7 +93,7 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
         <div className="consignment-consignor-items-head">
           <h3>Items on file</h3>
           <div className="consignment-consignor-items-tools">
-            <span className="consignment-consignor-items-count">{consignorItems.length} total · {draftCount} draft</span>
+            <span className="consignment-consignor-items-count">{visibleItems.length} current · {archivedCount} archived · {draftCount} draft</span>
             <div className="consignment-consignor-view-toggle" aria-label="Choose item view">
               <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'}><List size={14} /> List</button>
               <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'}><Grid3X3 size={14} /> Grid</button>
@@ -99,20 +101,20 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
           </div>
         </div>
 
-        {consignorItems.length === 0 && (
+        {visibleItems.length === 0 && (
           <div className="consignment-empty">
             <h3>No items yet</h3>
             <p>Add what they brought in today.</p>
           </div>
         )}
 
-        {consignorItems.length > 0 && viewMode === 'list' && (
-          <AllListView items={consignorItems} consignors={[consignor]} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />
+        {visibleItems.length > 0 && viewMode === 'list' && (
+          <AllListView items={visibleItems} consignors={[consignor]} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />
         )}
 
-        {consignorItems.length > 0 && viewMode === 'grid' && (
+        {visibleItems.length > 0 && viewMode === 'grid' && (
           <div className="consignment-readable-grid">
-            {consignorItems.map((item) => (
+            {visibleItems.map((item) => (
               <ItemGridCardContainer key={item.id} item={item} consignor={consignor} showConsignor={false} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />
             ))}
           </div>
