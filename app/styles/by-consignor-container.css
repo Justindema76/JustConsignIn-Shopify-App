@@ -57,11 +57,12 @@
 }
 
 .consignment-item-date-line {
-  display:flex;
-  align-items:baseline;
-  justify-content:space-between;
-  gap:4px;
-  white-space:nowrap;
+  display: grid;
+  grid-template-columns: 60px auto;
+  align-items: baseline;
+  column-gap: 6px;
+  white-space: nowrap;
+  padding: 0;
 }
 
 .consignment-item-date-label {
