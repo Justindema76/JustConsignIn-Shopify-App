@@ -213,42 +213,46 @@ export default function ItemGridCardContainer({
       </div>
 
 
-      <div className="consignment-readable-card-details">
+<div className="consignment-readable-card-details">
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: 24,
+      flexWrap: 'wrap',
+    }}
+  >
+    <span>
+      <small>Date received</small>
 
-        <span>
+      <strong>
+        {item.dateReceived || '—'}
+      </strong>
+    </span>
 
-          <small>
-            {isSold
-              ? 'Sale date'
-              : 'Status'}
-          </small>
+    {isSold && (
+      <span>
+        <small>Sale date</small>
 
-          {isSold && (
-            <strong>
-              {item.dateSold || 'Sold'}
-            </strong>
-          )}
+        <strong>
+          {item.dateSold || '—'}
+        </strong>
+      </span>
+    )}
+  </div>
 
-        </span>
-
-        <span
-          className={`consignment-badge ${
-            item.paidOut
-              ? 'paid'
-              : statusClass(
-                  item.status,
-                )
-          }`}
-        >
-          {item.paidOut
-            ? 'Paid'
-            : statusLabel(
-                item.status,
-              )}
-        </span>
-
-      </div>
-
+  <span
+    className={`consignment-badge ${
+      item.paidOut
+        ? 'paid'
+        : statusClass(item.status)
+    }`}
+  >
+    {item.paidOut
+      ? 'Paid'
+      : statusLabel(item.status)}
+  </span>
+</div>
 
       {item.expiryDate && (
         <div className="consignment-sales-grid-order">

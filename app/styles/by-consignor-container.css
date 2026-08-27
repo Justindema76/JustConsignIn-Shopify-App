@@ -34,7 +34,7 @@
 .consignment-all-items-card > .consignment-list-head,
 .consignment-shared-item-table > .consignment-list-head {
   display:grid;
-  grid-template-columns:minmax(235px,2.2fr) 76px minmax(120px,1fr) 82px 88px 100px 104px 94px 118px;
+  grid-template-columns:minmax(235px,2.2fr) 76px minmax(120px,1fr) 82px 88px 165px 104px 94px 118px;
   gap:10px;
   align-items:center;
 }
@@ -301,4 +301,18 @@
   .consignment-archived-link {
     display: none;
   }
+}.consignment-item-dates {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.consignment-item-dates strong {
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
