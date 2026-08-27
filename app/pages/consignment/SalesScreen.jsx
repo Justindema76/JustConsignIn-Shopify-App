@@ -163,13 +163,13 @@ export default function SalesScreen({ items, consignors, onOpenItem, onOpenConsi
 
         {filtered.length === 0 && <section className="consignment-card"><div className="consignment-empty-small">No sales match these filters.</div></section>}
 
-        {viewMode === 'list' && filtered.length > 0 && <AllListView items={filtered} consignors={consignors} onOpenItem={onOpenItem} onOpenConsignor={onOpenConsignor} onStartPayout={onStartPayout} />}
+        {viewMode === 'list' && filtered.length > 0 && <AllListView saleSourceMode items={filtered} consignors={consignors} onOpenItem={onOpenItem} onOpenConsignor={onOpenConsignor} onStartPayout={onStartPayout} />}
 
-        {viewMode === 'grouped' && <div className="consignment-item-groups">{groupedEntries.map(([consignorId, consignorItems]) => <AllConsignorView key={consignorId} consignor={consignorById[consignorId]} items={consignorItems} itemLabel="sale" onOpenConsignor={onOpenConsignor} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />)}</div>}
+        {viewMode === 'grouped' && <div className="consignment-item-groups">{groupedEntries.map(([consignorId, consignorItems]) => <AllConsignorView saleSourceMode key={consignorId} consignor={consignorById[consignorId]} items={consignorItems} itemLabel="sale" onOpenConsignor={onOpenConsignor} onOpenItem={onOpenItem} onStartPayout={onStartPayout} />)}</div>}
 
         {viewMode === 'grid' && filtered.length > 0 && (
           <div className="consignment-readable-grid">
-            {filtered.map((item) => <ItemGridCardContainer key={item.id} item={item} consignor={consignorById[item.consignorId]} showConsignor onOpenItem={onOpenItem} onOpenConsignor={onOpenConsignor} onStartPayout={onStartPayout} />)}
+            {filtered.map((item) => <ItemGridCardContainer saleSourceMode key={item.id} item={item} consignor={consignorById[item.consignorId]} showConsignor onOpenItem={onOpenItem} onOpenConsignor={onOpenConsignor} onStartPayout={onStartPayout} />)}
           </div>
         )}
       </div>
