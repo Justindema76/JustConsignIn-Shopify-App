@@ -344,10 +344,10 @@ export default function AllConsignorView({
               #{consignor?.number || 'â€”'}
             </strong>
 
-            <span className="consignment-item-group-count">
-              {' '}
-              Â· {items.length} {label}
-            </span>
+          <span className="consignment-item-group-count">
+            {' \u00B7 '}
+            {items.length} {label}
+          </span>
 
           </span>
 
