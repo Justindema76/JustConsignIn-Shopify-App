@@ -279,6 +279,29 @@
     font-size: 11px;
   }
 
+  /* By Consignor uses the existing expiry-date wrapper for all dates.
+     Match its mobile date size to the All Items rows. */
+  .consignment-all-item-row > .consignment-expiry-date {
+    gap: 5px !important;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .consignment-all-item-row > .consignment-expiry-date > span {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
+  .consignment-all-item-row > .consignment-expiry-date strong {
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.2;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+  }
+
   /* Product badge */
   .consignment-all-item-row > :nth-child(7) {
     grid-area: product;
