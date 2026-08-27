@@ -11,9 +11,8 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
   const [viewMode, setViewMode] = useState('grid');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState('newest');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('Available');
   const [sourceFilter, setSourceFilter] = useState('All');
-  const [payoutFilter, setPayoutFilter] = useState('Unpaid');
   const [confirmingDeleteConsignor, setConfirmingDeleteConsignor] = useState(false);
 
   const consignorItems = items.filter((item) => item.consignorId === consignor.id);
@@ -23,7 +22,6 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
   const availableItems = consignorItems.filter((item) => !isSold(item));
   const unpaidItems = soldItems.filter((item) => !item.paidOut);
   const paidItems = soldItems.filter((item) => item.paidOut);
-  const unpaidCount = unpaidItems.length;
   const paidCount = paidItems.length;
   const archivedCount = paidCount;
   const totalSales = soldItems.reduce((sum, item) => sum + Number(item.salePrice ?? item.price ?? 0), 0);
@@ -38,18 +36,14 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
     const matchesQuery = !q || `${item.description || ''} ${item.itemNumber || ''} ${item.type || ''} ${item.brand || ''}`
       .toLowerCase()
       .includes(q);
-    const matchesStatus = statusFilter === 'All'
-      || (statusFilter === 'Available' && !isSold(item))
-      || (statusFilter === 'Sold' && isSold(item));
-    const matchesSource = saleSourceMatches(item, sourceFilter);
     const sold = isSold(item);
-    const matchesPayout = !sold
-      ? payoutFilter !== 'Paid'
-      : payoutFilter === 'All'
-        || (payoutFilter === 'Paid' && item.paidOut)
-        || (payoutFilter === 'Unpaid' && !item.paidOut);
+    const matchesStatus = statusFilter === 'All'
+      || (statusFilter === 'Available' && !sold)
+      || (statusFilter === 'SoldUnpaid' && sold && !item.paidOut)
+      || (statusFilter === 'PaidArchived' && item.paidOut);
+    const matchesSource = saleSourceMatches(item, sourceFilter);
 
-    return matchesQuery && matchesStatus && matchesSource && matchesPayout;
+    return matchesQuery && matchesStatus && matchesSource;
   }).sort((a, b) => {
     const itemDate = (item) => String(
       item.dateSold
@@ -186,9 +180,10 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
               onChange: setStatusFilter,
               ariaLabel: 'Filter by item status',
               options: [
-                { value: 'All', label: `All item statuses (${consignorItems.length})` },
                 { value: 'Available', label: `Available (${availableItems.length})` },
-                { value: 'Sold', label: `Sold (${soldItems.length})` },
+                { value: 'SoldUnpaid', label: `Sold / Unpaid (${unpaidItems.length})` },
+                { value: 'PaidArchived', label: `Paid / Archived (${paidItems.length})` },
+                { value: 'All', label: `All items (${consignorItems.length})` },
               ],
             },
             {
@@ -202,18 +197,6 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
                 { value: 'Manual', label: 'Manual' },
                 { value: 'POS', label: 'POS' },
                 { value: 'Online', label: 'Online' },
-              ],
-            },
-            {
-              key: 'payoutStatus',
-              label: 'Payout status',
-              value: payoutFilter,
-              onChange: setPayoutFilter,
-              ariaLabel: 'Filter by payout status',
-              options: [
-                { value: 'All', label: `All sold payout statuses (${soldItems.length})` },
-                { value: 'Unpaid', label: `Unpaid sold (${unpaidCount})` },
-                { value: 'Paid', label: `Paid / archived (${paidCount})` },
               ],
             },
           ]}
