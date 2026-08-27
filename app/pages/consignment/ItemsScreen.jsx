@@ -14,6 +14,7 @@ import AllConsignorView from '../../components/consignment/AllConsignorView';
 import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
 import {
+  isSold,
   productLabel,
   statusLabel,
 } from '../../lib/consignmentHelpers';
@@ -28,15 +29,13 @@ export default function ItemsScreen({
   onNewItem,
 }) {
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState('Current');
+  const [filter, setFilter] = useState('Available');
   const [consignorFilter, setConsignorFilter] = useState('All');
   const [productFilter, setProductFilter] = useState('All');
   const [sort, setSort] = useState('consignor');
   const [viewMode, setViewMode] = useState('list');
 
   const statuses = [
-    'Current',
-    'Draft',
     'Available',
     'Sold',
     'Archived',
@@ -71,12 +70,14 @@ export default function ItemsScreen({
         (productFilter === 'POS + Online' && product.text === 'POS + Online');
 
       const matchesStatus =
-        filter === 'Current'
-          ? !item.paidOut
-          : filter === 'Archived'
-            ? item.paidOut
-            : filter === 'Available'
-              ? item.status === 'Available' || item.status === 'Active'
+        filter === 'Archived'
+          ? item.paidOut
+          : filter === 'Available'
+            ? !item.paidOut
+              && !isSold(item)
+              && ['Draft', 'Available', 'Active'].includes(item.status)
+            : filter === 'Sold'
+              ? !item.paidOut && isSold(item)
               : item.status === filter && !item.paidOut;
 
       return (
@@ -253,14 +254,21 @@ export default function ItemsScreen({
                 >
                   {statuses.map((status) => {
                     const count =
-                      status === 'Current'
-                        ? items.filter((item) => !item.paidOut).length
-                        : status === 'Archived'
-                          ? items.filter((item) => item.paidOut).length
-                          : items.filter(
+                      status === 'Archived'
+                        ? items.filter((item) => item.paidOut).length
+                        : status === 'Available'
+                          ? items.filter(
                               (item) =>
-                                item.status === status && !item.paidOut,
-                            ).length;
+                                !item.paidOut
+                                && !isSold(item)
+                                && ['Draft', 'Available', 'Active'].includes(item.status),
+                            ).length
+                          : status === 'Sold'
+                            ? items.filter((item) => !item.paidOut && isSold(item)).length
+                            : items.filter(
+                                (item) =>
+                                  item.status === status && !item.paidOut,
+                              ).length;
 
                     return (
                       <option key={status} value={status}>
