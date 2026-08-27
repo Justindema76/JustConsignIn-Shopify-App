@@ -540,6 +540,16 @@ function ShopifyProductSection({
       </summary>
 
       <div className="consignment-form-section-body">
+        <fieldset
+          disabled={disabled}
+          style={{
+            minWidth: 0,
+            margin: 0,
+            padding: 0,
+            border: 0,
+            opacity: disabled ? 0.45 : 1,
+          }}
+        >
         <p className="consignment-shopify-help">
           This section only controls the linked Shopify product. Manual item
           saving never creates or updates a Shopify product.
@@ -669,16 +679,27 @@ function ShopifyProductSection({
               Update Shopify product
             </button>
 
-            <a
-              className="consignment-btn secondary"
-              href={productAdminUrl(linkedProductId)}
-              target="_top"
-            >
-              <span aria-hidden="true">â†—</span>
-              Edit in Shopify
-            </a>
+            {disabled ? (
+              <span
+                className="consignment-btn secondary"
+                aria-disabled="true"
+              >
+                <span aria-hidden="true">↗</span>
+                Edit in Shopify
+              </span>
+            ) : (
+              <a
+                className="consignment-btn secondary"
+                href={productAdminUrl(linkedProductId)}
+                target="_top"
+              >
+                <span aria-hidden="true">↗</span>
+                Edit in Shopify
+              </a>
+            )}
           </div>
         )}
+        </fieldset>
       </div>
     </details>
   );
@@ -854,12 +875,184 @@ function IntakeScreen({
     </>
   );
 }
-function EditItemScreen({ item,onBack,onSave,onDelete,onSyncProduct,onUpdateStatus,tier2Enabled=false }) {
-  const [form,setForm]=useState({category:item.category||'Other',type:'',description:item.description||'',size:item.size||'',condition:item.condition||'Good',price:item.price??'',brand:item.brand||'',notes:item.notes||'',consignmentTerm:item.consignmentTerm||''});
-  const [shopifyForm,setShopifyForm]=useState({photo:item.shopifyPhoto||item.photo||null,photoId:item.photoId||null,shopifyTitle:item.shopifyTitle||'',shopifyPrice:item.shopifyPrice??item.price??'',tags:Array.isArray(item.tags)?item.tags.join(', '):(item.tags||''),vendor:item.vendor||'',productDescription:item.productDescription||'',shopifyCategoryId:item.shopifyCategoryId||'',shopifyCategoryName:item.shopifyCategoryName||'',seoTitle:item.seoTitle||'',seoDescription:item.seoDescription||'',publishToPos:true,publishOnline:item.publishOnline===true});
-  const [confirmingDelete,setConfirmingDelete]=useState(false); const [syncing,setSyncing]=useState(false); const isSold=item.status==='Sold'||Boolean(item.dateSold); const canSave=form.description.trim()&&form.price!=='';
-  useEffect(()=>{if(item.shopifyProductId)return;const auto=buildShopifyAutoFill(form);setShopifyForm((current)=>({...current,...auto,shopifyCategoryId:current.shopifyCategoryId,shopifyCategoryName:current.shopifyCategoryName,photo:current.photo,photoId:current.photoId,publishToPos:current.publishToPos,publishOnline:current.publishOnline}));},[form.description,form.price,form.brand,form.size,form.condition,form.category,form.type,item.shopifyProductId]);
-  return <><Header eyebrow={`Item ${item.itemNumber}`} title="Edit item" onBack={onBack}/><div className="consignment-body"><div className="consignment-form-shell"><ManualSaleStatus item={item} onMarkSold={(itemId,details)=>onUpdateStatus(itemId,'Sold',details)} money={money}/><details className="consignment-form-section"><summary className="consignment-form-section-head"><span className="consignment-form-section-marker"/><div><h2>Product information</h2><p>Item {item.itemNumber}</p></div></summary><div className="consignment-form-section-body"><ManualItemCore form={form} setForm={setForm} onSave={()=>onSave(item.id,form)} saveDisabled={!canSave||isSold} saveLabel="Save manual changes" helperText="Updates only the consignment item metaobject. Shopify product data and media are handled separately below."/></div></details><ShopifyProductSection shopifyForm={shopifyForm} setShopifyForm={setShopifyForm} linkedProductId={item.shopifyProductId} linkedStatus={item.shopifyProductStatus} disabled={isSold} syncing={syncing} tier2Enabled={tier2Enabled} onSync={async()=>{setSyncing(true);try{await onSyncProduct(item.id,shopifyForm);}finally{setSyncing(false);}}}/>{!confirmingDelete?<button className="consignment-btn secondary" style={{ color:'var(--danger)',borderColor:'var(--danger-soft)' }} onClick={()=>setConfirmingDelete(true)}><Trash2 size={16}/> Delete item</button>:<div className="consignment-card" style={{ display:'flex',alignItems:'center',justifyContent:'space-between' }}><span style={{ fontSize:13 }}>Delete {item.itemNumber} and its linked Shopify product?</span><div style={{ display:'flex',gap:8 }}><button className="consignment-btn secondary" style={{ padding:'8px 14px' }} onClick={()=>setConfirmingDelete(false)}>Cancel</button><button className="consignment-btn danger" style={{ padding:'8px 14px' }} onClick={()=>onDelete(item.id)}>Delete</button></div></div>}</div></div></>;
+function EditItemScreen({
+  item,
+  onBack,
+  onSave,
+  onDelete,
+  onSyncProduct,
+  onUpdateStatus,
+  tier2Enabled = false,
+}) {
+  const [form, setForm] = useState({
+    category: item.category || 'Other',
+    type: '',
+    description: item.description || '',
+    size: item.size || '',
+    condition: item.condition || 'Good',
+    price: item.price ?? '',
+    brand: item.brand || '',
+    notes: item.notes || '',
+    consignmentTerm: item.consignmentTerm || '',
+  });
+  const [shopifyForm, setShopifyForm] = useState({
+    photo: item.shopifyPhoto || item.photo || null,
+    photoId: item.photoId || null,
+    shopifyTitle: item.shopifyTitle || '',
+    shopifyPrice: item.shopifyPrice ?? item.price ?? '',
+    tags: Array.isArray(item.tags) ? item.tags.join(', ') : item.tags || '',
+    vendor: item.vendor || '',
+    productDescription: item.productDescription || '',
+    shopifyCategoryId: item.shopifyCategoryId || '',
+    shopifyCategoryName: item.shopifyCategoryName || '',
+    seoTitle: item.seoTitle || '',
+    seoDescription: item.seoDescription || '',
+    publishToPos: true,
+    publishOnline: item.publishOnline === true,
+  });
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const isSold = item.status === 'Sold' || Boolean(item.dateSold);
+  const canSave = form.description.trim() && form.price !== '';
+
+  useEffect(() => {
+    if (item.shopifyProductId) return;
+    const auto = buildShopifyAutoFill(form);
+    setShopifyForm((current) => ({
+      ...current,
+      ...auto,
+      shopifyCategoryId: current.shopifyCategoryId,
+      shopifyCategoryName: current.shopifyCategoryName,
+      photo: current.photo,
+      photoId: current.photoId,
+      publishToPos: current.publishToPos,
+      publishOnline: current.publishOnline,
+    }));
+  }, [
+    form.description,
+    form.price,
+    form.brand,
+    form.size,
+    form.condition,
+    form.category,
+    form.type,
+    item.shopifyProductId,
+  ]);
+
+  return (
+    <>
+      <Header
+        eyebrow={`Item ${item.itemNumber}`}
+        title="Edit item"
+        onBack={onBack}
+      />
+
+      <div className="consignment-body">
+        <div className="consignment-form-shell">
+          <ManualSaleStatus
+            item={item}
+            onMarkSold={(itemId, details) =>
+              onUpdateStatus(itemId, 'Sold', details)
+            }
+            money={money}
+          />
+
+          <details className="consignment-form-section">
+            <summary className="consignment-form-section-head">
+              <span className="consignment-form-section-marker" />
+              <div>
+                <h2>Product information</h2>
+                <p>Item {item.itemNumber}</p>
+              </div>
+            </summary>
+
+            <div className="consignment-form-section-body">
+              <fieldset
+                disabled={isSold}
+                style={{
+                  minWidth: 0,
+                  margin: 0,
+                  padding: 0,
+                  border: 0,
+                  opacity: isSold ? 0.45 : 1,
+                }}
+              >
+                <ManualItemCore
+                  form={form}
+                  setForm={setForm}
+                  onSave={() => onSave(item.id, form)}
+                  saveDisabled={!canSave || isSold}
+                  saveLabel="Save manual changes"
+                  helperText="Updates only the consignment item metaobject. Shopify product data and media are handled separately below."
+                />
+              </fieldset>
+            </div>
+          </details>
+
+          <ShopifyProductSection
+            shopifyForm={shopifyForm}
+            setShopifyForm={setShopifyForm}
+            linkedProductId={item.shopifyProductId}
+            linkedStatus={item.shopifyProductStatus}
+            disabled={isSold}
+            syncing={syncing}
+            tier2Enabled={tier2Enabled}
+            onSync={async () => {
+              setSyncing(true);
+              try {
+                await onSyncProduct(item.id, shopifyForm);
+              } finally {
+                setSyncing(false);
+              }
+            }}
+          />
+
+          {!confirmingDelete ? (
+            <button
+              className="consignment-btn secondary"
+              style={{
+                color: 'var(--danger)',
+                borderColor: 'var(--danger-soft)',
+              }}
+              onClick={() => setConfirmingDelete(true)}
+            >
+              <Trash2 size={16} />
+              Delete item
+            </button>
+          ) : (
+            <div
+              className="consignment-card"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <span style={{ fontSize: 13 }}>
+                Delete {item.itemNumber} and its linked Shopify product?
+              </span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  className="consignment-btn secondary"
+                  style={{ padding: '8px 14px' }}
+                  onClick={() => setConfirmingDelete(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="consignment-btn danger"
+                  style={{ padding: '8px 14px' }}
+                  onClick={() => onDelete(item.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default function ConsignmentIntakeApp({ activePlan = null }) {

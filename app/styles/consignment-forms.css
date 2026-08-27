@@ -225,3 +225,13 @@ summary.consignment-form-section-head::after {
 details:not([open]) > summary.consignment-form-section-head::after {
   transform: rotate(0deg);
 }
+.consignment-form-section.is-locked {
+  opacity: 0.55;
+}
+
+.consignment-form-section.is-locked input,
+.consignment-form-section.is-locked select,
+.consignment-form-section.is-locked textarea,
+.consignment-form-section.is-locked button {
+  cursor: not-allowed;
+}
