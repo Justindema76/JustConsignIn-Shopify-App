@@ -131,10 +131,9 @@ export default function SalesScreen({ items, consignors, onOpenItem, onOpenConsi
               ariaLabel: 'Filter by sale source',
               options: [
                 { value: 'All', label: 'All sale sources' },
-                { value: 'Manual', label: 'Manual sale' },
-                { value: 'POS', label: 'Point of Sale' },
-                { value: 'Online', label: 'Shopify Online' },
-                { value: 'Shopify', label: 'Shopify (other)' },
+                { value: 'Manual', label: 'Manual' },
+                { value: 'POS', label: 'POS' },
+                { value: 'Online', label: 'Online' },
               ],
             },
             {
