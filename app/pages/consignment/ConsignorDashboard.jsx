@@ -17,13 +17,15 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
   const [confirmingDeleteConsignor, setConfirmingDeleteConsignor] = useState(false);
 
   const consignorItems = items.filter((item) => item.consignorId === consignor.id);
-  const paidCount = consignorItems.filter((item) => item.paidOut).length;
-  const unpaidCount = consignorItems.filter((item) => !item.paidOut).length;
-  const archivedCount = paidCount;
+  const currentCount = consignorItems.filter((item) => !item.paidOut).length;
   const draftCount = consignorItems.filter((item) => item.status === 'Draft').length;
   const soldItems = consignorItems.filter((item) => isSold(item));
   const availableItems = consignorItems.filter((item) => !isSold(item));
   const unpaidItems = soldItems.filter((item) => !item.paidOut);
+  const paidItems = soldItems.filter((item) => item.paidOut);
+  const unpaidCount = unpaidItems.length;
+  const paidCount = paidItems.length;
+  const archivedCount = paidCount;
   const totalSales = soldItems.reduce((sum, item) => sum + Number(item.salePrice ?? item.price ?? 0), 0);
   const activeCount = consignorItems.filter((item) => ['Available', 'Active'].includes(item.status)).length;
   const amountDue = unpaidItems.reduce(
@@ -40,9 +42,12 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
       || (statusFilter === 'Available' && !isSold(item))
       || (statusFilter === 'Sold' && isSold(item));
     const matchesSource = saleSourceMatches(item, sourceFilter);
-    const matchesPayout = payoutFilter === 'All'
-      || (payoutFilter === 'Paid' && item.paidOut)
-      || (payoutFilter === 'Unpaid' && !item.paidOut);
+    const sold = isSold(item);
+    const matchesPayout = !sold
+      ? payoutFilter !== 'Paid'
+      : payoutFilter === 'All'
+        || (payoutFilter === 'Paid' && item.paidOut)
+        || (payoutFilter === 'Unpaid' && !item.paidOut);
 
     return matchesQuery && matchesStatus && matchesSource && matchesPayout;
   }).sort((a, b) => {
@@ -143,7 +148,7 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
         <div className="consignment-consignor-items-head">
           <h3>Items on file</h3>
           <span className="consignment-consignor-items-count">
-            {unpaidCount} current · {archivedCount} archived · {draftCount} draft
+            {currentCount} current · {archivedCount} archived · {draftCount} draft
           </span>
         </div>
 
@@ -200,8 +205,8 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
               onChange: setPayoutFilter,
               ariaLabel: 'Filter by payout status',
               options: [
-                { value: 'All', label: `All payout statuses (${consignorItems.length})` },
-                { value: 'Unpaid', label: `Unpaid (${unpaidCount})` },
+                { value: 'All', label: `All sold payout statuses (${soldItems.length})` },
+                { value: 'Unpaid', label: `Unpaid sold (${unpaidCount})` },
                 { value: 'Paid', label: `Paid / archived (${paidCount})` },
               ],
             },
