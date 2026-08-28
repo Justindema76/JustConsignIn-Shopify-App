@@ -26,6 +26,7 @@ import DashboardScreen from './pages/consignment/DashboardScreen';
 import ItemsScreen from './pages/consignment/ItemsScreen';
 import Header from './components/consignment/Header';
 import ManualSaleStatus from './components/consignment/ManualSaleStatus';
+import ItemBarcode from './components/consignment/ItemBarcode';
 import ConsignorsScreen from './pages/consignment/ConsignorsScreen';
 import SalesScreen from './pages/consignment/SalesScreen';
 import PayoutsScreen from './pages/consignment/PayoutsScreen';
@@ -1222,6 +1223,8 @@ function EditItemScreen({
 
       <div className="consignment-body">
         <div className="consignment-form-shell">
+          <ItemBarcode value={item.itemNumber} />
+
           <ManualSaleStatus
             item={item}
             onMarkSold={(itemId, details) =>
