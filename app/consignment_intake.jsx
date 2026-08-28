@@ -1223,7 +1223,11 @@ function EditItemScreen({
 
       <div className="consignment-body">
         <div className="consignment-form-shell">
-          <ItemBarcode value={item.itemNumber} />
+          <ItemBarcode
+            value={item.itemNumber}
+            description={item.description || item.type || 'Consignment item'}
+            priceLabel={money(item.price)}
+          />
 
           <ManualSaleStatus
             item={item}
@@ -1345,7 +1349,7 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
   async function handleImport(kind,rows){try{setError('');const result=await importConsignmentData(kind,rows);await refreshData();if(kind==='consignors')flash(`${result.consignorsCreated||0} created, ${result.consignorsUpdated||0} matched/updated, ${result.itemsImported||0} items imported, ${result.shopifyProductsCreated||0} Shopify products created`);else{const importedCount=result.itemsImported??result.imported;flash(`${importedCount} item${importedCount===1?'':'s'} imported, ${result.shopifyProductsCreated||0} Shopify products created`);}setView(importBack);}catch(e){setError(errorMessage(e,'Could not import this CSV'));throw e;}}
   function startImport(kind,backView,consignorId=null){setImportKind(kind);setImportBack(backView);setImportConsignorId(consignorId);setView('import');}
   async function handleSaveBatch(batch){try{setError('');const saved=await createConsignmentItems(activeId,batch);await refreshData();flash(`${saved.length} item${saved.length===1?'':'s'} saved`);setView('consignor');}catch(e){setError(errorMessage(e,'Could not save items'));}}
-  async function handleSaveAndSync(currentEntry,queuedBatch,shopifyForm){try{setError('');const saved=await createConsignmentItems(activeId,[...queuedBatch,currentEntry]);const newItem=saved[saved.length-1];await syncShopifyProduct(newItem.id,shopifyForm);await refreshData();flash(`${saved.length} item${saved.length===1?'':'s'} saved Ã‚Â· Shopify product created`);setView('consignor');}catch(e){setError(errorMessage(e,'Could not save the item and create the Shopify product'));throw e;}}
+  async function handleSaveAndSync(currentEntry,queuedBatch,shopifyForm){try{setError('');const saved=await createConsignmentItems(activeId,[...queuedBatch,currentEntry]);const newItem=saved[saved.length-1];await syncShopifyProduct(newItem.id,shopifyForm);await refreshData();flash(`${saved.length} item${saved.length===1?'':'s'} saved Ã‚Â· Shopify product created`);setActiveItemId(newItem.id);setView('editItem');}catch(e){setError(errorMessage(e,'Could not save the item and create the Shopify product'));throw e;}}
   async function handleUpdateConsignor(consignorId,form){try{setError('');await updateConsignor(consignorId,form);await refreshData();flash('Consignor updated');setView('consignor');}catch(e){setError(errorMessage(e,'Could not update consignor'));}}
   async function handleDeleteConsignor(consignorId){try{setError('');await deleteConsignor(consignorId);await refreshData();setActiveId(null);setView('home');flash('Consignor deleted');}catch(e){setError(errorMessage(e,'Could not delete consignor'));}}
   async function handleDeleteItem(itemId){try{setError('');await deleteConsignmentItem(itemId);await refreshData();flash('Item deleted');}catch(e){setError(errorMessage(e,'Could not delete item'));}}

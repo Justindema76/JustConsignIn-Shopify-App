@@ -437,20 +437,133 @@ html[data-consignment-theme='dark'] .consignment textarea {
       .consignment-manual-sale-copy { margin-bottom: 10px; }
       .consignment-manual-sale-copy strong { display: block; font-size: 13px; }
       .consignment-manual-sale-copy span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
-      .consignment-item-barcode {
+      .consignment-item-barcode-card {
+        display: grid;
+        gap: 10px;
         width: 100%;
-        max-width: 360px;
-        margin: 0 0 12px;
+        padding: 12px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 5px;
+      }
+      .consignment-item-barcode-graphic {
+        width: 100%;
         padding: 8px 10px 6px;
         overflow: hidden;
         background: #fff;
         border: 1px solid var(--line);
         border-radius: var(--button-radius);
       }
-      .consignment-item-barcode svg {
+      .consignment-item-barcode-graphic svg {
         display: block;
         width: 100%;
         height: 76px;
+      }
+      .consignment-item-barcode-button {
+        width: 100%;
+      }
+      .consignment-barcode-modal {
+        position: fixed;
+        z-index: 1000;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        background: rgba(0, 0, 0, .66);
+      }
+      .consignment-barcode-dialog {
+        width: min(100%, 440px);
+        padding: 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, .28);
+      }
+      .consignment-barcode-dialog-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .consignment-barcode-dialog-head h2 {
+        margin: 0;
+        color: var(--ink);
+        font-size: 17px;
+      }
+      .consignment-barcode-dialog-close {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 36px;
+        padding: 0;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: var(--button-radius);
+      }
+      .consignment-barcode-print-label {
+        width: 100%;
+        padding: 12px;
+        color: #000;
+        background: #fff;
+        border: 1px solid var(--line);
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      .consignment-barcode-print-label-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+      .consignment-barcode-print-label-head strong {
+        min-width: 0;
+        font-size: 13px;
+        line-height: 1.25;
+      }
+      .consignment-barcode-print-label-head span {
+        flex: 0 0 auto;
+        font-size: 17px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .consignment-barcode-print-label .consignment-item-barcode-graphic {
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+      }
+      .consignment-barcode-dialog-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .consignment-barcode-dialog-actions .consignment-btn {
+        width: 100%;
+      }
+      @media print {
+        @page {
+          size: 3in 1.5in;
+          margin: 0;
+        }
+        body * {
+          visibility: hidden !important;
+        }
+        .consignment-barcode-print-label,
+        .consignment-barcode-print-label * {
+          visibility: visible !important;
+        }
+        .consignment-barcode-print-label {
+          position: fixed;
+          inset: 0 auto auto 0;
+          width: 3in;
+          min-height: 1.5in;
+          padding: .12in;
+          border: 0;
+        }
       }
       .consignment-manual-sale-controls {
         display: grid; grid-template-columns: minmax(0, 1fr) auto;
