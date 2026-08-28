@@ -1,6 +1,6 @@
 import "@shopify/ui-extensions/preact";
 import {render} from 'preact';
-import {useCallback, useEffect, useMemo, useState} from 'preact/hooks';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'preact/hooks';
 
 // Looks up one item by its exact ticket number (metaobject handle). This is
 // the authoritative path — it's the only place that checks Shopify product
@@ -346,6 +346,14 @@ function Extension() {
 
   const [hasCameraScanner, setHasCameraScanner] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
+  // The scan subscription below gets torn down and rebuilt whenever
+  // `findItem` changes identity (which happens on every query change,
+  // including the one this same handler triggers) — and Shopify's Scanner
+  // API can re-emit the previous scan value on resubscribe. Without this
+  // guard, one physical scan could fire the handler twice, toggling the
+  // camera overlay open/closed rapidly. Tracking the last processed value
+  // is Shopify's own documented fix for this exact issue.
+  const lastScannedRef = useRef('');
 
   useEffect(() => {
     let cancelled = false;
@@ -400,12 +408,15 @@ function Extension() {
       // (e.g. two rapid scans while the first is still resolving) — ignore
       // it rather than racing two lookups against the same `item` state.
       if (loading || adding) return;
+      const scannedTicket = scan.data.trim();
+      // Skip re-emitted/stale scan values — see lastScannedRef comment above.
+      if (scannedTicket === lastScannedRef.current) return;
+      lastScannedRef.current = scannedTicket;
       // A camera scan needs the overlay explicitly closed afterward — a
       // hardware/embedded scanner has no overlay to close, so this is a
       // no-op for those sources.
       shopify.scanner.hideCameraScanner();
       setCameraActive(false);
-      const scannedTicket = scan.data.trim();
       setQuery(scannedTicket);
       void findItem(scannedTicket);
     });
@@ -427,6 +438,10 @@ function Extension() {
   }, []);
 
   function startCameraScan() {
+    // Starting a new scan should be able to accept the same ticket again
+    // (e.g. adding two of the same item back to back) — clear the dedup
+    // guard so that's not silently ignored as a "stale" repeat.
+    lastScannedRef.current = '';
     shopify.scanner.showCameraScanner();
     setCameraActive(true);
   }
