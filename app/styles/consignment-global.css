@@ -437,6 +437,21 @@ html[data-consignment-theme='dark'] .consignment textarea {
       .consignment-manual-sale-copy { margin-bottom: 10px; }
       .consignment-manual-sale-copy strong { display: block; font-size: 13px; }
       .consignment-manual-sale-copy span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+      .consignment-item-barcode {
+        width: 100%;
+        max-width: 360px;
+        margin: 0 0 12px;
+        padding: 8px 10px 6px;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: var(--button-radius);
+      }
+      .consignment-item-barcode svg {
+        display: block;
+        width: 100%;
+        height: 76px;
+      }
       .consignment-manual-sale-controls {
         display: grid; grid-template-columns: minmax(0, 1fr) auto;
         gap: 10px; align-items: end;
