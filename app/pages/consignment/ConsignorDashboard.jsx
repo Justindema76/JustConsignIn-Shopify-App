@@ -65,7 +65,7 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
               <Pencil size={17} /> Edit
             </button>
             <button
-              className="consignment-btn secondary consignment-consignor-delete"
+              className="consignment-btn danger consignment-consignor-delete"
               onClick={() => setConfirmingDeleteConsignor(true)}
             >
               <Trash2 size={17} /> Delete
@@ -80,8 +80,6 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
             <ChevronDown size={20} aria-hidden="true" />
           </summary>
           <section className="consignment-consignor-profile" aria-label="Consignor profile information">
-          <div className="consignment-profile-column">
-            <div className="consignment-profile-title">Contact</div>
             <div className="consignment-profile-row">
               <span className="consignment-profile-icon"><Phone size={17} /></span>
               <span className="consignment-profile-copy">
@@ -103,13 +101,9 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
                 {fullAddress ? <a className="consignment-profile-value consignment-profile-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`} target="_blank" rel="noopener noreferrer">{fullAddress}</a> : <span className="consignment-profile-value">—</span>}
               </span>
             </div>
-          </div>
-          <div className="consignment-profile-column">
-            <div className="consignment-profile-title">Account details</div>
             <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Commission split</span><span className="consignment-profile-value">Consignor gets {consignor.commissionPct}%</span></span></div>
             <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Joined</span><span className="consignment-profile-value">{consignor.dateJoined || '—'}</span></span></div>
             <div className="consignment-profile-row detail"><span className="consignment-profile-copy"><span className="consignment-profile-label">Unsold items</span><span className="consignment-profile-value">{consignor.unsoldPreference || 'Please return'}</span></span></div>
-          </div>
           </section>
         </details>
 
