@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 
 import { useEffect, useState } from "react";
-import { Printer, X } from "lucide-react";
+import { Check, Copy, Printer, X } from "lucide-react";
 
 const CODE_128_PATTERNS = [
   "212222",
@@ -216,6 +216,7 @@ export default function ItemBarcode({
   priceLabel = "",
 }) {
   const [showPrintLabel, setShowPrintLabel] = useState(false);
+  const [copyStatus, setCopyStatus] = useState("idle");
   let barcode;
 
   try {
@@ -234,6 +235,61 @@ export default function ItemBarcode({
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [showPrintLabel]);
+
+  async function copyBarcode() {
+    const svg = document.querySelector(
+      ".consignment-barcode-print-label svg",
+    );
+
+    if (!svg || !navigator.clipboard || typeof ClipboardItem === "undefined") {
+      setCopyStatus("error");
+      return;
+    }
+
+    try {
+      const copy = svg.cloneNode(true);
+      copy.setAttribute("width", "900");
+      copy.setAttribute("height", "300");
+
+      const source = new XMLSerializer().serializeToString(copy);
+      const svgBlob = new Blob([source], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      const imageUrl = URL.createObjectURL(svgBlob);
+      const image = new Image();
+
+      const pngBlob = new Promise((resolve, reject) => {
+        image.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = 900;
+          canvas.height = 300;
+
+          const context = canvas.getContext("2d");
+          context.fillStyle = "#fff";
+          context.fillRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+          canvas.toBlob(
+            (blob) => (blob ? resolve(blob) : reject(new Error("Copy failed"))),
+            "image/png",
+          );
+        };
+        image.onerror = reject;
+        image.src = imageUrl;
+      });
+
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": pngBlob }),
+      ]);
+      URL.revokeObjectURL(imageUrl);
+
+      setCopyStatus("copied");
+      window.setTimeout(() => setCopyStatus("idle"), 1800);
+    } catch {
+      setCopyStatus("error");
+      window.setTimeout(() => setCopyStatus("idle"), 1800);
+    }
+  }
 
   if (!barcode) return null;
 
@@ -294,9 +350,18 @@ export default function ItemBarcode({
               <button
                 type="button"
                 className="consignment-btn secondary"
-                onClick={() => setShowPrintLabel(false)}
+                onClick={copyBarcode}
               >
-                Close
+                {copyStatus === "copied" ? (
+                  <Check size={17} aria-hidden="true" />
+                ) : (
+                  <Copy size={17} aria-hidden="true" />
+                )}
+                {copyStatus === "copied"
+                  ? "Copied"
+                  : copyStatus === "error"
+                    ? "Copy unavailable"
+                    : "Copy barcode"}
               </button>
 
               <button
