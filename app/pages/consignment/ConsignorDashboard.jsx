@@ -7,7 +7,7 @@ import ItemGridCardContainer from '../../components/consignment/ItemGridCardCont
 import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
 import { isSold, money, saleSourceMatches } from '../../lib/consignmentHelpers';
 
-export default function ConsignorDashboard({ consignor, items, onBack, onStartIntake, onOpenItem, onOpenPayoutReceipt, onDeleteConsignor, onEditConsignor, onStartPayout }) {
+export default function ConsignorDashboard({ consignor, items, onBack, onStartIntake, onOpenItem, onDeleteConsignor, onEditConsignor, onStartPayout }) {
   const [viewMode, setViewMode] = useState('grid');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState('newest');
@@ -217,25 +217,6 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
             ],
           }}
         />
-
-        {statusFilter === 'PaidArchived' && paidItems.some((item) => item.payoutId) && (
-          <div className="consignment-form-grid consignment-form-grid-3" aria-label="Payout receipts">
-            {[...new Map(
-              paidItems
-                .filter((item) => item.payoutId)
-                .map((item) => [item.payoutId, item]),
-            ).values()].map((item) => (
-              <button
-                type="button"
-                className="consignment-btn secondary"
-                key={item.payoutId}
-                onClick={() => onOpenPayoutReceipt(item.payoutId)}
-              >
-                View receipt {item.payoutId}
-              </button>
-            ))}
-          </div>
-        )}
 
         {filteredItems.length === 0 && (
           <div className="consignment-empty">
