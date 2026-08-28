@@ -98,7 +98,8 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
         .consignment-consignor-card-due { margin-top:auto; font-size:12px; color:var(--muted); }
         .consignment-consignor-card-due small,.consignment-consignor-card-due strong { display:block; }
         .consignment-consignor-card-due strong { margin-top:3px; color:var(--ink); font-size:20px; }
-        .consignment-consignor-card-open { width:100%; height:42px; border:1px solid #9EBFE4; border-radius:9px; background:#fff; color:var(--green-dark); font-size:13px; font-weight:700; cursor:pointer; }
+        .consignment-consignor-card-open { width:100%; height:42px; border:1px solid var(--green); border-radius:9px; background:var(--surface-subtle); color:var(--green-dark); font-size:13px; font-weight:700; cursor:pointer; }
+        .consignment-consignor-card-open:hover { background:var(--green-soft); }
         @media (max-width:950px) { .consignment-consignor-card-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
         @media (max-width:700px) {
           .consignment-consignor-card-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
