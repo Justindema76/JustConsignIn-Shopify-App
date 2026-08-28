@@ -29,7 +29,6 @@ import ManualSaleStatus from './components/consignment/ManualSaleStatus';
 import ConsignorsScreen from './pages/consignment/ConsignorsScreen';
 import SalesScreen from './pages/consignment/SalesScreen';
 import PayoutsScreen from './pages/consignment/PayoutsScreen';
-import PayoutReceiptScreen from './pages/consignment/PayoutReceiptScreen';
 import ConsignorDashboard from './pages/consignment/ConsignorDashboard';
 import CreateConsignorScreen from './pages/consignment/CreateConsignorScreen';
 import ConsignmentFilterBar from './components/consignment/ConsignmentFilterBar';
@@ -261,306 +260,36 @@ function AppNavigation({ view, onNavigate }) {
 }
 
 function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
-  const eligible = items.filter(
-    (item) =>
-      item.consignorId === consignor.id &&
-      (item.status === 'Sold' || item.dateSold) &&
-      !item.paidOut,
-  );
-
-  const [selectedIds, setSelectedIds] = useState(() =>
-    eligible.map((item) => item.id),
-  );
+  const eligible = items.filter((item) => item.consignorId === consignor.id && (item.status === 'Sold' || item.dateSold) && !item.paidOut);
+  const [selectedIds, setSelectedIds] = useState(() => eligible.map((item) => item.id));
   const [adjustment, setAdjustment] = useState('');
   const [note, setNote] = useState('');
   const [method, setMethod] = useState('E-transfer');
   const [reference, setReference] = useState('');
-  const [payoutDate, setPayoutDate] = useState(
-    new Date().toISOString().slice(0, 10),
-  );
+  const [payoutDate, setPayoutDate] = useState(new Date().toISOString().slice(0, 10));
   const [saving, setSaving] = useState(false);
-
-  const selected = eligible.filter((item) =>
-    selectedIds.includes(item.id),
-  );
-
-  const itemTotal = selected.reduce((sum, item) => {
-    const salePrice = Number(item.salePrice ?? item.price ?? 0);
-    const commissionRate = Number(
-      item.commissionPct ?? consignor.commissionPct ?? 0,
-    );
-
-    return sum + (salePrice * commissionRate) / 100;
-  }, 0);
-
+  const selected = eligible.filter((item) => selectedIds.includes(item.id));
+  const itemTotal = selected.reduce((sum, item) => sum + (Number(item.salePrice ?? item.price ?? 0) * Number(item.commissionPct ?? consignor.commissionPct ?? 0)) / 100, 0);
   const payoutTotal = itemTotal + Number(adjustment || 0);
-
-  function toggleItem(id) {
-    setSelectedIds((current) =>
-      current.includes(id)
-        ? current.filter((entry) => entry !== id)
-        : [...current, id],
-    );
-  }
-
-  async function recordPayout() {
-    setSaving(true);
-
-    try {
-      await onRecordPayout({
-        consignorId: consignor.id,
-        itemIds: selectedIds,
-        adjustment: Number(adjustment || 0),
-        payoutDate,
-        method,
-        reference,
-        note,
-      });
-    } finally {
-      setSaving(false);
-    }
-  }
-
+  function toggleItem(id) { setSelectedIds((current) => current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id]); }
   return (
     <>
-      <Header
-        eyebrow={`Consignor #${consignor.number}`}
-        title="Create payout"
-        onBack={onBack}
-      />
-
-      <div className="consignment-body">
-        <div className="consignment-form-shell">
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>
-                  {consignor.firstName} {consignor.lastName}
-                </h2>
-                <p>Default commission: {consignor.commissionPct}%</p>
-              </div>
+      <Header eyebrow={`Consignor #${consignor.number}`} title="Create payout" onBack={onBack} />
+      <div className="consignment-body consignment-payout-create-body">
+        <div className="consignment-section-grid">
+          <section>
+            <div className="consignment-card"><div className="consignment-section-title"><div><h2>{consignor.firstName} {consignor.lastName}</h2><p style={{ margin:'4px 0 0', color:'var(--muted)', fontSize:12 }}>Default commission: {consignor.commissionPct}%</p></div><div className="consignment-avatar">{consignor.firstName?.[0]}{consignor.lastName?.[0]}</div></div></div>
+            <div className="consignment-card">
+              <div className="consignment-section-title"><div><h2>Items in this payout</h2><p style={{ margin:'4px 0 0', color:'var(--muted)', fontSize:12 }}>Select the eligible sales to include.</p></div><button type="button" className="consignment-link-button" onClick={() => setSelectedIds(selectedIds.length === eligible.length ? [] : eligible.map((item) => item.id))}>{selectedIds.length === eligible.length ? 'Exclude all' : 'Select all'}</button></div>
+              {eligible.length === 0 && <div className="consignment-empty-small">This consignor has no eligible unpaid sales.</div>}
+              {eligible.map((item) => { const salePrice=Number(item.salePrice ?? item.price ?? 0); const rate=Number(item.commissionPct ?? consignor.commissionPct ?? 0); const due=(salePrice*rate)/100; return <label key={item.id} className="consignment-row-btn" style={{ cursor:'pointer' }}><input type="checkbox" checked={selectedIds.includes(item.id)} onChange={() => toggleItem(item.id)} style={{ width:18,height:18,accentColor:'var(--green)' }} /><span className="consignment-item-primary" style={{ flex:1 }}><span className="consignment-batch-thumb">{item.photo ? <img src={item.photo} alt="" /> : <Tag size={16} color="var(--green-dark)" />}</span><span><strong>{item.description || item.itemNumber}</strong><span>{item.orderName || item.itemNumber} | {money(salePrice)} | {rate}%</span></span></span><strong>{money(due)}</strong></label>; })}
             </div>
           </section>
-
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>Items in this payout</h2>
-                <p>Select the eligible sales to include.</p>
-              </div>
-
-              <button
-                type="button"
-                className="consignment-link-button"
-                onClick={() =>
-                  setSelectedIds(
-                    selectedIds.length === eligible.length
-                      ? []
-                      : eligible.map((item) => item.id),
-                  )
-                }
-              >
-                {selectedIds.length === eligible.length
-                  ? 'Exclude all'
-                  : 'Select all'}
-              </button>
-            </div>
-
-            <div className="consignment-form-section-body">
-              {eligible.length === 0 && (
-                <div className="consignment-empty-small">
-                  This consignor has no eligible unpaid sales.
-                </div>
-              )}
-
-              {eligible.map((item) => {
-                const salePrice = Number(item.salePrice ?? item.price ?? 0);
-                const rate = Number(
-                  item.commissionPct ?? consignor.commissionPct ?? 0,
-                );
-                const due = (salePrice * rate) / 100;
-
-                return (
-                  <label key={item.id} className="consignment-row-btn">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(item.id)}
-                      onChange={() => toggleItem(item.id)}
-                    />
-
-                    <span className="consignment-item-primary">
-                      <span className="consignment-batch-thumb">
-                        {item.photo ? (
-                          <img src={item.photo} alt="" />
-                        ) : (
-                          <Tag size={16} color="var(--green-dark)" />
-                        )}
-                      </span>
-
-                      <span>
-                        <strong>
-                          {item.description || item.itemNumber}
-                        </strong>
-                        <span>
-                          {item.orderName || item.itemNumber} |{' '}
-                          {money(salePrice)} | {rate}%
-                        </span>
-                      </span>
-                    </span>
-
-                    <strong>{money(due)}</strong>
-                  </label>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>Payout summary</h2>
-              </div>
-            </div>
-
-            <div className="consignment-form-section-body">
-              <div className="consignment-form-grid consignment-form-grid-2">
-                <div className="consignment-form-field">
-                  <span className="consignment-label">Selected sales</span>
-                  <strong>{selected.length}</strong>
-                </div>
-
-                <div className="consignment-form-field">
-                  <span className="consignment-label">
-                    Consignor earnings
-                  </span>
-                  <strong>{money(itemTotal)}</strong>
-                </div>
-              </div>
-
-              <div className="consignment-form-field">
-                <label className="consignment-label">
-                  Manual adjustment
-                </label>
-                <input
-                  className="consignment-input"
-                  type="number"
-                  inputMode="decimal"
-                  value={adjustment}
-                  onChange={(event) => setAdjustment(event.target.value)}
-                  placeholder="0.00"
-                />
-              </div>
-
-              <div className="consignment-form-field">
-                <span className="consignment-label">Amount due</span>
-                <strong>{money(payoutTotal)}</strong>
-              </div>
-            </div>
-          </section>
-
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>Payment details</h2>
-              </div>
-            </div>
-
-            <div className="consignment-form-section-body">
-              <div className="consignment-form-field">
-                <label className="consignment-label">Payment method</label>
-                <select
-                  className="consignment-select"
-                  value={method}
-                  onChange={(event) => setMethod(event.target.value)}
-                >
-                  <option>E-transfer</option>
-                  <option>Cash</option>
-                  <option>Cheque</option>
-                  <option>Store credit</option>
-                  <option>Other</option>
-                </select>
-              </div>
-
-              {method === 'Store credit' && (
-                <div className="consignment-form-help">
-                  <CircleDollarSign size={17} />
-                  This records the amount as store credit in the payout ledger
-                  and on each linked Shopify product.
-                </div>
-              )}
-
-              <div className="consignment-form-grid consignment-form-grid-2">
-                <div className="consignment-form-field">
-                  <label className="consignment-label">Payout date</label>
-                  <input
-                    className="consignment-input"
-                    type="date"
-                    value={payoutDate}
-                    onChange={(event) => setPayoutDate(event.target.value)}
-                  />
-                </div>
-
-                <div className="consignment-form-field">
-                  <label className="consignment-label">Reference</label>
-                  <input
-                    className="consignment-input"
-                    value={reference}
-                    onChange={(event) => setReference(event.target.value)}
-                    placeholder={
-                      method === 'Store credit'
-                        ? 'Credit memo or note'
-                        : 'Optional confirmation #'
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="consignment-form-field">
-                <label className="consignment-label">Payout note</label>
-                <textarea
-                  className="consignment-textarea"
-                  rows={3}
-                  value={note}
-                  onChange={(event) => setNote(event.target.value)}
-                  placeholder="Optional payment reference or note"
-                />
-              </div>
-            </div>
-          </section>
-        </div>
-      </div>
-
-      <div className="consignment-form-actions">
-        <div className="consignment-form-actions-inner">
-          <button
-            type="button"
-            className="consignment-btn"
-            disabled={!selected.length || saving}
-            onClick={recordPayout}
-          >
-            <WalletCards size={17} />
-            {saving ? 'Recording payout…' : 'Record payout'}
-          </button>
+          <aside>
+            <div className="consignment-card"><div className="consignment-section-title"><h2>Payout summary</h2></div><div style={{ display:'grid',gap:10,fontSize:13 }}><div style={{ display:'flex',justifyContent:'space-between' }}><span>Selected sales</span><strong>{selected.length}</strong></div><div style={{ display:'flex',justifyContent:'space-between' }}><span>Consignor earnings</span><strong>{money(itemTotal)}</strong></div><div className="consignment-field" style={{ margin:'4px 0 0' }}><label className="consignment-label">Manual adjustment</label><input className="consignment-input" type="number" inputMode="decimal" value={adjustment} onChange={(event) => setAdjustment(event.target.value)} placeholder="0.00" /></div><div style={{ display:'flex',justifyContent:'space-between',paddingTop:12,borderTop:'1px solid var(--line)',fontSize:16 }}><strong>Amount due</strong><strong>{money(payoutTotal)}</strong></div></div></div>
+            <div className="consignment-card"><div className="consignment-field"><label className="consignment-label">Payment method</label><select className="consignment-select" value={method} onChange={(event) => setMethod(event.target.value)}><option>E-transfer</option><option>Cash</option><option>Cheque</option><option>Store credit</option><option>Other</option></select></div>{method === 'Store credit' && <div className="consignment-store-credit-note"><CircleDollarSign size={17} /><span>This records the amount as store credit in the payout ledger and on each linked Shopify product.</span></div>}<div className="consignment-payout-fields"><div className="consignment-field"><label className="consignment-label">Payout date</label><input className="consignment-input" type="date" value={payoutDate} onChange={(event) => setPayoutDate(event.target.value)} /></div><div className="consignment-field"><label className="consignment-label">Reference</label><input className="consignment-input" value={reference} onChange={(event) => setReference(event.target.value)} placeholder={method === 'Store credit' ? 'Credit memo or note' : 'Optional confirmation #'} /></div></div><label className="consignment-label">Payout note</label><textarea className="consignment-textarea" rows={3} value={note} onChange={(event) => setNote(event.target.value)} placeholder="Optional payment reference or note" /></div>
+            <button type="button" className="consignment-btn" disabled={!selected.length || saving} onClick={async () => { setSaving(true); try { await onRecordPayout({ consignorId:consignor.id,itemIds:selectedIds,adjustment:Number(adjustment || 0),payoutDate,method,reference,note }); } finally { setSaving(false); } }}><WalletCards size={17} /> Record payout</button>
+          </aside>
         </div>
       </div>
     </>
@@ -1327,7 +1056,7 @@ function EditItemScreen({
 }
 
 export default function ConsignmentIntakeApp({ activePlan = null }) {
-  const tier2Enabled=activePlan==='TIER2'; const [ready,setReady]=useState(false); const [consignors,setConsignors]=useState([]); const [items,setItems]=useState([]); const [view,setView]=useState('dashboard'); const [activeId,setActiveId]=useState(null); const [activeItemId,setActiveItemId]=useState(null); const [query,setQuery]=useState(''); const [newConsignorNext,setNewConsignorNext]=useState('consignor'); const [newConsignorBack,setNewConsignorBack]=useState('home'); const [importKind,setImportKind]=useState('consignors'); const [importBack,setImportBack]=useState('home'); const [importConsignorId,setImportConsignorId]=useState(null); const [toast,setToast]=useState(''); const [toastTone,setToastTone]=useState(''); const [error,setError]=useState(''); const [showBackToTop,setShowBackToTop]=useState(false); const [payoutReceipt,setPayoutReceipt]=useState(null);
+  const tier2Enabled=activePlan==='TIER2'; const [ready,setReady]=useState(false); const [consignors,setConsignors]=useState([]); const [items,setItems]=useState([]); const [view,setView]=useState('dashboard'); const [activeId,setActiveId]=useState(null); const [activeItemId,setActiveItemId]=useState(null); const [query,setQuery]=useState(''); const [newConsignorNext,setNewConsignorNext]=useState('consignor'); const [newConsignorBack,setNewConsignorBack]=useState('home'); const [importKind,setImportKind]=useState('consignors'); const [importBack,setImportBack]=useState('home'); const [importConsignorId,setImportConsignorId]=useState(null); const [toast,setToast]=useState(''); const [toastTone,setToastTone]=useState(''); const [error,setError]=useState(''); const [showBackToTop,setShowBackToTop]=useState(false);
   function errorMessage(value,fallback){return value instanceof Error?value.message:fallback;} async function refreshData(){const data=await getConsignmentData();setConsignors(data.consignors);setItems(data.items);return data;}
   useEffect(()=>{refreshData().catch((e)=>setError(errorMessage(e,'Could not load Shopify data'))).finally(()=>setReady(true));},[]); 
   
@@ -1345,33 +1074,11 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
   async function handleUpdateItem(itemId,form){try{setError('');await updateConsignmentItem(itemId,form);await refreshData();flash('Item updated');setView('consignor');}catch(e){setError(errorMessage(e,'Could not update item'));}}
   async function handleUpdateItemStatus(itemId,status,details={}){try{setError('');await updateConsignmentItemStatus(itemId,status,details);await refreshData();flash(status==='Paid'?'Item marked paid':status==='Sold'?'Item marked sold Ã‚Â· unpaid':'Item returned to available');}catch(e){setError(errorMessage(e,'Could not update item status'));throw e;}}
   async function handleSyncProduct(itemId,shopifyForm){try{setError('');const wasAlreadyLinked=Boolean(items.find((entry)=>entry.id===itemId)?.shopifyProductId);await syncShopifyProduct(itemId,shopifyForm);await refreshData();flash(wasAlreadyLinked?'Your product has been updated':'Shopify product created','success');}catch(e){setError(errorMessage(e,'Could not sync the Shopify product'));throw e;}}
-  async function handleRecordPayout(payout) {
-    try {
-      setError('');
-
-      const result = await recordConsignorPayout(payout);
-      const receiptConsignor = consignors.find(
-        (entry) => entry.id === result.payout.consignorId,
-      );
-
-      setPayoutReceipt({
-        payout: result.payout,
-        items: result.items,
-        consignor: receiptConsignor,
-      });
-
-      await refreshData();
-      flash(`Payout of ${money(result.payout.total)} recorded`);
-      setView('payoutReceipt');
-    } catch (e) {
-      setError(errorMessage(e, 'Could not record payout'));
-      throw e;
-    }
-  }
+  async function handleRecordPayout(payout){try{setError('');const result=await recordConsignorPayout(payout);await refreshData();flash(`Payout of ${money(result.payout.total)} recorded`);setView('payouts');}catch(e){setError(errorMessage(e,'Could not record payout'));throw e;}}
   async function handleDeleteItemFromEdit(itemId){await handleDeleteItem(itemId);setView('consignor');}
-  const activeConsignor=consignors.find((c)=>c.id===activeId); const activeItem=items.find((i)=>i.id===activeItemId); const nextConsignorNumber=Math.max(0,...consignors.map((consignor)=>Number(consignor.number)||0))+1; const navigationView=['newConsignor','chooseConsignor','consignor','intake','editConsignor'].includes(view)?'home':view==='editItem'?'items':['createPayout','payoutReceipt'].includes(view)?'payouts':view;
+  const activeConsignor=consignors.find((c)=>c.id===activeId); const activeItem=items.find((i)=>i.id===activeItemId); const nextConsignorNumber=Math.max(0,...consignors.map((consignor)=>Number(consignor.number)||0))+1; const navigationView=['newConsignor','chooseConsignor','consignor','intake','editConsignor'].includes(view)?'home':view==='editItem'?'items':view==='createPayout'?'payouts':view;
   function navigate(viewName){setError('');setView(viewName);} function openConsignor(id){setActiveId(id);setView('consignor');} function openItem(id){const item=items.find((entry)=>entry.id===id);setActiveItemId(id);if(item?.consignorId)setActiveId(item.consignorId);setView('editItem');} function startNewConsignor(nextView='consignor',backView='home'){setNewConsignorNext(nextView);setNewConsignorBack(backView);setView('newConsignor');} function startNewItem(){if(!consignors.length){startNewConsignor('intake','dashboard');return;}setView('chooseConsignor');}
   return <div className="consignment">{ready&&<AppNavigation view={navigationView} onNavigate={navigate}/>} {toast&&<div className="consignment-toast" style={toastTone==='success'?{background:'#1C7A3E'}:undefined}><Check size={14}/> {toast}</div>} {error&&<div className="consignment-toast" style={{ background:'var(--danger)',top:12 }}><X size={14}/> {error}</div>} {!ready&&<div className="consignment-loading"><Loader2 className="consignment-spin" size={22}/></div>}
   {ready&&view==='dashboard'&&<DashboardScreen consignors={consignors} items={items} onOpenConsignor={openConsignor} onNavigate={navigate} onNewConsignor={()=>startNewConsignor('consignor','dashboard')} onNewItem={startNewItem} onImport={()=>startImport('consignors','dashboard')} onExport={()=>exportConsignors(consignors)}/>} {ready&&view==='home'&&<ConsignorsScreen consignors={consignors} items={items} query={query} setQuery={setQuery} onOpenConsignor={openConsignor} onOpenItem={openItem} onMarkSold={(itemId,details)=>handleUpdateItemStatus(itemId,'Sold',details)} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}} onNewConsignor={()=>startNewConsignor('consignor','home')} onNewItem={startNewItem} onImport={()=>startImport('consignors','home')} onExport={()=>exportConsignors(consignors)}/>} {ready&&view==='items'&&<ItemsScreen items={items} consignors={consignors} onOpenItem={openItem} onOpenConsignor={openConsignor} onMarkSold={(itemId,details)=>handleUpdateItemStatus(itemId,'Sold',details)} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}} onNewItem={startNewItem}/>} {ready&&view==='sales'&&<SalesScreen items={items} consignors={consignors} onOpenItem={openItem} onOpenConsignor={openConsignor} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}}/>} {ready&&view==='payouts'&&<PayoutsScreen items={items} consignors={consignors} onOpenItem={openItem} onOpenConsignor={openConsignor} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}}/>} {ready&&view==='reports'&&<ReportsScreen items={items} consignors={consignors} onOpenConsignor={openConsignor} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}}/>}
-  {ready&&view==='createPayout'&&activeConsignor&&<CreatePayoutScreen consignor={activeConsignor} items={items} onBack={()=>setView('payouts')} onRecordPayout={handleRecordPayout}/>} {ready&&view==='payoutReceipt'&&payoutReceipt&&<PayoutReceiptScreen receipt={payoutReceipt} onBack={()=>setView('payouts')} onOpenConsignor={()=>{setActiveId(payoutReceipt.consignor.id);setView('consignor');}}/>} {ready&&view==='import'&&<ImportScreen kind={importKind} fixedConsignor={consignors.find((entry)=>entry.id===importConsignorId)||null} onBack={()=>setView(importBack)} onImport={handleImport}/>} {ready&&view==='newConsignor'&&<CreateConsignorScreen onBack={()=>setView(newConsignorBack)} onSave={handleNewConsignor} nextNumber={nextConsignorNumber}/>} {ready&&view==='chooseConsignor'&&<ChooseConsignorScreen consignors={consignors} onBack={()=>setView('dashboard')} onChoose={(consignorId)=>{setActiveId(consignorId);setView('intake');}} onCreate={()=>startNewConsignor('intake','chooseConsignor')}/>} {ready&&view==='consignor'&&activeConsignor&&<ConsignorDashboard consignor={activeConsignor} items={items} onBack={()=>setView('home')} onStartIntake={()=>setView('intake')} onOpenItem={openItem} onDeleteConsignor={handleDeleteConsignor} onEditConsignor={()=>setView('editConsignor')} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}}/>} {ready&&view==='editConsignor'&&activeConsignor&&<EditConsignorScreen consignor={activeConsignor} onBack={()=>setView('consignor')} onSave={handleUpdateConsignor}/>} {ready&&view==='intake'&&activeConsignor&&<IntakeScreen consignor={activeConsignor} items={items} onBack={()=>setView('consignor')} onSaveBatch={handleSaveBatch} onSaveAndSync={handleSaveAndSync} tier2Enabled={tier2Enabled}/>} {ready&&view==='editItem'&&activeItem&&<EditItemScreen item={activeItem} onBack={()=>setView('consignor')} onSave={handleUpdateItem} onDelete={handleDeleteItemFromEdit} onSyncProduct={handleSyncProduct} onUpdateStatus={handleUpdateItemStatus} tier2Enabled={tier2Enabled}/>} {ready&&showBackToTop&&<button className="consignment-back-to-top" type="button" onClick={scrollToTop} aria-label="Back to top" title="Back to top"><ArrowUp size={20} aria-hidden="true"/></button>}</div>;
+  {ready&&view==='createPayout'&&activeConsignor&&<CreatePayoutScreen consignor={activeConsignor} items={items} onBack={()=>setView('payouts')} onRecordPayout={handleRecordPayout}/>} {ready&&view==='import'&&<ImportScreen kind={importKind} fixedConsignor={consignors.find((entry)=>entry.id===importConsignorId)||null} onBack={()=>setView(importBack)} onImport={handleImport}/>} {ready&&view==='newConsignor'&&<CreateConsignorScreen onBack={()=>setView(newConsignorBack)} onSave={handleNewConsignor} nextNumber={nextConsignorNumber}/>} {ready&&view==='chooseConsignor'&&<ChooseConsignorScreen consignors={consignors} onBack={()=>setView('dashboard')} onChoose={(consignorId)=>{setActiveId(consignorId);setView('intake');}} onCreate={()=>startNewConsignor('intake','chooseConsignor')}/>} {ready&&view==='consignor'&&activeConsignor&&<ConsignorDashboard consignor={activeConsignor} items={items} onBack={()=>setView('home')} onStartIntake={()=>setView('intake')} onOpenItem={openItem} onDeleteConsignor={handleDeleteConsignor} onEditConsignor={()=>setView('editConsignor')} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}}/>} {ready&&view==='editConsignor'&&activeConsignor&&<EditConsignorScreen consignor={activeConsignor} onBack={()=>setView('consignor')} onSave={handleUpdateConsignor}/>} {ready&&view==='intake'&&activeConsignor&&<IntakeScreen consignor={activeConsignor} items={items} onBack={()=>setView('consignor')} onSaveBatch={handleSaveBatch} onSaveAndSync={handleSaveAndSync} tier2Enabled={tier2Enabled}/>} {ready&&view==='editItem'&&activeItem&&<EditItemScreen item={activeItem} onBack={()=>setView('consignor')} onSave={handleUpdateItem} onDelete={handleDeleteItemFromEdit} onSyncProduct={handleSyncProduct} onUpdateStatus={handleUpdateItemStatus} tier2Enabled={tier2Enabled}/>} {ready&&showBackToTop&&<button className="consignment-back-to-top" type="button" onClick={scrollToTop} aria-label="Back to top" title="Back to top"><ArrowUp size={20} aria-hidden="true"/></button>}</div>;
 }
