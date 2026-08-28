@@ -411,13 +411,68 @@
         min-width: 0; width: auto; padding: 11px 16px; border-radius: var(--button-radius);
         box-shadow: none; white-space: nowrap;
       }
-      .consignment-status-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-      .consignment-status-actions .consignment-btn { min-width: 0; box-shadow: none; padding: 9px 13px; }
-      .consignment-sold-status {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 12px; min-height: 42px;
+      .consignment-status-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
       }
-      .consignment-sold-status .consignment-row-sub { text-align: right; }
+      .consignment-status-actions .consignment-btn {
+        min-width: 0;
+        box-shadow: none;
+        padding: 9px 13px;
+      }
+      .consignment-sold-status {
+        display: block;
+        min-height: 42px;
+      }
+      .consignment-sold-status-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .consignment-sold-status-message {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        text-align: right;
+      }
+      .consignment-sold-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 14px -14px 0;
+        border-top: 1px solid var(--line);
+      }
+      .consignment-sold-detail {
+        min-width: 0;
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--line);
+      }
+      .consignment-sold-detail:nth-child(odd) {
+        border-right: 1px solid var(--line);
+      }
+      .consignment-sold-detail-label {
+        display: block;
+        margin-bottom: 3px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+      .consignment-sold-detail-value {
+        display: block;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+      }
+      .consignment-sold-status-action {
+        display: flex;
+        justify-content: flex-end;
+        padding-top: 14px;
+      }
 
       .consignment-badge {
         display: inline-flex; align-items: center; gap: 4px;
@@ -817,8 +872,13 @@
         .consignment-detail-grid .consignment-field.wide { grid-column: auto; }
         .consignment-manual-sale-controls { grid-template-columns: minmax(0, 1fr) 76px; gap: 8px; }
         .consignment-manual-sale .consignment-sold-btn { width: auto; min-width: 76px; }
-        .consignment-sold-status { align-items: flex-start; flex-direction: column; gap: 6px; }
-        .consignment-sold-status .consignment-row-sub { text-align: left; }
+        .consignment-sold-status-head {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .consignment-sold-status-message { text-align: left; }
+        .consignment-sold-status-action .consignment-btn { width: 100%; }
         .consignment-payout-create-body { padding-bottom: 180px; }
       }
 
