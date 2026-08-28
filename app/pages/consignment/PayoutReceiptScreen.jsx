@@ -1,62 +1,55 @@
 /* eslint-disable react/prop-types */
 
-import { Mail, Printer, UserRound } from 'lucide-react';
-import Header from '../../components/consignment/Header';
-import { money } from '../../lib/consignmentHelpers';
+import { Mail, Printer, UserRound } from "lucide-react";
+import Header from "../../components/consignment/Header";
+import { money } from "../../lib/consignmentHelpers";
+import "../../styles/payout-receipt.css";
 
 function formatReceiptDate(value) {
-  if (!value) return '—';
-
+  if (!value) return "—";
   const date = new Date(`${value}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
-  }
-
-  return date.toLocaleDateString('en-CA', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleDateString("en-CA", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 }
 
-function receiptItemLines(items) {
-  return items.map((item) => {
-    const salePrice = Number(item.salePrice ?? item.price ?? 0);
-    const commissionRate = Number(item.commissionPct ?? 0);
-    const earnings = Number(
-      item.payoutAmount ?? (salePrice * commissionRate) / 100,
-    );
-
-    return [
-      `${item.itemNumber || 'Item'} - ${item.description || item.type || 'Consignment item'}`,
-      `Sale price: ${money(salePrice)}`,
-      `Commission: ${commissionRate}%`,
-      `Consignor earnings: ${money(earnings)}`,
-    ].join('\n');
-  });
+function itemAmounts(item) {
+  const salePrice = Number(item.salePrice ?? item.price ?? 0);
+  const commissionRate = Number(item.commissionPct ?? 0);
+  const earnings = Number(
+    item.payoutAmount ?? (salePrice * commissionRate) / 100,
+  );
+  return { salePrice, commissionRate, earnings };
 }
 
 function buildReceiptEmail(receipt) {
   const { consignor, payout, items } = receipt;
-  const consignorName = `${consignor.firstName} ${consignor.lastName}`.trim();
-  const itemLines = receiptItemLines(items);
+  const name = `${consignor.firstName} ${consignor.lastName}`.trim();
+  const lines = items.flatMap((item) => {
+    const { salePrice, commissionRate, earnings } = itemAmounts(item);
+    return [
+      `${item.itemNumber || "Item"} - ${item.description || item.type || "Consignment item"}`,
+      `Sale price: ${money(salePrice)} | Commission: ${commissionRate}% | Earnings: ${money(earnings)}`,
+      "",
+    ];
+  });
 
   return [
     `Payout receipt ${payout.id}`,
-    '',
-    `Consignor: ${consignorName} (#${consignor.number})`,
-    `Payout date: ${formatReceiptDate(payout.date)}`,
-    `Payment method: ${payout.method}`,
-    payout.reference ? `Reference: ${payout.reference}` : '',
-    '',
-    ...itemLines.flatMap((line) => [line, '']),
+    `Consignor: ${name} (#${consignor.number})`,
+    `Date: ${formatReceiptDate(payout.date)}`,
+    `Payment: ${payout.method}${payout.reference ? ` | Reference: ${payout.reference}` : ""}`,
+    "",
+    ...lines,
     `Adjustment: ${money(payout.adjustment || 0)}`,
     `Total paid: ${money(payout.total)}`,
-    payout.note ? `Note: ${payout.note}` : '',
+    payout.note ? `Note: ${payout.note}` : "",
   ]
-    .filter((line, index, lines) => line || lines[index - 1])
-    .join('\n');
+    .filter(Boolean)
+    .join("\n");
 }
 
 export default function PayoutReceiptScreen({
@@ -65,156 +58,107 @@ export default function PayoutReceiptScreen({
   onOpenConsignor,
 }) {
   const { consignor, payout, items } = receipt;
-  const consignorName = `${consignor.firstName} ${consignor.lastName}`.trim();
-  const emailBody = buildReceiptEmail(receipt);
-  const emailSubject = `Payout receipt ${payout.id}`;
+  const name = `${consignor.firstName} ${consignor.lastName}`.trim();
   const emailHref = consignor.email
-    ? `mailto:${consignor.email}?subject=${encodeURIComponent(
-        emailSubject,
-      )}&body=${encodeURIComponent(emailBody)}`
-    : '';
+    ? `mailto:${consignor.email}?subject=${encodeURIComponent(`Payout receipt ${payout.id}`)}&body=${encodeURIComponent(buildReceiptEmail(receipt))}`
+    : "";
 
   return (
     <>
-      <Header
-        eyebrow={`Consignor #${consignor.number}`}
-        title="Payout receipt"
-        onBack={onBack}
-      />
+      <div className="consignment-receipt-screen-header">
+        <Header
+          eyebrow={`Consignor #${consignor.number}`}
+          title="Payout receipt"
+          onBack={onBack}
+        />
+      </div>
 
       <div className="consignment-body">
-        <div className="consignment-form-shell">
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>{consignorName}</h2>
-                <p>Receipt {payout.id}</p>
-              </div>
+        <main className="consignment-payout-receipt">
+          <header className="consignment-receipt-heading">
+            <div>
+              <span className="consignment-label">Payout receipt</span>
+              <h1>{name}</h1>
+              <p>Receipt {payout.id}</p>
             </div>
+            <strong className="consignment-receipt-total">
+              {money(payout.total)}
+            </strong>
+          </header>
 
-            <div className="consignment-form-section-body">
-              <div className="consignment-form-grid consignment-form-grid-3">
-                <div className="consignment-form-field">
-                  <span className="consignment-label">Payout date</span>
-                  <strong>{formatReceiptDate(payout.date)}</strong>
-                </div>
-
-                <div className="consignment-form-field">
-                  <span className="consignment-label">Payment method</span>
-                  <strong>{payout.method}</strong>
-                </div>
-
-                <div className="consignment-form-field">
-                  <span className="consignment-label">Reference</span>
-                  <strong>{payout.reference || '—'}</strong>
-                </div>
-              </div>
-
-              {payout.note && (
-                <div className="consignment-form-field">
-                  <span className="consignment-label">Payout note</span>
-                  <div>{payout.note}</div>
-                </div>
-              )}
+          <dl className="consignment-receipt-meta">
+            <div>
+              <dt>Payout date</dt>
+              <dd>{formatReceiptDate(payout.date)}</dd>
             </div>
-          </section>
-
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>Items paid</h2>
-                <p>
-                  {items.length} item{items.length === 1 ? '' : 's'} included
-                </p>
-              </div>
+            <div>
+              <dt>Payment method</dt>
+              <dd>{payout.method || "—"}</dd>
             </div>
+            <div>
+              <dt>Reference</dt>
+              <dd>{payout.reference || "—"}</dd>
+            </div>
+          </dl>
 
-            <div className="consignment-form-section-body">
-              {items.map((item) => {
-                const salePrice = Number(item.salePrice ?? item.price ?? 0);
-                const commissionRate = Number(item.commissionPct ?? 0);
-                const earnings = Number(
-                  item.payoutAmount ??
-                    (salePrice * commissionRate) / 100,
-                );
-
-                return (
-                  <div className="consignment-card" key={item.id}>
-                    <div className="consignment-section-title">
-                      <div>
-                        <h2>
-                          {item.description ||
-                            item.type ||
-                            'Consignment item'}
-                        </h2>
-                        <p>{item.itemNumber || '—'}</p>
-                      </div>
-
-                      <strong>{money(earnings)}</strong>
-                    </div>
-
-                    <div className="consignment-form-grid consignment-form-grid-3">
-                      <div className="consignment-form-field">
-                        <span className="consignment-label">Sale price</span>
-                        <strong>{money(salePrice)}</strong>
-                      </div>
-
-                      <div className="consignment-form-field">
-                        <span className="consignment-label">Commission</span>
-                        <strong>{commissionRate}%</strong>
-                      </div>
-
-                      <div className="consignment-form-field">
-                        <span className="consignment-label">
-                          Consignor earnings
-                        </span>
-                        <strong>{money(earnings)}</strong>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+          <section className="consignment-receipt-items">
+            <h2>
+              Items paid <span>{items.length}</span>
+            </h2>
+            <div className="consignment-receipt-table-wrap">
+              <table className="consignment-receipt-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Sale</th>
+                    <th>Rate</th>
+                    <th>Earnings</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item) => {
+                    const { salePrice, commissionRate, earnings } =
+                      itemAmounts(item);
+                    return (
+                      <tr key={item.id}>
+                        <td>
+                          <strong>
+                            {item.description ||
+                              item.type ||
+                              "Consignment item"}
+                          </strong>
+                          <small>{item.itemNumber || "—"}</small>
+                        </td>
+                        <td>{money(salePrice)}</td>
+                        <td>{commissionRate}%</td>
+                        <td>
+                          <strong>{money(earnings)}</strong>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </section>
 
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>Payout total</h2>
-              </div>
+          <section className="consignment-receipt-summary">
+            {payout.note && (
+              <p>
+                <strong>Note:</strong> {payout.note}
+              </p>
+            )}
+            <div>
+              <span>Adjustment</span>
+              <strong>{money(payout.adjustment || 0)}</strong>
             </div>
-
-            <div className="consignment-form-section-body">
-              <div className="consignment-form-grid consignment-form-grid-2">
-                <div className="consignment-form-field">
-                  <span className="consignment-label">Adjustment</span>
-                  <strong>{money(payout.adjustment || 0)}</strong>
-                </div>
-
-                <div className="consignment-form-field">
-                  <span className="consignment-label">Total paid</span>
-                  <strong>{money(payout.total)}</strong>
-                </div>
-              </div>
+            <div className="total">
+              <span>Total paid</span>
+              <strong>{money(payout.total)}</strong>
             </div>
           </section>
 
-          <div className="consignment-form-grid consignment-form-grid-3">
+          <div className="consignment-receipt-actions">
             <button
               type="button"
               className="consignment-btn secondary"
@@ -223,7 +167,6 @@ export default function PayoutReceiptScreen({
               <UserRound size={17} />
               Consignor dashboard
             </button>
-
             <button
               type="button"
               className="consignment-btn secondary"
@@ -232,7 +175,6 @@ export default function PayoutReceiptScreen({
               <Printer size={17} />
               Print receipt
             </button>
-
             {emailHref ? (
               <a className="consignment-btn" href={emailHref}>
                 <Mail size={17} />
@@ -245,7 +187,7 @@ export default function PayoutReceiptScreen({
               </button>
             )}
           </div>
-        </div>
+        </main>
       </div>
     </>
   );
