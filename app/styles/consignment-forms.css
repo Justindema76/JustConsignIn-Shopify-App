@@ -138,7 +138,7 @@
   z-index: 15;
   padding: 14px 24px calc(14px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
-  background: rgba(246, 246, 247, .96);
+  background: var(--action-bar-bg);
   backdrop-filter: blur(8px);
 }
 
