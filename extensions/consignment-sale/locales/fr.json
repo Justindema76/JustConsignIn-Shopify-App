@@ -10,6 +10,7 @@
   "ticket_required": "Saisissez ou scannez un numéro de billet.",
   "search_placeholder": "Billet, article, marque ou consignateur",
   "search_hint": "Commencez à taper pour rechercher, ou scannez un billet.",
+  "scan_barcode": "Scanner le code-barres",
   "recent_heading": "Récemment scannés",
   "no_results": "Aucun article ne correspond à « {{query}} ».",
   "all_items_from": "Tous les articles de {{name}}",

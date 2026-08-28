@@ -344,6 +344,9 @@ function Extension() {
   const [browseLoading, setBrowseLoading] = useState(true);
   const [browseFailed, setBrowseFailed] = useState(false);
 
+  const [hasCameraScanner, setHasCameraScanner] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     fetchBrowseRecords()
@@ -397,6 +400,11 @@ function Extension() {
       // (e.g. two rapid scans while the first is still resolving) — ignore
       // it rather than racing two lookups against the same `item` state.
       if (loading || adding) return;
+      // A camera scan needs the overlay explicitly closed afterward — a
+      // hardware/embedded scanner has no overlay to close, so this is a
+      // no-op for those sources.
+      shopify.scanner.hideCameraScanner();
+      setCameraActive(false);
       const scannedTicket = scan.data.trim();
       setQuery(scannedTicket);
       void findItem(scannedTicket);
@@ -404,6 +412,24 @@ function Extension() {
 
     return () => subscription();
   }, [findItem, loading, adding]);
+
+  useEffect(() => {
+    const unsubscribeSources = shopify.scanner.sources.current.subscribe((sources) => {
+      setHasCameraScanner(sources.includes('camera'));
+    });
+
+    // Leaving the modal with the camera overlay still open would strand it
+    // open behind the closed modal, so make sure it's closed on unmount too.
+    return () => {
+      unsubscribeSources();
+      shopify.scanner.hideCameraScanner();
+    };
+  }, []);
+
+  function startCameraScan() {
+    shopify.scanner.showCameraScanner();
+    setCameraActive(true);
+  }
 
   const searchResults = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -485,6 +511,16 @@ function Extension() {
               disabled={loading || adding}
               onInput={(event) => setQuery(event.currentTarget.value)}
             />
+          )}
+
+          {!item && hasCameraScanner && !cameraActive && (
+            <s-button
+              variant="secondary"
+              disabled={loading || adding}
+              onClick={startCameraScan}
+            >
+              {i18n.translate('scan_barcode')}
+            </s-button>
           )}
 
           {error ? (

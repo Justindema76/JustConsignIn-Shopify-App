@@ -10,6 +10,7 @@
   "ticket_required": "Enter or scan a ticket number.",
   "search_placeholder": "Ticket, item, brand, or consignor",
   "search_hint": "Start typing to search, or scan a ticket.",
+  "scan_barcode": "Scan barcode",
   "recent_heading": "Recently scanned",
   "no_results": "No items match \"{{query}}\".",
   "all_items_from": "All items from {{name}}",
