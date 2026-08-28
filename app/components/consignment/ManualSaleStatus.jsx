@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 
 import { useState } from "react";
+import ItemBarcode from "./ItemBarcode";
 import {
   saleSourceForItem,
   saleSourceLabel,
@@ -75,6 +76,8 @@ export default function ManualSaleStatus({
             <strong>Manual sale</strong>
             <span>Only use for a sale outside Shopify.</span>
           </div>
+
+          <ItemBarcode value={item.itemNumber} />
 
           <div className="consignment-manual-sale-controls">
             <div className="consignment-field">
