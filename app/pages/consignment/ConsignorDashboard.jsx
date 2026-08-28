@@ -5,14 +5,12 @@ import Header from '../../components/consignment/Header';
 import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
 import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
-import { isSold, money, saleSourceMatches } from '../../lib/consignmentHelpers';
+import { isSold, money } from '../../lib/consignmentHelpers';
 
 export default function ConsignorDashboard({ consignor, items, onBack, onStartIntake, onOpenItem, onDeleteConsignor, onEditConsignor, onStartPayout }) {
   const [viewMode, setViewMode] = useState('grid');
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useState('newest');
   const [statusFilter, setStatusFilter] = useState('Available');
-  const [sourceFilter, setSourceFilter] = useState('All');
   const [confirmingDeleteConsignor, setConfirmingDeleteConsignor] = useState(false);
 
   const consignorItems = items.filter((item) => item.consignorId === consignor.id);
@@ -21,7 +19,6 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
   const unpaidItems = soldItems.filter((item) => !item.paidOut);
   const paidItems = soldItems.filter((item) => item.paidOut);
   const totalSales = soldItems.reduce((sum, item) => sum + Number(item.salePrice ?? item.price ?? 0), 0);
-  const activeCount = consignorItems.filter((item) => ['Available', 'Active'].includes(item.status)).length;
   const amountDue = unpaidItems.reduce(
     (sum, item) => sum + (Number(item.salePrice ?? item.price ?? 0) * Number(item.commissionPct ?? consignor.commissionPct ?? 0)) / 100,
     0,
@@ -37,9 +34,7 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
       || (statusFilter === 'Available' && !sold)
       || (statusFilter === 'SoldUnpaid' && sold && !item.paidOut)
       || (statusFilter === 'PaidArchived' && item.paidOut);
-    const matchesSource = saleSourceMatches(item, sourceFilter);
-
-    return matchesQuery && matchesStatus && matchesSource;
+    return matchesQuery && matchesStatus;
   }).sort((a, b) => {
     const itemDate = (item) => String(
       item.dateSold
@@ -48,21 +43,6 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
       || item.created_at
       || '',
     );
-    const aPrice = Number(a.salePrice ?? a.price ?? 0);
-    const bPrice = Number(b.salePrice ?? b.price ?? 0);
-    const aDue = (aPrice * Number(a.commissionPct ?? consignor.commissionPct ?? 0)) / 100;
-    const bDue = (bPrice * Number(b.commissionPct ?? consignor.commissionPct ?? 0)) / 100;
-
-    if (sort === 'oldest') return itemDate(a).localeCompare(itemDate(b));
-    if (sort === 'price') return bPrice - aPrice;
-    if (sort === 'due') return bDue - aDue;
-    if (sort === 'sku') {
-      return String(a.itemNumber || '').localeCompare(
-        String(b.itemNumber || ''),
-        undefined,
-        { numeric: true },
-      );
-    }
 
     return itemDate(b).localeCompare(itemDate(a));
   });
@@ -81,12 +61,11 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
             <button className="consignment-btn consignment-consignor-add-items" onClick={onStartIntake}>
               <Plus size={17} /> Add items
             </button>
-            <button className="consignment-btn secondary" onClick={onEditConsignor}>
+            <button className="consignment-btn secondary consignment-consignor-edit" onClick={onEditConsignor}>
               <Pencil size={17} /> Edit
             </button>
             <button
-              className="consignment-btn secondary"
-              style={{ color: 'var(--danger)', borderColor: 'var(--danger-soft)' }}
+              className="consignment-btn secondary consignment-consignor-delete"
               onClick={() => setConfirmingDeleteConsignor(true)}
             >
               <Trash2 size={17} /> Delete
@@ -137,23 +116,21 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
         <div className="consignment-consignor-stats">
           <div className="consignment-consignor-stat"><span>Amount due</span><strong>{money(amountDue)}</strong></div>
           <div className="consignment-consignor-stat"><span>Total sales</span><strong>{money(totalSales)}</strong></div>
-          <div className="consignment-consignor-stat"><span>Active items</span><strong>{activeCount}</strong></div>
-          <div className="consignment-consignor-stat"><span>Unpaid items</span><strong>{unpaidItems.length}</strong></div>
         </div>
 
         <div className="consignment-consignor-items-head">
           <h3>Items on file</h3>
-          <nav className="consignment-form-grid consignment-form-grid-2" aria-label="Filter consignor items by status">
-            <button type="button" className={`consignment-btn secondary${statusFilter === 'Available' ? ' active' : ''}`} onClick={() => setStatusFilter('Available')}>
+          <nav className="consignment-consignor-status-tabs" aria-label="Filter consignor items by status">
+            <button type="button" className={`consignment-consignor-status-tab${statusFilter === 'Available' ? ' active' : ''}`} onClick={() => setStatusFilter('Available')}>
               {availableItems.length} Available
             </button>
-            <button type="button" className={`consignment-btn secondary${statusFilter === 'SoldUnpaid' ? ' active' : ''}`} onClick={() => setStatusFilter('SoldUnpaid')}>
+            <button type="button" className={`consignment-consignor-status-tab${statusFilter === 'SoldUnpaid' ? ' active' : ''}`} onClick={() => setStatusFilter('SoldUnpaid')}>
               {unpaidItems.length} Sold / Unpaid
             </button>
-            <button type="button" className={`consignment-btn secondary${statusFilter === 'PaidArchived' ? ' active' : ''}`} onClick={() => setStatusFilter('PaidArchived')}>
+            <button type="button" className={`consignment-consignor-status-tab${statusFilter === 'PaidArchived' ? ' active' : ''}`} onClick={() => setStatusFilter('PaidArchived')}>
               {paidItems.length} Paid / Archived
             </button>
-            <button type="button" className={`consignment-btn secondary${statusFilter === 'All' ? ' active' : ''}`} onClick={() => setStatusFilter('All')}>
+            <button type="button" className={`consignment-consignor-status-tab${statusFilter === 'All' ? ' active' : ''}`} onClick={() => setStatusFilter('All')}>
               {consignorItems.length} All
             </button>
           </nav>
@@ -165,48 +142,6 @@ export default function ConsignorDashboard({ consignor, items, onBack, onStartIn
             onChange: setQuery,
             placeholder: 'Search item, SKU, or brand',
           }}
-          filters={[
-            {
-              key: 'sort',
-              label: 'Sort',
-              value: sort,
-              onChange: setSort,
-              ariaLabel: 'Sort consignor items',
-              options: [
-                { value: 'newest', label: 'Newest first' },
-                { value: 'oldest', label: 'Oldest first' },
-                { value: 'price', label: 'Highest sale price' },
-                { value: 'due', label: 'Highest consignor due' },
-                { value: 'sku', label: 'SKU / item number' },
-              ],
-            },
-            {
-              key: 'itemStatus',
-              label: 'Item status',
-              value: statusFilter,
-              onChange: setStatusFilter,
-              ariaLabel: 'Filter by item status',
-              options: [
-                { value: 'Available', label: `Available (${availableItems.length})` },
-                { value: 'SoldUnpaid', label: `Sold / Unpaid (${unpaidItems.length})` },
-                { value: 'PaidArchived', label: `Paid / Archived (${paidItems.length})` },
-                { value: 'All', label: `All items (${consignorItems.length})` },
-              ],
-            },
-            {
-              key: 'source',
-              label: 'Sale source',
-              value: sourceFilter,
-              onChange: setSourceFilter,
-              ariaLabel: 'Filter by sale source',
-              options: [
-                { value: 'All', label: 'All sale sources' },
-                { value: 'Manual', label: 'Manual' },
-                { value: 'POS', label: 'POS' },
-                { value: 'Online', label: 'Online' },
-              ],
-            },
-          ]}
           views={{
             value: viewMode,
             onChange: setViewMode,

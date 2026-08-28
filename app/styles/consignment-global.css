@@ -925,8 +925,25 @@
       .consignment-profile-link { color: var(--blue); font-weight: 750; text-decoration: none; }
       .consignment-profile-link:hover,
       .consignment-profile-link:focus { text-decoration: underline; }
+      .consignment-consignor-header-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        gap: 8px;
+      }
+      .consignment-consignor-header-actions .consignment-consignor-add-items {
+        grid-column: 1 / -1;
+      }
+      .consignment-consignor-header-actions .consignment-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .consignment-consignor-header-actions .consignment-consignor-delete {
+        color: var(--danger);
+        border-color: var(--danger-soft);
+      }
       .consignment-consignor-stats {
-        display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px; margin-bottom: 16px;
       }
       .consignment-consignor-stat {
@@ -937,10 +954,51 @@
       .consignment-consignor-stat span { color: var(--muted); font-size: 11px; font-weight: 650; white-space: nowrap; }
       .consignment-consignor-stat strong { margin-top: 5px; color: var(--ink); font-size: 20px; line-height: 1; white-space: nowrap; }
       .consignment-consignor-items-head {
-        display: flex; align-items: flex-end; justify-content: space-between;
-        gap: 12px; margin: 0 0 9px;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin: 0 0 12px;
       }
       .consignment-consignor-items-head h3 { margin: 0; font-size: 17px; }
+      .consignment-consignor-status-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        overflow: hidden;
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--surface);
+      }
+      .consignment-consignor-status-tab {
+        min-width: 0;
+        min-height: 42px;
+        padding: 9px 12px;
+        border: 0;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        border-radius: 0;
+        background: var(--surface);
+        color: var(--green-dark);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1.2;
+        cursor: pointer;
+      }
+      .consignment-consignor-status-tab:nth-child(2n) { border-right: 0; }
+      .consignment-consignor-status-tab:nth-child(n + 3) { border-bottom: 0; }
+      .consignment-consignor-status-tab:hover { background: #F7FAFC; }
+      .consignment-consignor-status-tab.active {
+        background: #EAF2FC;
+        color: #153E7A;
+      }
+      .consignment-consignor-status-tab:focus-visible {
+        position: relative;
+        z-index: 1;
+        outline: 2px solid var(--blue);
+        outline-offset: -2px;
+      }
       .consignment-consignor-items-tools { display: flex; align-items: center; gap: 10px; }
       .consignment-consignor-items-count { color: var(--muted); font-size: 13px; }
       .consignment-consignor-view-toggle {
