@@ -464,6 +464,32 @@ html[data-consignment-theme='dark'] .consignment textarea {
       .consignment-item-barcode-button {
         width: 100%;
       }
+
+      @media (min-width: 761px) {
+        .consignment-item-barcode-card {
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: center;
+          max-width: 560px;
+          margin-right: auto;
+          margin-left: auto;
+          padding: 10px;
+        }
+
+        .consignment-item-barcode-card .consignment-item-barcode-graphic {
+          padding: 5px 8px 3px;
+        }
+
+        .consignment-item-barcode-card .consignment-item-barcode-graphic svg {
+          height: 58px;
+        }
+
+        .consignment-item-barcode-button {
+          width: auto;
+          min-width: 145px;
+          min-height: 42px;
+          padding: 9px 14px;
+        }
+      }
       .consignment-barcode-modal {
         position: fixed;
         z-index: 1000;
