@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Outlet, useLoaderData, useRouteError } from "react-router";
 import { boundary } from "@shopify/shopify-app-react-router/server";
 import { AppProvider } from "@shopify/shopify-app-react-router/react";
@@ -19,15 +20,62 @@ export const loader = async ({ request }) => {
   return { apiKey: process.env.SHOPIFY_API_KEY || "" };
 };
 
+const THEME_STORAGE_KEY = "justconsignin-theme";
+
+function isThemePreference(value) {
+  return value === "system" || value === "light" || value === "dark";
+}
+
 export default function App() {
   const { apiKey } = useLoaderData();
+  const [theme, setTheme] = useState("system");
+  const [themeReady, setThemeReady] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+
+    if (isThemePreference(savedTheme)) {
+      setTheme(savedTheme);
+    }
+
+    setThemeReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!themeReady) return undefined;
+
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function applyTheme() {
+      const resolvedTheme =
+        theme === "system"
+          ? systemTheme.matches
+            ? "dark"
+            : "light"
+          : theme;
+
+      document.documentElement.dataset.consignmentTheme = resolvedTheme;
+    }
+
+    applyTheme();
+
+    if (theme === "system") {
+      systemTheme.addEventListener("change", applyTheme);
+    }
+
+    return () => {
+      systemTheme.removeEventListener("change", applyTheme);
+    };
+  }, [theme, themeReady]);
 
   return (
     <AppProvider embedded apiKey={apiKey}>
       <s-app-nav>
-        <s-link href="/app">Consignment</s-link>
+        <s-link href="/app/settings">Settings</s-link>
       </s-app-nav>
-      <Outlet />
+      <Outlet context={{ theme, setTheme }} />
       <style>{`
         /* Keep the original Shopify product section unchanged. */
         .tier1-hidden-create-choice {

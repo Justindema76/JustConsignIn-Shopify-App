@@ -56,18 +56,75 @@
 }
 .consignment-items-toolbar .consignment-view-toggle { min-height: 46px; }
 
+/* Shared folder-tab control used by every List/Grid view. */
 .consignment-view-toggle {
-  display: flex; border: 1px solid var(--line); border-radius: 5px;
-  overflow: hidden; background: var(--surface);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: end;
+  gap: 6px;
+  padding: 9px 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
 }
+
 .consignment-view-toggle button {
-  border: 0; border-right: 1px solid var(--line); background: transparent;
-  color: var(--muted); padding: 10px 11px; font-size: 12px; font-weight: 700;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 11px 10px 9px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: var(--green-soft);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
   white-space: nowrap;
+  cursor: pointer;
+  transform: translateY(5px);
+  transition:
+    background .15s ease,
+    color .15s ease,
+    transform .15s ease;
 }
-.consignment-view-toggle button:last-child { border-right: 0; }
-.consignment-view-toggle button.active { background: #E7F0FA; color: var(--green-dark); }
-.consignment-finder-toggle button { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 42px; cursor: pointer; }
+
+.consignment-view-toggle button::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 12px;
+  width: 38%;
+  height: 8px;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 6px 6px 0 0;
+  background: inherit;
+}
+
+.consignment-view-toggle button.active {
+  z-index: 2;
+  background: var(--surface);
+  color: var(--green-dark);
+  transform: translateY(1px);
+}
+
+.consignment-view-toggle button:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+.consignment-finder-toggle button {
+  min-height: 42px;
+}
 
 @media (max-width: 900px) {
   .consignment-items-toolbar-top { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; }
