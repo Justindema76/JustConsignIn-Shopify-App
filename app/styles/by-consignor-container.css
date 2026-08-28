@@ -12,7 +12,7 @@
 .consignment-action-static { display:inline-flex; align-items:center; justify-content:center; padding:8px 10px; font-size:12px; font-weight:700; color:var(--muted); white-space:nowrap; }
 .consignment-consignor-profile-link { border:0; background:transparent; color:var(--green-dark); padding:0; font:inherit; font-weight:700; text-align:left; cursor:pointer; width:fit-content; }
 .consignment-consignor-profile-link:hover,.consignment-consignor-profile-link:focus-visible { text-decoration:underline; }
-.consignment-item-open-btn { border:1px solid #9EBFE4; border-radius:8px; background:#fff; color:var(--green-dark); padding:8px 10px; font-size:12px; font-weight:700; white-space:nowrap; cursor:pointer; }
+.consignment-item-open-btn { border:1px solid #9EBFE4; border-radius:8px; background:var(--surface); color:var(--green-dark); padding:8px 10px; font-size:12px; font-weight:700; white-space:nowrap; cursor:pointer; }
 .consignment-all-item-mobile-consignor,.consignment-all-item-mobile-expiry { display:none !important; }
 .consignment-shared-scroll-hint { display:none; }
 

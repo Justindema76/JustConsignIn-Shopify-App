@@ -84,7 +84,7 @@
         grid-template-columns: minmax(210px, 1.4fr) minmax(160px, 1fr) 100px 95px 90px 100px 120px;
       }
       .consignment-reports-row.head {
-        background: #FAFBFB; color: var(--muted); font-size: 10px;
+        background: var(--surface-subtle); color: var(--muted); font-size: 10px;
         font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
       }
       .consignment-reports-cell-center { text-align: center; }

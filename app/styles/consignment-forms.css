@@ -50,7 +50,7 @@
   gap: 12px;
   padding: 13px 16px;
   border-bottom: 1px solid var(--line);
-  background: #FBFCFD;
+  background: var(--surface-subtle);
 }
 
 .consignment-form-section-marker {

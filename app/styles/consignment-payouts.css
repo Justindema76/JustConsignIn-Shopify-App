@@ -81,7 +81,7 @@
 
 .consignment-payouts-history-items {
   border-top: 1px solid var(--line);
-  background: #FAFBFC;
+  background: var(--surface-subtle);
   padding: 4px 16px;
 }
 .consignment-payouts-history-item {
