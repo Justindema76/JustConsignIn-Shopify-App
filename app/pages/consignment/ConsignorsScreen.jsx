@@ -6,8 +6,6 @@ import AllConsignorView from '../../components/consignment/AllConsignorView';
 import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
 import { money, productLabel } from '../../lib/consignmentHelpers';
 
-// Same status set and "Available" merge as ItemsScreen — this page had the
-// identical duplicate-Available/Returned/Donated issue, fixed the same way.
 const STATUS_OPTIONS = ['Current', 'Available', 'Sold', 'Archived', 'All'];
 
 function matchesStatusFilter(item, filter) {
@@ -23,10 +21,10 @@ function statusCount(items, filter) {
   return items.filter((item) => matchesStatusFilter(item, filter)).length;
 }
 
-export default function ConsignorsScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpenItem, onMarkSold, onStartPayout, onNewConsignor, onNewItem, onImport, onExport }) {
+export default function ConsignorsScreen({ consignors, items, query, setQuery, onOpenConsignor, onOpenItem, onMarkSold, onStartPayout, onNewConsignor, onNewItem, onImport, onExport, tier2Enabled = false }) {
   const [statusFilter, setStatusFilter] = useState('Current');
   const [consignorFilter, setConsignorFilter] = useState('All');
-  const [productFilter, setProductFilter] = useState('All');
+  const [productFilter, setProductFilter] = useState(() => tier2Enabled ? 'All' : 'Manual');
   const [sort, setSort] = useState('consignor');
   const [viewMode, setViewMode] = useState('grouped');
   const consignorById = Object.fromEntries(consignors.map((entry) => [entry.id, entry]));
@@ -63,7 +61,7 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
     return groups;
   }, new Map());
 
-  if ((statusFilter === 'All' || statusFilter === 'Current') && productFilter === 'All') {
+  if ((statusFilter === 'All' || statusFilter === 'Current') && (productFilter === 'All' || !tier2Enabled)) {
     const q = query.trim().toLowerCase();
     for (const consignor of consignors) {
       if (grouped.has(consignor.id)) continue;
@@ -80,6 +78,32 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
     const b = consignorById[bId];
     return `${a?.lastName || ''} ${a?.firstName || ''}`.localeCompare(`${b?.lastName || ''} ${b?.firstName || ''}`);
   });
+
+  const filters = [
+    {
+      key: 'consignor', label: 'Consignor', value: consignorFilter, onChange: setConsignorFilter, ariaLabel: 'Filter by consignor',
+      options: [{ value: 'All', label: 'All consignors' }, ...consignors.map((c) => ({ value: c.id, label: `#${c.number} · ${c.firstName} ${c.lastName}` }))],
+    },
+    {
+      key: 'sort', label: 'Sort', value: sort, onChange: setSort, ariaLabel: 'Sort items',
+      options: [
+        { value: 'consignor', label: 'Consignor name' }, { value: 'newest', label: 'Newest first' },
+        { value: 'oldest', label: 'Oldest first' }, { value: 'ticket', label: 'SKU / item number' },
+        { value: 'priceHigh', label: 'Price high to low' }, { value: 'priceLow', label: 'Price low to high' },
+      ],
+    },
+    ...(tier2Enabled ? [{
+      key: 'product', label: 'Product type', value: productFilter, onChange: setProductFilter, ariaLabel: 'Filter by product type',
+      options: [
+        { value: 'All', label: 'All product types' }, { value: 'POS', label: 'POS' },
+        { value: 'Online', label: 'Online' }, { value: 'POS + Online', label: 'POS + Online' },
+      ],
+    }] : []),
+    {
+      key: 'status', label: 'Status', value: statusFilter, onChange: setStatusFilter, ariaLabel: 'Filter by status',
+      options: STATUS_OPTIONS.map((status) => ({ value: status, label: `${status} (${statusCount(items, status)})` })),
+    },
+  ];
 
   return (
     <>
@@ -110,7 +134,6 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
           .consignment-consignor-card-open { height:38px; font-size:12px; }
         }
       `}</style>
-
       <Header eyebrow="Accounts" title="Consignors" action={(
         <div className="consignment-header-actions consignment-consignors-header-actions">
           <details className="consignment-data-menu"><summary><FileUp size={16} /> Data</summary><div className="consignment-data-menu-popover"><button type="button" onClick={onImport}><FileUp size={15} /> Import CSV</button><button type="button" onClick={onExport}><Download size={15} /> Export CSV</button></div></details>
@@ -118,82 +141,14 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
           <button className="consignment-btn" type="button" onClick={onNewConsignor}><Plus size={17} /> New consignor</button>
         </div>
       )} />
-
       <div className="consignment-body">
         <ConsignmentFilterBar
-          search={{
-            value: query,
-            onChange: setQuery,
-            placeholder: 'Search name, SKU, brand, or consignor',
-          }}
-          filters={[
-            {
-              key: 'consignor',
-              label: 'Consignor',
-              value: consignorFilter,
-              onChange: setConsignorFilter,
-              ariaLabel: 'Filter by consignor',
-              options: [
-                { value: 'All', label: 'All consignors' },
-                ...consignors.map((c) => ({ value: c.id, label: `#${c.number} · ${c.firstName} ${c.lastName}` })),
-              ],
-            },
-            {
-              key: 'sort',
-              label: 'Sort',
-              value: sort,
-              onChange: setSort,
-              ariaLabel: 'Sort items',
-              options: [
-                { value: 'consignor', label: 'Consignor name' },
-                { value: 'newest', label: 'Newest first' },
-                { value: 'oldest', label: 'Oldest first' },
-                { value: 'ticket', label: 'SKU / item number' },
-                { value: 'priceHigh', label: 'Price high to low' },
-                { value: 'priceLow', label: 'Price low to high' },
-              ],
-            },
-            {
-              key: 'product',
-              label: 'Product type',
-              value: productFilter,
-              onChange: setProductFilter,
-              ariaLabel: 'Filter by product type',
-              options: [
-                { value: 'All', label: 'All product types' },
-                { value: 'Manual', label: 'Manual' },
-                { value: 'POS', label: 'POS' },
-                { value: 'Online', label: 'Online' },
-                { value: 'POS + Online', label: 'POS + Online' },
-              ],
-            },
-            {
-              key: 'status',
-              label: 'Status',
-              value: statusFilter,
-              onChange: setStatusFilter,
-              ariaLabel: 'Filter by status',
-              options: STATUS_OPTIONS.map((status) => ({
-                value: status,
-                label: `${status} (${statusCount(items, status)})`,
-              })),
-            },
-          ]}
-          views={{
-            value: viewMode,
-            onChange: setViewMode,
-            ariaLabel: 'Choose consignor view',
-            options: [
-              { value: 'grouped', label: 'By consignor', icon: Users },
-              { value: 'grid', label: 'Grid', icon: Grid3X3 },
-            ],
-          }}
+          search={{ value: query, onChange: setQuery, placeholder: 'Search name, SKU, brand, or consignor' }}
+          filters={filters}
+          views={{ value: viewMode, onChange: setViewMode, ariaLabel: 'Choose consignor view', options: [{ value: 'grouped', label: 'By consignor', icon: Users }, { value: 'grid', label: 'Grid', icon: Grid3X3 }] }}
         />
-
         {groupedEntries.length === 0 && <section className="consignment-card"><div className="consignment-empty-small">No consignors match these filters.</div></section>}
-
         {viewMode === 'grouped' && <div className="consignment-item-groups">{groupedEntries.map(([consignorId, consignorItems]) => <AllConsignorView key={consignorId} consignor={consignorById[consignorId]} items={consignorItems} onOpenConsignor={onOpenConsignor} onOpenItem={onOpenItem} onMarkSold={onMarkSold} onStartPayout={onStartPayout} />)}</div>}
-
         {viewMode === 'grid' && groupedEntries.length > 0 && (
           <div className="consignment-consignor-card-grid">
             {groupedEntries.map(([consignorId, consignorItems]) => {
@@ -201,22 +156,11 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
               const initials = consignor ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` : '—';
               const availableCount = consignorItems.filter((item) => item.status === 'Available' || item.status === 'Active').length;
               const soldCount = consignorItems.filter((item) => item.status === 'Sold' || item.dateSold).length;
-              const due = consignorItems
-                .filter((item) => (item.status === 'Sold' || item.dateSold) && !item.paidOut)
-                .reduce((sum, item) => sum + (Number(item.salePrice ?? item.price ?? 0) * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100, 0);
+              const due = consignorItems.filter((item) => (item.status === 'Sold' || item.dateSold) && !item.paidOut).reduce((sum, item) => sum + (Number(item.salePrice ?? item.price ?? 0) * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100, 0);
               return (
                 <article className="consignment-consignor-card" key={consignorId}>
-                  <div className="consignment-consignor-card-top">
-                    <span className="consignment-avatar">{initials}</span>
-                    <span className="consignment-consignor-card-name">
-                      <strong>{consignor ? `${consignor.firstName} ${consignor.lastName}` : 'Unassigned'}</strong>
-                      <small>#{consignor?.number || '—'}</small>
-                    </span>
-                  </div>
-                  <div className="consignment-consignor-card-stats">
-                    <span><strong>{availableCount}</strong><small>Active</small></span>
-                    <span><strong>{soldCount}</strong><small>Sold</small></span>
-                  </div>
+                  <div className="consignment-consignor-card-top"><span className="consignment-avatar">{initials}</span><span className="consignment-consignor-card-name"><strong>{consignor ? `${consignor.firstName} ${consignor.lastName}` : 'Unassigned'}</strong><small>#{consignor?.number || '—'}</small></span></div>
+                  <div className="consignment-consignor-card-stats"><span><strong>{availableCount}</strong><small>Active</small></span><span><strong>{soldCount}</strong><small>Sold</small></span></div>
                   <div className="consignment-consignor-card-due"><small>Amount due</small><strong>{money(due)}</strong></div>
                   <button type="button" className="consignment-consignor-card-open" onClick={() => onOpenConsignor(consignorId)}>View consignor</button>
                 </article>
