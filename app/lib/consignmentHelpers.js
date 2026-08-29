@@ -151,6 +151,58 @@ export function isSold(item) {
   return item.status === 'Sold' || Boolean(item.dateSold) || Boolean(item.orderId);
 }
 
+export const EXPIRY_FILTERS = {
+  ALL: 'all',
+  NEXT_7: 'next7',
+  NEXT_30: 'next30',
+  EXPIRED: 'expired',
+  NONE: 'none',
+};
+
+export function isAvailableInventoryItem(item) {
+  return !item?.paidOut
+    && !isSold(item)
+    && ['Draft', 'Available', 'Active'].includes(item?.status);
+}
+
+function localDateOnly(value) {
+  if (!value) return null;
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+export function matchesExpiryFilter(item, filter = EXPIRY_FILTERS.ALL, now = new Date()) {
+  if (filter === EXPIRY_FILTERS.ALL) return true;
+  if (!isAvailableInventoryItem(item)) return false;
+
+  const expiry = localDateOnly(item?.expiryDate);
+  if (filter === EXPIRY_FILTERS.NONE) return !expiry;
+  if (!expiry) return false;
+
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+
+  if (filter === EXPIRY_FILTERS.EXPIRED) {
+    return expiry < today;
+  }
+
+  const days = filter === EXPIRY_FILTERS.NEXT_7
+    ? 7
+    : filter === EXPIRY_FILTERS.NEXT_30
+      ? 30
+      : null;
+
+  if (days == null) return true;
+
+  const through = new Date(today);
+  through.setDate(through.getDate() + days);
+  return expiry >= today && expiry <= through;
+}
+
+export function expiryFilterCount(items, filter, now = new Date()) {
+  return items.filter((item) => matchesExpiryFilter(item, filter, now)).length;
+}
+
 // Groups paid-out items back into the individual payout events that
 // created them (one payoutId = one "Record payout" action for one
 // consignor). This is the single source of truth for payout history.
