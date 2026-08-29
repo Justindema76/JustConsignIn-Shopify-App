@@ -34,13 +34,18 @@ export default function ItemsScreen({
   const [productFilter, setProductFilter] = useState('All');
   const [sort, setSort] = useState('consignor');
   const [viewMode, setViewMode] = useState('list');
+  const [filtersOpen, setFiltersOpen] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(min-width: 761px)').matches
+      : false,
+  );
 
   const statuses = [
-    'Available',
-    'Sold',
-    'Archived',
-    'Returned',
-    'Donated',
+    { value: 'Available', label: 'Available' },
+    { value: 'SoldUnpaid', label: 'Sold / Unpaid' },
+    { value: 'PaidArchived', label: 'Paid / Archived' },
+    { value: 'Returned', label: 'Returned' },
+    { value: 'Donated', label: 'Donated' },
   ];
 
   const consignorById = Object.fromEntries(
@@ -70,13 +75,13 @@ export default function ItemsScreen({
         (productFilter === 'POS + Online' && product.text === 'POS + Online');
 
       const matchesStatus =
-        filter === 'Archived'
+        filter === 'PaidArchived'
           ? item.paidOut
           : filter === 'Available'
             ? !item.paidOut
               && !isSold(item)
               && ['Draft', 'Available', 'Active'].includes(item.status)
-            : filter === 'Sold'
+            : filter === 'SoldUnpaid'
               ? !item.paidOut && isSold(item)
               : item.status === filter && !item.paidOut;
 
@@ -182,7 +187,11 @@ export default function ItemsScreen({
 
       <div className="consignment-body">
         <div className="consignment-items-toolbar">
-          <details className="consignment-items-filter-details">
+          <details
+            className="consignment-items-filter-details"
+            open={filtersOpen}
+            onToggle={(event) => setFiltersOpen(event.currentTarget.open)}
+          >
             <summary className="consignment-items-filter-summary">
               <span>Filters &amp; sorting</span>
               <ChevronDown size={20} aria-hidden="true" />
@@ -254,25 +263,27 @@ export default function ItemsScreen({
                 >
                   {statuses.map((status) => {
                     const count =
-                      status === 'Archived'
+                      status.value === 'PaidArchived'
                         ? items.filter((item) => item.paidOut).length
-                        : status === 'Available'
+                        : status.value === 'Available'
                           ? items.filter(
                               (item) =>
                                 !item.paidOut
                                 && !isSold(item)
                                 && ['Draft', 'Available', 'Active'].includes(item.status),
                             ).length
-                          : status === 'Sold'
+                          : status.value === 'SoldUnpaid'
                             ? items.filter((item) => !item.paidOut && isSold(item)).length
                             : items.filter(
                                 (item) =>
-                                  item.status === status && !item.paidOut,
+                                  item.status === status.value && !item.paidOut,
                               ).length;
 
                     return (
-                      <option key={status} value={status}>
-                        {statusLabel(status)} ({count})
+                      <option key={status.value} value={status.value}>
+                        {status.value === 'Returned' || status.value === 'Donated'
+                          ? statusLabel(status.value)
+                          : status.label} ({count})
                       </option>
                     );
                   })}
