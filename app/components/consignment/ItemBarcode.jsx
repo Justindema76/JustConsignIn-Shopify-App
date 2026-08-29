@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 
-import { useEffect, useState } from "react";
-import { Check, Copy, Printer, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { Check, Copy, Printer } from "lucide-react";
 
 const CODE_128_PATTERNS = [
   "212222",
@@ -210,13 +210,65 @@ function BarcodeGraphic({ barcode, className = "" }) {
   );
 }
 
+function svgToPngBlob(svg, width = 900, height = 300) {
+  return new Promise((resolve, reject) => {
+    const copy = svg.cloneNode(true);
+    copy.setAttribute("width", String(width));
+    copy.setAttribute("height", String(height));
+
+    const source = new XMLSerializer().serializeToString(copy);
+    const svgBlob = new Blob([source], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    const imageUrl = URL.createObjectURL(svgBlob);
+    const image = new Image();
+
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#fff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(
+        (blob) => {
+          URL.revokeObjectURL(imageUrl);
+          if (blob) resolve(blob);
+          else reject(new Error("Unable to create barcode image."));
+        },
+        "image/png",
+      );
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(imageUrl);
+      reject(new Error("Unable to create barcode image."));
+    };
+
+    image.src = imageUrl;
+  });
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 export default function ItemBarcode({
   value,
   description = "Consignment item",
   priceLabel = "",
 }) {
-  const [showPrintLabel, setShowPrintLabel] = useState(false);
+  const barcodeRef = useRef(null);
   const [copyStatus, setCopyStatus] = useState("idle");
+  const [printStatus, setPrintStatus] = useState("idle");
   let barcode;
 
   try {
@@ -225,63 +277,25 @@ export default function ItemBarcode({
     barcode = null;
   }
 
-  useEffect(() => {
-    if (!showPrintLabel) return undefined;
-
-    function closeOnEscape(event) {
-      if (event.key === "Escape") setShowPrintLabel(false);
-    }
-
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [showPrintLabel]);
+  function getBarcodeSvg() {
+    return barcodeRef.current?.querySelector("svg") || null;
+  }
 
   async function copyBarcode() {
-    const svg = document.querySelector(
-      ".consignment-barcode-print-label svg",
-    );
+    const svg = getBarcodeSvg();
 
     if (!svg || !navigator.clipboard || typeof ClipboardItem === "undefined") {
       setCopyStatus("error");
+      window.setTimeout(() => setCopyStatus("idle"), 1800);
       return;
     }
 
     try {
-      const copy = svg.cloneNode(true);
-      copy.setAttribute("width", "900");
-      copy.setAttribute("height", "300");
-
-      const source = new XMLSerializer().serializeToString(copy);
-      const svgBlob = new Blob([source], {
-        type: "image/svg+xml;charset=utf-8",
-      });
-      const imageUrl = URL.createObjectURL(svgBlob);
-      const image = new Image();
-
-      const pngBlob = new Promise((resolve, reject) => {
-        image.onload = () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = 900;
-          canvas.height = 300;
-
-          const context = canvas.getContext("2d");
-          context.fillStyle = "#fff";
-          context.fillRect(0, 0, canvas.width, canvas.height);
-          context.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-          canvas.toBlob(
-            (blob) => (blob ? resolve(blob) : reject(new Error("Copy failed"))),
-            "image/png",
-          );
-        };
-        image.onerror = reject;
-        image.src = imageUrl;
-      });
+      const pngBlob = await svgToPngBlob(svg);
 
       await navigator.clipboard.write([
         new ClipboardItem({ "image/png": pngBlob }),
       ]);
-      URL.revokeObjectURL(imageUrl);
 
       setCopyStatus("copied");
       window.setTimeout(() => setCopyStatus("idle"), 1800);
@@ -291,91 +305,158 @@ export default function ItemBarcode({
     }
   }
 
+  async function shareLabelOnPhone(svg) {
+    if (!navigator.share || typeof File === "undefined") return false;
+
+    try {
+      const barcodeBlob = await svgToPngBlob(svg, 1200, 400);
+      const file = new File(
+        [barcodeBlob],
+        `consignment-item-${barcode.readableValue}.png`,
+        { type: "image/png" },
+      );
+
+      if (navigator.canShare && !navigator.canShare({ files: [file] })) {
+        return false;
+      }
+
+      await navigator.share({
+        files: [file],
+        title: `${description} - ${priceLabel || barcode.readableValue}`,
+      });
+
+      return true;
+    } catch (error) {
+      if (error?.name === "AbortError") return true;
+      return false;
+    }
+  }
+
+  function printInStandaloneWindow(svg) {
+    const printWindow = window.open("", "_blank");
+
+    if (!printWindow) return false;
+
+    const svgMarkup = new XMLSerializer().serializeToString(svg);
+
+    printWindow.document.open();
+    printWindow.document.write(`<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Print barcode ${escapeHtml(barcode.readableValue)}</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; background: #fff; color: #000; font-family: Arial, sans-serif; }
+      body { padding: 16px; }
+      .label { width: 100%; max-width: 640px; margin: 0 auto; border: 1px solid #ddd; padding: 14px; background: #fff; }
+      .head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 10px; font-size: 18px; font-weight: 700; }
+      .price { white-space: nowrap; }
+      svg { display: block; width: 100%; height: 120px; }
+      .manual-print { display: block; width: 100%; max-width: 640px; margin: 14px auto 0; min-height: 48px; border: 0; border-radius: 6px; background: #1677d2; color: #fff; font-size: 16px; font-weight: 700; }
+      .hint { max-width: 640px; margin: 10px auto 0; text-align: center; font-size: 13px; color: #555; }
+      @media print {
+        @page { margin: 0.25in; }
+        body { padding: 0; }
+        .label { max-width: none; border: 0; padding: 0; }
+        .manual-print, .hint { display: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <section class="label">
+      <div class="head">
+        <span>${escapeHtml(description)}</span>
+        ${priceLabel ? `<span class="price">${escapeHtml(priceLabel)}</span>` : ""}
+      </div>
+      ${svgMarkup}
+    </section>
+    <button class="manual-print" type="button" onclick="window.print()">Print label</button>
+    <p class="hint">On a phone, use the print option from your browser or share sheet if the print dialog does not open automatically.</p>
+    <script>
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          try { window.print(); } catch (error) {}
+        }, 250);
+      });
+    <\/script>
+  </body>
+</html>`);
+    printWindow.document.close();
+    return true;
+  }
+
+  async function printLabel() {
+    const svg = getBarcodeSvg();
+
+    if (!svg) {
+      setPrintStatus("error");
+      window.setTimeout(() => setPrintStatus("idle"), 1800);
+      return;
+    }
+
+    setPrintStatus("working");
+
+    const isMobile =
+      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+      (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+
+    if (isMobile) {
+      const shared = await shareLabelOnPhone(svg);
+      if (shared) {
+        setPrintStatus("idle");
+        return;
+      }
+    }
+
+    const opened = printInStandaloneWindow(svg);
+
+    setPrintStatus(opened ? "idle" : "error");
+    if (!opened) window.setTimeout(() => setPrintStatus("idle"), 1800);
+  }
+
   if (!barcode) return null;
 
   return (
-    <>
-      <section className="consignment-item-barcode-card">
-        <BarcodeGraphic barcode={barcode} />
+    <section className="consignment-item-barcode-card" ref={barcodeRef}>
+      <BarcodeGraphic barcode={barcode} />
 
+      <div
+        className="consignment-item-barcode-actions"
+        style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}
+      >
         <button
           type="button"
           className="consignment-btn secondary consignment-item-barcode-button"
-          onClick={() => setShowPrintLabel(true)}
+          onClick={copyBarcode}
+        >
+          {copyStatus === "copied" ? (
+            <Check size={17} aria-hidden="true" />
+          ) : (
+            <Copy size={17} aria-hidden="true" />
+          )}
+          {copyStatus === "copied"
+            ? "Copied"
+            : copyStatus === "error"
+              ? "Copy unavailable"
+              : "Copy barcode"}
+        </button>
+
+        <button
+          type="button"
+          className="consignment-btn consignment-item-barcode-button"
+          onClick={printLabel}
+          disabled={printStatus === "working"}
         >
           <Printer size={17} aria-hidden="true" />
-          Print barcode
+          {printStatus === "working"
+            ? "Opening print..."
+            : printStatus === "error"
+              ? "Print unavailable"
+              : "Print label"}
         </button>
-      </section>
-
-      {showPrintLabel && (
-        <div
-          className="consignment-barcode-modal"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setShowPrintLabel(false);
-            }
-          }}
-        >
-          <section
-            className="consignment-barcode-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="consignment-barcode-dialog-title"
-          >
-            <div className="consignment-barcode-dialog-head">
-              <h2 id="consignment-barcode-dialog-title">Print barcode label</h2>
-
-              <button
-                type="button"
-                className="consignment-barcode-dialog-close"
-                onClick={() => setShowPrintLabel(false)}
-                aria-label="Close barcode label"
-              >
-                <X size={19} aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="consignment-barcode-print-label">
-              <div className="consignment-barcode-print-label-head">
-                <strong>{description}</strong>
-                {priceLabel && <span>{priceLabel}</span>}
-              </div>
-
-              <BarcodeGraphic barcode={barcode} className="printable" />
-            </div>
-
-            <div className="consignment-barcode-dialog-actions">
-              <button
-                type="button"
-                className="consignment-btn secondary"
-                onClick={copyBarcode}
-              >
-                {copyStatus === "copied" ? (
-                  <Check size={17} aria-hidden="true" />
-                ) : (
-                  <Copy size={17} aria-hidden="true" />
-                )}
-                {copyStatus === "copied"
-                  ? "Copied"
-                  : copyStatus === "error"
-                    ? "Copy unavailable"
-                    : "Copy barcode"}
-              </button>
-
-              <button
-                type="button"
-                className="consignment-btn"
-                onClick={() => window.print()}
-              >
-                <Printer size={17} aria-hidden="true" />
-                Print label
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
-    </>
+      </div>
+    </section>
   );
 }
