@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { useState } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
 import '../../styles/consignment-filter-bar.css';
 
@@ -28,13 +29,22 @@ export default function ConsignmentFilterBar({ search, filters, views }) {
   const hasFilters = Array.isArray(filters) && filters.length > 0;
   const hasSearch = Boolean(search);
   const hasViews = Boolean(views) && Array.isArray(views.options) && views.options.length > 0;
+  const [filtersOpen, setFiltersOpen] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(min-width: 761px)').matches
+      : false,
+  );
 
   if (!hasFilters && !hasSearch && !hasViews) return null;
 
   return (
     <div className="consignment-items-toolbar">
       {hasFilters && (
-        <details className="consignment-items-filter-details">
+        <details
+          className="consignment-items-filter-details"
+          open={filtersOpen}
+          onToggle={(event) => setFiltersOpen(event.currentTarget.open)}
+        >
           <summary className="consignment-items-filter-summary">
             <span>Filters &amp; sorting</span>
             <ChevronDown size={20} aria-hidden="true" />
