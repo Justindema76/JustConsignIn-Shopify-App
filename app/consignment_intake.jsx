@@ -760,6 +760,27 @@ function ShopifyProductSection({
 }) {
   const canSync = Boolean(onSync) && tier2Enabled;
 
+  if (!tier2Enabled) {
+    return (
+      <section className="consignment-form-section">
+        <div className="consignment-form-section-head consignment-shopify-summary consignment-shopify-locked">
+          <span>
+            <span
+              className="consignment-form-section-marker"
+              aria-hidden="true"
+            />
+            <ShoppingBag size={17} />
+            <h2>Shopify product</h2>
+          </span>
+
+          <span className="consignment-row-sub">
+            Requires Manual + Shopify Sync plan
+          </span>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <details className="consignment-form-section">
       <summary className="consignment-form-section-head consignment-shopify-summary">
