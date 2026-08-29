@@ -235,3 +235,216 @@ details:not([open]) > summary.consignment-form-section-head::after {
 .consignment-form-section.is-locked button {
   cursor: not-allowed;
 }
+
+
+/* COMPACT CREATE PAYOUT */
+.consignment-payout-shell {
+  max-width: 1100px;
+}
+
+.consignment-payout-card {
+  overflow: hidden;
+}
+
+.consignment-payout-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: var(--surface-subtle);
+  border-bottom: 1px solid var(--line);
+}
+
+.consignment-payout-summary-cell {
+  min-width: 0;
+  padding: 14px 16px;
+  border-right: 1px solid var(--line);
+}
+
+.consignment-payout-summary-cell:last-child {
+  border-right: 0;
+}
+
+.consignment-payout-summary-cell > strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 17px;
+}
+
+.consignment-payout-summary-cell small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.consignment-payout-total-value {
+  color: var(--green-dark);
+  font-size: 20px !important;
+}
+
+.consignment-payout-section {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.consignment-payout-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.consignment-payout-section-head h2 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.consignment-payout-section-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.consignment-payout-items {
+  display: grid;
+  gap: 8px;
+}
+
+.consignment-payout-item-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 72px 88px;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-subtle);
+  cursor: pointer;
+}
+
+.consignment-payout-item-main {
+  min-width: 0;
+}
+
+.consignment-payout-item-main > strong,
+.consignment-payout-item-main > span {
+  display: block;
+}
+
+.consignment-payout-item-main > strong {
+  overflow: hidden;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.consignment-payout-item-main > span {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.consignment-payout-item-rate {
+  text-align: left;
+}
+
+.consignment-payout-item-rate > strong {
+  display: block;
+  margin-top: 2px;
+}
+
+.consignment-payout-item-due {
+  text-align: right;
+  font-size: 15px;
+}
+
+.consignment-payout-payment-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.consignment-payout-payment-grid .consignment-form-field {
+  margin-bottom: 0;
+}
+
+.consignment-payout-note-field {
+  grid-column: span 2;
+}
+
+.consignment-payout-store-credit-help {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.consignment-payout-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 13px 16px;
+  background: var(--surface-subtle);
+}
+
+.consignment-payout-footer > div > strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 22px;
+}
+
+@media (max-width: 760px) {
+  .consignment-payout-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .consignment-payout-summary-cell {
+    padding: 12px 14px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .consignment-payout-summary-cell:last-child {
+    border-bottom: 0;
+  }
+
+  .consignment-payout-section {
+    padding: 12px 14px;
+  }
+
+  .consignment-payout-item-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .consignment-payout-item-rate {
+    display: none;
+  }
+
+  .consignment-payout-item-main > span {
+    line-height: 1.35;
+    white-space: normal;
+  }
+
+  .consignment-payout-payment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .consignment-payout-note-field {
+    grid-column: auto;
+  }
+
+  .consignment-payout-footer {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .consignment-payout-footer .consignment-btn {
+    width: 100%;
+  }
+}

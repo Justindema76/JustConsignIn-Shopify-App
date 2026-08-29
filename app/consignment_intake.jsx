@@ -261,6 +261,17 @@ function AppNavigation({ view, onNavigate }) {
   );
 }
 
+function formatPayoutSoldDate(value) {
+  if (!value) return '—';
+  const date = new Date(String(value).includes('T') ? value : `${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleDateString('en-CA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
 function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
   const eligible = items.filter(
     (item) =>
@@ -331,186 +342,123 @@ function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
       />
 
       <div className="consignment-body">
-        <div className="consignment-form-shell">
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>
+        <div className="consignment-form-shell consignment-payout-shell">
+          <section className="consignment-form-section consignment-payout-card">
+            <div className="consignment-payout-summary-grid">
+              <div className="consignment-payout-summary-cell">
+                <span className="consignment-label">Consignor</span>
+                <strong>
                   {consignor.firstName} {consignor.lastName}
-                </h2>
-                <p>Default commission: {consignor.commissionPct}%</p>
-              </div>
-            </div>
-          </section>
-
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>Items in this payout</h2>
-                <p>Select the eligible sales to include.</p>
+                </strong>
+                <small>Default commission: {consignor.commissionPct}%</small>
               </div>
 
-              <button
-                type="button"
-                className="consignment-link-button"
-                onClick={() =>
-                  setSelectedIds(
-                    selectedIds.length === eligible.length
-                      ? []
-                      : eligible.map((item) => item.id),
-                  )
-                }
-              >
-                {selectedIds.length === eligible.length
-                  ? 'Exclude all'
-                  : 'Select all'}
-              </button>
+              <div className="consignment-payout-summary-cell">
+                <span className="consignment-label">Selected sales</span>
+                <strong>{selected.length}</strong>
+                <small>Consignor earnings: {money(itemTotal)}</small>
+              </div>
+
+              <div className="consignment-payout-summary-cell">
+                <span className="consignment-label">Amount due</span>
+                <strong className="consignment-payout-total-value">
+                  {money(payoutTotal)}
+                </strong>
+                <small>Includes manual adjustment</small>
+              </div>
             </div>
 
-            <div className="consignment-form-section-body">
-              {eligible.length === 0 && (
-                <div className="consignment-empty-small">
-                  This consignor has no eligible unpaid sales.
+            <div className="consignment-payout-section">
+              <div className="consignment-payout-section-head">
+                <div>
+                  <h2>Items in this payout</h2>
+                  <p>Select the eligible sold items to include.</p>
                 </div>
-              )}
 
-              {eligible.map((item) => {
-                const salePrice = Number(item.salePrice ?? item.price ?? 0);
-                const rate = Number(
-                  item.commissionPct ?? consignor.commissionPct ?? 0,
-                );
-                const due = (salePrice * rate) / 100;
+                <button
+                  type="button"
+                  className="consignment-link-button"
+                  onClick={() =>
+                    setSelectedIds(
+                      selectedIds.length === eligible.length
+                        ? []
+                        : eligible.map((item) => item.id),
+                    )
+                  }
+                >
+                  {selectedIds.length === eligible.length
+                    ? 'Exclude all'
+                    : 'Select all'}
+                </button>
+              </div>
 
-                return (
-                  <label key={item.id} className="consignment-row-btn">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(item.id)}
-                      onChange={() => toggleItem(item.id)}
-                    />
+              <div className="consignment-payout-items">
+                {eligible.length === 0 && (
+                  <div className="consignment-empty-small">
+                    This consignor has no eligible unpaid sales.
+                  </div>
+                )}
 
-                    <span className="consignment-item-primary">
-                      <span className="consignment-batch-thumb">
-                        {item.photo ? (
-                          <img src={item.photo} alt="" />
-                        ) : (
-                          <Tag size={16} color="var(--green-dark)" />
-                        )}
-                      </span>
+                {eligible.map((item) => {
+                  const salePrice = Number(item.salePrice ?? item.price ?? 0);
+                  const rate = Number(
+                    item.commissionPct ?? consignor.commissionPct ?? 0,
+                  );
+                  const due = (salePrice * rate) / 100;
 
-                      <span>
-                        <strong>
-                          {item.description || item.itemNumber}
-                        </strong>
+                  return (
+                    <label key={item.id} className="consignment-payout-item-row">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(item.id)}
+                        onChange={() => toggleItem(item.id)}
+                      />
+
+                      <span className="consignment-payout-item-main">
+                        <strong>{item.description || item.itemNumber}</strong>
                         <span>
-                          {item.orderName || item.itemNumber} |{' '}
-                          {money(salePrice)} | {rate}%
+                          {item.orderName || item.itemNumber} · Sale {money(salePrice)} · Sold {formatPayoutSoldDate(item.dateSold)}
                         </span>
                       </span>
-                    </span>
 
-                    <strong>{money(due)}</strong>
-                  </label>
-                );
-              })}
-            </div>
-          </section>
+                      <span className="consignment-payout-item-rate">
+                        <span className="consignment-label">Rate</span>
+                        <strong>{rate}%</strong>
+                      </span>
 
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>Payout summary</h2>
+                      <strong className="consignment-payout-item-due">
+                        {money(due)}
+                      </strong>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="consignment-form-section-body">
-              <div className="consignment-form-grid consignment-form-grid-2">
+            <div className="consignment-payout-section">
+              <div className="consignment-payout-section-head">
+                <div>
+                  <h2>Payment details</h2>
+                  <p>Record how and when the consignor is being paid.</p>
+                </div>
+              </div>
+
+              <div className="consignment-form-grid consignment-form-grid-3 consignment-payout-payment-grid">
                 <div className="consignment-form-field">
-                  <span className="consignment-label">Selected sales</span>
-                  <strong>{selected.length}</strong>
+                  <label className="consignment-label">Payment method</label>
+                  <select
+                    className="consignment-select"
+                    value={method}
+                    onChange={(event) => setMethod(event.target.value)}
+                  >
+                    <option>E-transfer</option>
+                    <option>Cash</option>
+                    <option>Cheque</option>
+                    <option>Store credit</option>
+                    <option>Other</option>
+                  </select>
                 </div>
 
-                <div className="consignment-form-field">
-                  <span className="consignment-label">
-                    Consignor earnings
-                  </span>
-                  <strong>{money(itemTotal)}</strong>
-                </div>
-              </div>
-
-              <div className="consignment-form-field">
-                <label className="consignment-label">
-                  Manual adjustment
-                </label>
-                <input
-                  className="consignment-input"
-                  type="number"
-                  inputMode="decimal"
-                  value={adjustment}
-                  onChange={(event) => setAdjustment(event.target.value)}
-                  placeholder="0.00"
-                />
-              </div>
-
-              <div className="consignment-form-field">
-                <span className="consignment-label">Amount due</span>
-                <strong>{money(payoutTotal)}</strong>
-              </div>
-            </div>
-          </section>
-
-          <section className="consignment-form-section">
-            <div className="consignment-form-section-head">
-              <span
-                className="consignment-form-section-marker"
-                aria-hidden="true"
-              />
-
-              <div>
-                <h2>Payment details</h2>
-              </div>
-            </div>
-
-            <div className="consignment-form-section-body">
-              <div className="consignment-form-field">
-                <label className="consignment-label">Payment method</label>
-                <select
-                  className="consignment-select"
-                  value={method}
-                  onChange={(event) => setMethod(event.target.value)}
-                >
-                  <option>E-transfer</option>
-                  <option>Cash</option>
-                  <option>Cheque</option>
-                  <option>Store credit</option>
-                  <option>Other</option>
-                </select>
-              </div>
-
-              {method === 'Store credit' && (
-                <div className="consignment-form-help">
-                  <CircleDollarSign size={17} />
-                  This records the amount as store credit in the payout ledger
-                  and on each linked Shopify product.
-                </div>
-              )}
-
-              <div className="consignment-form-grid consignment-form-grid-2">
                 <div className="consignment-form-field">
                   <label className="consignment-label">Payout date</label>
                   <input
@@ -534,34 +482,56 @@ function CreatePayoutScreen({ consignor, items, onBack, onRecordPayout }) {
                     }
                   />
                 </div>
+
+                <div className="consignment-form-field">
+                  <label className="consignment-label">Manual adjustment</label>
+                  <input
+                    className="consignment-input"
+                    type="number"
+                    inputMode="decimal"
+                    value={adjustment}
+                    onChange={(event) => setAdjustment(event.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+
+                <div className="consignment-form-field consignment-payout-note-field">
+                  <label className="consignment-label">Payout note</label>
+                  <input
+                    className="consignment-input"
+                    value={note}
+                    onChange={(event) => setNote(event.target.value)}
+                    placeholder="Optional payment reference or note"
+                  />
+                </div>
               </div>
 
-              <div className="consignment-form-field">
-                <label className="consignment-label">Payout note</label>
-                <textarea
-                  className="consignment-textarea"
-                  rows={3}
-                  value={note}
-                  onChange={(event) => setNote(event.target.value)}
-                  placeholder="Optional payment reference or note"
-                />
+              {method === 'Store credit' && (
+                <div className="consignment-form-help consignment-payout-store-credit-help">
+                  <CircleDollarSign size={17} />
+                  This records the amount as store credit in the payout ledger
+                  and on each linked Shopify product.
+                </div>
+              )}
+            </div>
+
+            <div className="consignment-payout-footer">
+              <div>
+                <span className="consignment-label">Total payout</span>
+                <strong>{money(payoutTotal)}</strong>
               </div>
+
+              <button
+                type="button"
+                className="consignment-btn"
+                disabled={!selected.length || saving}
+                onClick={recordPayout}
+              >
+                <WalletCards size={17} />
+                {saving ? 'Recording payout…' : 'Record payout'}
+              </button>
             </div>
           </section>
-        </div>
-      </div>
-
-      <div className="consignment-form-actions">
-        <div className="consignment-form-actions-inner">
-          <button
-            type="button"
-            className="consignment-btn"
-            disabled={!selected.length || saving}
-            onClick={recordPayout}
-          >
-            <WalletCards size={17} />
-            {saving ? 'Recording payout…' : 'Record payout'}
-          </button>
         </div>
       </div>
     </>
