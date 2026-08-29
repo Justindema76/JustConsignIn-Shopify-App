@@ -54,7 +54,6 @@ function OwedTab({ items, consignors, onOpenItem, onOpenConsignor, onStartPayout
     { key: 'consignor', label: 'Consignor', value: consignorFilter, onChange: setConsignorFilter, ariaLabel: 'Filter by consignor', options: [{ value: 'All', label: 'All consignors owed' }, ...consignorsOwed.map((c) => ({ value: c.id, label: `#${c.number} · ${c.firstName} ${c.lastName}` }))] },
     { key: 'sort', label: 'Sort', value: sort, onChange: setSort, ariaLabel: 'Sort payouts', options: [{ value: 'amount', label: 'Highest amount due' }, { value: 'name', label: 'Consignor name' }, { value: 'oldest', label: 'Oldest unpaid sale' }] },
     ...(tier2Enabled ? [{ key: 'source', label: 'Sale source', value: sourceFilter, onChange: setSourceFilter, ariaLabel: 'Filter by sale source', options: SOURCE_OPTIONS }] : []),
-    { key: 'payoutStatus', label: 'Payout status', value: 'Unpaid', onChange: () => {}, disabled: true, ariaLabel: 'Payout status', options: [{ value: 'Unpaid', label: 'Unpaid (owed)' }] },
   ];
   return <>
     <div className="consignment-payouts-summary-grid"><div className="consignment-card consignment-payouts-summary-card"><span>Total due</span><strong>{money(totalDue)}</strong></div><div className="consignment-card consignment-payouts-summary-card"><span>Consignors to pay</span><strong>{groupedEntries.length}</strong></div></div>
