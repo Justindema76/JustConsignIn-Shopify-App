@@ -1,0 +1,112 @@
+name: One-time tier visibility fix
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-tier-visibility-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Apply tier visibility rules
+        shell: python
+        run: |
+          from pathlib import Path
+
+          intake = Path('app/consignment_intake.jsx')
+          text = intake.read_text()
+
+          old_barcode = '''          <ItemBarcode
+            value={item.itemNumber}
+            description={item.description || item.type || 'Consignment item'}
+            priceLabel={money(item.price)}
+          />'''
+          new_barcode = '''          {tier2Enabled && (
+            <ItemBarcode
+              value={item.itemNumber}
+              description={item.description || item.type || 'Consignment item'}
+              priceLabel={money(item.price)}
+            />
+          )}'''
+
+          if old_barcode not in text:
+              raise SystemExit('ItemBarcode block not found')
+          text = text.replace(old_barcode, new_barcode, 1)
+
+          old_manual = '''          <ManualSaleStatus
+            item={item}
+            onMarkSold={(itemId, details) =>
+              onUpdateStatus(itemId, 'Sold', details)
+            }
+            money={money}
+            onStartPayout={onStartPayout}
+            onOpenPayoutReceipt={onOpenPayoutReceipt}
+          />'''
+          new_manual = '''          <ManualSaleStatus
+            item={item}
+            allowManualSale={!tier2Enabled}
+            onMarkSold={(itemId, details) =>
+              onUpdateStatus(itemId, 'Sold', details)
+            }
+            money={money}
+            onStartPayout={onStartPayout}
+            onOpenPayoutReceipt={onOpenPayoutReceipt}
+          />'''
+
+          if old_manual not in text:
+              raise SystemExit('ManualSaleStatus block not found')
+          text = text.replace(old_manual, new_manual, 1)
+          intake.write_text(text)
+
+          manual = Path('app/components/consignment/ManualSaleStatus.jsx')
+          manual_text = manual.read_text()
+
+          old_signature = '''export default function ManualSaleStatus({
+  item,
+  onMarkSold,
+  onStartPayout,
+  onOpenPayoutReceipt,
+  money,
+}) {'''
+          new_signature = '''export default function ManualSaleStatus({
+  item,
+  allowManualSale = true,
+  onMarkSold,
+  onStartPayout,
+  onOpenPayoutReceipt,
+  money,
+}) {'''
+
+          if old_signature not in manual_text:
+              raise SystemExit('ManualSaleStatus signature not found')
+          manual_text = manual_text.replace(old_signature, new_signature, 1)
+
+          old_condition = '''      {!isSold && (
+        <div className="consignment-manual-sale">'''
+          new_condition = '''      {!isSold && allowManualSale && (
+        <div className="consignment-manual-sale">'''
+
+          if old_condition not in manual_text:
+              raise SystemExit('Manual sale condition not found')
+          manual_text = manual_text.replace(old_condition, new_condition, 1)
+          manual.write_text(manual_text)
+
+          workflow = Path('.github/workflows/one-time-tier-visibility-fix.yml')
+          if workflow.exists():
+              workflow.unlink()
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/consignment_intake.jsx app/components/consignment/ManualSaleStatus.jsx .github/workflows/one-time-tier-visibility-fix.yml
+          git commit -m "Apply tier-specific barcode and manual sale visibility"
+          git push origin main
