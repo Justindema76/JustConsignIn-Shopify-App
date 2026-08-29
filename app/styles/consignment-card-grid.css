@@ -93,7 +93,7 @@
 .consignment-grid-thumb.consignment-image-placeholder {
   color: var(--muted);
 
-  font-size: 8px;
+  font-size: var(--font-size-xs);
   font-weight: 700;
   line-height: 1.15;
 
@@ -109,7 +109,7 @@
 
   color: var(--ink);
 
-  font-size: 13px;
+  font-size: var(--font-size-lg);
   font-weight: 800;
   line-height: 1.2;
 
@@ -127,7 +127,7 @@
 
   color: var(--muted);
 
-  font-size: 9px;
+  font-size: var(--font-size-sm);
   line-height: 1.2;
 }
 
@@ -152,7 +152,7 @@
 .consignment-readable-card-sku b {
   flex-shrink: 0;
 
-  font-size: 9px;
+  font-size: var(--font-size-sm);
 }
 
 .consignment-readable-card-sku span {
@@ -180,7 +180,7 @@
 
   padding: 4px 7px;
 
-  font-size: 8px;
+  font-size: var(--font-size-sm);
 }
 
 /* ---------- CONSIGNOR ---------- */
@@ -200,7 +200,7 @@
 
   font: inherit;
 
-  font-size: 11px;
+  font-size: var(--font-size-md);
   font-weight: 800;
   line-height: 1.2;
 
@@ -255,8 +255,8 @@
 .consignment-readable-card-meta small {
   color: var(--muted);
 
-  font-size: 8px;
-  font-weight: 800;
+  font-size: var(--font-size-md);
+  font-weight: 700;
 
   text-transform: uppercase;
 
@@ -266,7 +266,7 @@
 .consignment-readable-card-meta strong {
   color: var(--ink);
 
-  font-size: 16px;
+  font-size: var(--font-size-2xl);
   font-weight: 800;
   line-height: 1;
 
@@ -304,21 +304,21 @@
 
 .consignment-readable-card-date-row small {
   color: var(--muted);
-  font-size: 9px;
-  font-weight: 700;
+  font-size: var(--font-size-md);
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .consignment-readable-card-date-row strong {
   color: var(--ink);
-  font-size: 11px;
+  font-size: var(--font-size-lg);
   font-weight: 700;
   white-space: nowrap;
 }
 
 .consignment-readable-card-date-row .consignment-badge {
   padding: 4px 7px;
-  font-size: 8px;
+  font-size: var(--font-size-sm);
 }
 
 /* ---------- SALES INFO ---------- */
@@ -328,7 +328,7 @@
 
   color: var(--muted);
 
-  font-size: 9px;
+  font-size: var(--font-size-md);
   line-height: 1.3;
 
   white-space: nowrap;
@@ -372,7 +372,7 @@
 
   border-radius: 8px;
 
-  font-size: 9px;
+  font-size: var(--font-size-sm);
 
   white-space: nowrap;
 }
@@ -469,12 +469,12 @@
   }
 
   .consignment-readable-card-top strong {
-    font-size: 13px;
+    font-size: var(--font-size-lg);
   }
 
   .consignment-readable-card-sku,
   .consignment-readable-card-sku b {
-    font-size: 9px !important;
+    font-size: var(--font-size-md) !important;
   }
 
   .consignment-readable-product-row {
@@ -484,7 +484,7 @@
   .consignment-readable-consignor-link {
     margin-top: 10px;
 
-    font-size: 12px;
+    font-size: var(--font-size-md);
   }
 
   .consignment-readable-card-meta,
@@ -500,11 +500,11 @@
   }
 
   .consignment-readable-card-meta small {
-    font-size: 9px;
+    font-size: var(--font-size-sm);
   }
 
   .consignment-readable-card-meta strong {
-    font-size: 18px;
+    font-size: var(--font-size-2xl);
   }
 
   .consignment-readable-card-details {
@@ -512,13 +512,13 @@
   }
 
   .consignment-readable-card-details small {
-    font-size: 9px;
+    font-size: var(--font-size-sm);
   }
 
   .consignment-sales-grid-order {
     margin-bottom: 9px;
 
-    font-size: 9px;
+    font-size: var(--font-size-sm);
   }
 
   .consignment-readable-card-actions > *,
@@ -533,7 +533,7 @@
 
     padding: 6px 7px;
 
-    font-size: 9px;
+    font-size: var(--font-size-sm);
   }
 }
 /* =========================================================
@@ -568,12 +568,12 @@
   }
 
   .consignment-readable-card-top strong {
-    font-size: 13px;
+    font-size: var(--font-size-lg);
   }
 
   .consignment-readable-card-sku,
   .consignment-readable-card-sku b {
-    font-size: 9px !important;
+    font-size: var(--font-size-md) !important;
   }
 
   .consignment-readable-product-row {
@@ -583,7 +583,7 @@
   .consignment-readable-consignor-link {
     margin-top: 10px;
 
-    font-size: 12px;
+    font-size: var(--font-size-md);
   }
 
   .consignment-readable-card-meta,
@@ -599,11 +599,11 @@
   }
 
   .consignment-readable-card-meta small {
-    font-size: 9px;
+    font-size: var(--font-size-sm);
   }
 
   .consignment-readable-card-meta strong {
-    font-size: 18px;
+    font-size: var(--font-size-2xl);
   }
 
   .consignment-readable-card-details {
@@ -611,13 +611,13 @@
   }
 
   .consignment-readable-card-details small {
-    font-size: 9px;
+    font-size: var(--font-size-sm);
   }
 
   .consignment-sales-grid-order {
     margin-bottom: 9px;
 
-    font-size: 9px;
+    font-size: var(--font-size-sm);
   }
 
   .consignment-readable-card-actions > *,
@@ -632,6 +632,6 @@
 
     padding: 6px 7px;
 
-    font-size: 9px;
+    font-size: var(--font-size-sm);
   }
 }
