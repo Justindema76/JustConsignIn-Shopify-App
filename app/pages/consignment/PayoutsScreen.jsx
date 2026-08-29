@@ -35,6 +35,14 @@ function OwedTab({ items, consignors, onOpenItem, onOpenConsignor, onStartPayout
 
   const owed = items.filter((item) => (item.status === 'Sold' || item.dateSold) && !item.paidOut);
 
+  const owedConsignorIds = new Set(
+    owed.map((item) => item.consignorId),
+  );
+
+  const consignorsOwed = consignors.filter((consignor) =>
+    owedConsignorIds.has(consignor.id),
+  );
+
   const dueForItem = (item) => {
     const consignor = consignorById[item.consignorId];
     return (Number(item.salePrice ?? item.price ?? 0) * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100;
@@ -99,7 +107,7 @@ function OwedTab({ items, consignors, onOpenItem, onOpenConsignor, onStartPayout
             ariaLabel: 'Filter by consignor',
             options: [
               { value: 'All', label: 'All consignors owed' },
-              ...consignors.map((c) => ({ value: c.id, label: `#${c.number} · ${c.firstName} ${c.lastName}` })),
+              ...consignorsOwed.map((c) => ({ value: c.id, label: `#${c.number} · ${c.firstName} ${c.lastName}` })),
             ],
           },
           {
