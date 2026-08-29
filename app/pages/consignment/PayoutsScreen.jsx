@@ -65,15 +65,20 @@ function OwedTab({ items, consignors, onOpenItem, onOpenConsignor, onStartPayout
   </>;
 }
 
-function HistoryTab({ items, consignors, onOpenConsignor, tier2Enabled }) {
-  const [query, setQuery] = useState('');
-  const [consignorFilter, setConsignorFilter] = useState('All');
-  const [sourceFilter, setSourceFilter] = useState(() => tier2Enabled ? 'All' : 'Manual');
-  const [sort, setSort] = useState('newest');
-  const [expanded, setExpanded] = useState(() => new Set());
-  const consignorById = Object.fromEntries(consignors.map((entry) => [entry.id, entry]));
-  const groups = recordedPayoutGroups(items).map((group) => { const consignor = consignorById[group.consignorId] || consignorById[group.items[0]?.consignorId]; const total = group.payoutTotal || group.items.reduce((sum, item) => sum + Number(item.payoutAmount || 0), 0); return { ...group, consignor, total }; });
-  const filtered = groups.filter((group) => {
+function HistoryTab({
+  items,
+  consignors,
+  onOpenItem,
+  onOpenConsignor,
+  tier2Enabled,}) {  
+    const [query, setQuery] = useState('');
+    const [consignorFilter, setConsignorFilter] = useState('All');
+    const [sourceFilter, setSourceFilter] = useState(() => tier2Enabled ? 'All' : 'Manual');
+    const [sort, setSort] = useState('newest');
+    const [expanded, setExpanded] = useState(() => new Set());
+    const consignorById = Object.fromEntries(consignors.map((entry) => [entry.id, entry]));
+    const groups = recordedPayoutGroups(items).map((group) => { const consignor = consignorById[group.consignorId] || consignorById[group.items[0]?.consignorId]; const total = group.payoutTotal || group.items.reduce((sum, item) => sum + Number(item.payoutAmount || 0), 0); return { ...group, consignor, total }; });
+    const filtered = groups.filter((group) => {
     const q = query.trim().toLowerCase();
     const name = group.consignor ? `${group.consignor.firstName} ${group.consignor.lastName} #${group.consignor.number}` : '';
     const matchesQuery = !q || `${name} ${group.payoutMethod} ${group.payoutReference}`.toLowerCase().includes(q);
@@ -93,8 +98,124 @@ function HistoryTab({ items, consignors, onOpenConsignor, tier2Enabled }) {
     <div className="consignment-payouts-summary-grid"><div className="consignment-card consignment-payouts-summary-card"><span>Total paid out</span><strong>{money(totalPaid)}</strong></div><div className="consignment-card consignment-payouts-summary-card"><span>Payouts recorded</span><strong>{groups.length}</strong></div></div>
     <ConsignmentFilterBar search={{ value: query, onChange: setQuery, placeholder: 'Search consignor, method, or reference' }} filters={filters} />
     {filtered.length === 0 && <section className="consignment-card"><div className="consignment-empty-small">No payouts recorded yet.</div></section>}
-    {filtered.length > 0 && <div className="consignment-payouts-history-list">{filtered.map((group) => { const isOpen = expanded.has(group.payoutId); return <div key={group.payoutId} className="consignment-payouts-history-card"><button type="button" className="consignment-payouts-history-summary" onClick={() => toggle(group.payoutId)} aria-expanded={isOpen}><span className="consignment-payouts-history-who">{group.consignor ? <><strong>{group.consignor.firstName} {group.consignor.lastName}</strong><span>#{group.consignor.number}</span></> : <strong>Unknown consignor</strong>}</span><span className="consignment-payouts-history-meta"><strong>{group.payoutDate || '—'}</strong><span>{group.payoutMethod || 'Method not recorded'}{group.payoutReference ? ` · ${group.payoutReference}` : ''}</span></span><span className="consignment-payouts-history-amount"><strong>{money(group.total)}</strong><span>{group.items.length} item{group.items.length === 1 ? '' : 's'}</span></span><ChevronDown size={18} className={`consignment-payouts-history-chevron ${isOpen ? 'open' : ''}`} aria-hidden="true" /></button>{isOpen && <div className="consignment-payouts-history-items">{group.items.map((item) => <div key={item.id} className="consignment-payouts-history-item"><span className="consignment-payouts-history-item-main"><strong>{item.description || item.itemNumber}</strong><span>{item.itemNumber}</span></span><span className="consignment-payouts-history-item-sale">{money(item.salePrice ?? item.price)}</span><span className="consignment-payouts-history-item-earned">{money(item.payoutAmount)}</span></div>)}{Boolean(group.payoutAdjustment) && <div className="consignment-payouts-history-if-adjustment"><span>Manual adjustment</span><span>{money(group.payoutAdjustment)}</span></div>}{group.consignor && <div style={{ padding: '10px 0 12px' }}><button type="button" className="consignment-link-button" onClick={() => onOpenConsignor?.(group.consignor.id)}>View consignor</button></div>}</div>}</div>; })}</div>}
-  </>;
+{filtered.length > 0 && (
+  <div className="consignment-payouts-history-list">
+    {filtered.map((group) => {
+      const isOpen = expanded.has(group.payoutId);
+
+      return (
+        <div
+          key={group.payoutId}
+          className="consignment-payouts-history-card"
+        >
+          <button
+            type="button"
+            className="consignment-payouts-history-summary"
+            onClick={() => toggle(group.payoutId)}
+            aria-expanded={isOpen}
+          >
+            <span className="consignment-payouts-history-who">
+              {group.consignor ? (
+                <>
+                  <strong>
+                    {group.consignor.firstName} {group.consignor.lastName}
+                  </strong>
+                  <span>#{group.consignor.number}</span>
+                </>
+              ) : (
+                <strong>Unknown consignor</strong>
+              )}
+            </span>
+
+            <span className="consignment-payouts-history-meta">
+              <strong>{group.payoutDate || '-'}</strong>
+              <span>
+                {group.payoutMethod || 'Method not recorded'}
+                {group.payoutReference
+                  ? ` - ${group.payoutReference}`
+                  : ''}
+              </span>
+            </span>
+
+            <span className="consignment-payouts-history-amount">
+              <strong>{money(group.total)}</strong>
+              <span>
+                {group.items.length} item
+                {group.items.length === 1 ? '' : 's'}
+              </span>
+            </span>
+
+            <ChevronDown
+              size={18}
+              className={`consignment-payouts-history-chevron ${
+                isOpen ? 'open' : ''
+              }`}
+              aria-hidden="true"
+            />
+          </button>
+
+          {isOpen && (
+            <div className="consignment-payouts-history-items">
+              {group.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="consignment-payouts-history-item"
+                >
+                  <span className="consignment-payouts-history-item-main">
+                    <strong
+                      className="consignment-link-button"
+                      role="link"
+                      tabIndex={0}
+                      onClick={() => onOpenItem?.(item.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          onOpenItem?.(item.id);
+                        }
+                      }}
+                    >
+                      {item.description || item.itemNumber}
+                    </strong>
+
+                    <span>{item.itemNumber}</span>
+                  </span>
+
+                  <span className="consignment-payouts-history-item-sale">
+                    {money(item.salePrice ?? item.price)}
+                  </span>
+
+                  <span className="consignment-payouts-history-item-earned">
+                    {money(item.payoutAmount)}
+                  </span>
+                </div>
+              ))}
+
+              {Boolean(group.payoutAdjustment) && (
+                <div className="consignment-payouts-history-if-adjustment">
+                  <span>Manual adjustment</span>
+                  <span>{money(group.payoutAdjustment)}</span>
+                </div>
+              )}
+
+              {group.consignor && (
+                <div style={{ padding: '10px 0 12px' }}>
+                  <button
+                    type="button"
+                    className="consignment-link-button"
+                    onClick={() =>
+                      onOpenConsignor?.(group.consignor.id)
+                    }
+                  >
+                    View consignor
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+)}  </>;
 }
 
 export default function PayoutsScreen({ items, consignors, onOpenItem, onOpenConsignor, onStartPayout, tier2Enabled = false }) {

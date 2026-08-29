@@ -1348,8 +1348,23 @@ export default function ConsignmentIntakeApp({ activePlan = null }) {
   async function handleDeleteConsignor(consignorId){try{setError('');await deleteConsignor(consignorId);await refreshData();setActiveId(null);setView('home');flash('Consignor deleted');}catch(e){setError(errorMessage(e,'Could not delete consignor'));}}
   async function handleDeleteItem(itemId){try{setError('');await deleteConsignmentItem(itemId);await refreshData();flash('Item deleted');}catch(e){setError(errorMessage(e,'Could not delete item'));}}
   async function handleUpdateItem(itemId,form){try{setError('');await updateConsignmentItem(itemId,form);await refreshData();flash('Item updated');setView('consignor');}catch(e){setError(errorMessage(e,'Could not update item'));}}
-  async function handleUpdateItemStatus(itemId,status,details={}){try{setError('');await updateConsignmentItemStatus(itemId,status,details);await refreshData();flash(status==='Paid'?'Item marked paid':status==='Sold'?'Item marked sold Ã‚Â· unpaid':'Item returned to available');}catch(e){setError(errorMessage(e,'Could not update item status'));throw e;}}
-  async function handleSyncProduct(itemId,shopifyForm){try{setError('');const wasAlreadyLinked=Boolean(items.find((entry)=>entry.id===itemId)?.shopifyProductId);await syncShopifyProduct(itemId,shopifyForm);await refreshData();flash(wasAlreadyLinked?'Your product has been updated':'Shopify product created','success');}catch(e){setError(errorMessage(e,'Could not sync the Shopify product'));throw e;}}
+async function handleUpdateItemStatus(itemId,status,details={}){
+  try{
+    setError('');
+    await updateConsignmentItemStatus(itemId,status,details);
+    await refreshData();
+    flash(
+      status === 'Paid'
+        ? 'Item marked paid'
+        : status === 'Sold'
+          ? 'Item marked sold - unpaid'
+          : 'Item returned to available'
+    );
+  }catch(e){
+    setError(errorMessage(e,'Could not update item status'));
+    throw e;
+  }
+}  async function handleSyncProduct(itemId,shopifyForm){try{setError('');const wasAlreadyLinked=Boolean(items.find((entry)=>entry.id===itemId)?.shopifyProductId);await syncShopifyProduct(itemId,shopifyForm);await refreshData();flash(wasAlreadyLinked?'Your product has been updated':'Shopify product created','success');}catch(e){setError(errorMessage(e,'Could not sync the Shopify product'));throw e;}}
   async function handleRecordPayout(payout) {
     try {
       setError('');
