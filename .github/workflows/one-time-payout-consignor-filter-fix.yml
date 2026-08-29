@@ -1,0 +1,54 @@
+name: One-time payout consignor filter fix
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-payout-consignor-filter-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Patch PayoutsScreen
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('app/pages/consignment/PayoutsScreen.jsx')
+          text = path.read_text()
+
+          old = """  const owed = items.filter((item) => (item.status === 'Sold' || item.dateSold) && !item.paidOut);\n\n  const dueForItem = (item) => {"""
+          new = """  const owed = items.filter((item) => (item.status === 'Sold' || item.dateSold) && !item.paidOut);\n\n  const owedConsignorIds = new Set(\n    owed.map((item) => item.consignorId),\n  );\n\n  const consignorsOwed = consignors.filter((consignor) =>\n    owedConsignorIds.has(consignor.id),\n  );\n\n  const dueForItem = (item) => {"""
+
+          if old not in text:
+              raise SystemExit('Expected owed block not found')
+
+          text = text.replace(old, new, 1)
+
+          old_options = """              ...consignors.map((c) => ({ value: c.id, label: `#${c.number} · ${c.firstName} ${c.lastName}` })),"""
+          new_options = """              ...consignorsOwed.map((c) => ({ value: c.id, label: `#${c.number} · ${c.firstName} ${c.lastName}` })),"""
+
+          if old_options not in text:
+              raise SystemExit('Expected consignor options not found')
+
+          text = text.replace(old_options, new_options, 1)
+          path.write_text(text)
+
+          workflow = Path('.github/workflows/one-time-payout-consignor-filter-fix.yml')
+          if workflow.exists():
+              workflow.unlink()
+
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/pages/consignment/PayoutsScreen.jsx .github/workflows/one-time-payout-consignor-filter-fix.yml
+          git commit -m "Limit payout consignor filter to consignors owed"
+          git push origin main
