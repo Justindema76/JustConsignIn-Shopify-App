@@ -27,6 +27,7 @@ function formatStatusDate(value) {
 
 export default function ManualSaleStatus({
   item,
+  allowManualSale = true,
   onMarkSold,
   onStartPayout,
   onOpenPayoutReceipt,
@@ -69,7 +70,7 @@ export default function ManualSaleStatus({
 
   return (
     <div className="consignment-status-card">
-      {!isSold && (
+      {!isSold && allowManualSale && (
         <div className="consignment-manual-sale">
           <div className="consignment-manual-sale-copy">
             <strong>Manual sale</strong>
