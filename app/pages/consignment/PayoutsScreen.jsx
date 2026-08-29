@@ -30,7 +30,7 @@ function OwedTab({ items, consignors, onOpenItem, onOpenConsignor, onStartPayout
   const [consignorFilter, setConsignorFilter] = useState('All');
   const [sourceFilter, setSourceFilter] = useState('All');
   const [sort, setSort] = useState('amount');
-  const [viewMode, setViewMode] = useState('grouped');
+  const [viewMode, setViewMode] = useState('list');
   const consignorById = Object.fromEntries(consignors.map((entry) => [entry.id, entry]));
 
   const owed = items.filter((item) => (item.status === 'Sold' || item.dateSold) && !item.paidOut);
