@@ -8,10 +8,37 @@ import AllListView from '../../components/consignment/AllListView';
 import ItemGridCardContainer from '../../components/consignment/ItemGridCardContainer';
 import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
 import {
+  EXPIRY_FILTERS,
   isSold,
+  matchesExpiryFilter,
   productLabel,
   statusLabel,
 } from '../../lib/consignmentHelpers';
+
+const EXPIRY_OPTIONS = [
+  { value: EXPIRY_FILTERS.ALL, label: 'All expiry dates' },
+  { value: EXPIRY_FILTERS.NEXT_7, label: 'Next 7 days' },
+  { value: EXPIRY_FILTERS.NEXT_30, label: 'Next 30 days' },
+  { value: EXPIRY_FILTERS.EXPIRED, label: 'Expired' },
+  { value: EXPIRY_FILTERS.NONE, label: 'No expiry date' },
+];
+
+function initialExpiryFilter() {
+  if (typeof window === 'undefined') return EXPIRY_FILTERS.ALL;
+
+  const state = window.history.state || {};
+  const requested = state.consignmentPageFilters?.expiry;
+  const validValues = new Set(Object.values(EXPIRY_FILTERS));
+  const initial = validValues.has(requested) ? requested : EXPIRY_FILTERS.ALL;
+
+  if (state.consignmentPageFilters) {
+    const nextState = { ...state };
+    delete nextState.consignmentPageFilters;
+    window.history.replaceState(nextState, '');
+  }
+
+  return initial;
+}
 
 export default function ItemsScreen({
   items,
@@ -26,6 +53,7 @@ export default function ItemsScreen({
   const [filter, setFilter] = useState('Available');
   const [consignorFilter, setConsignorFilter] = useState('All');
   const [productFilter, setProductFilter] = useState('All');
+  const [expiryFilter, setExpiryFilter] = useState(initialExpiryFilter);
   const [sort, setSort] = useState('consignor');
   const [viewMode, setViewMode] = useState('list');
 
@@ -97,11 +125,14 @@ export default function ItemsScreen({
               ? !item.paidOut && isSold(item)
               : item.status === filter && !item.paidOut;
 
+      const matchesExpiry = matchesExpiryFilter(item, expiryFilter);
+
       return (
         matchesQuery &&
         matchesConsignor &&
         matchesProduct &&
-        matchesStatus
+        matchesStatus &&
+        matchesExpiry
       );
     })
     .sort((a, b) => {
@@ -218,6 +249,14 @@ export default function ItemsScreen({
                   label: `#${consignor.number} · ${consignor.firstName} ${consignor.lastName}`,
                 })),
               ],
+            },
+            {
+              key: 'expiry',
+              label: 'Expiry',
+              value: expiryFilter,
+              onChange: setExpiryFilter,
+              ariaLabel: 'Filter by expiry date',
+              options: EXPIRY_OPTIONS,
             },
             {
               key: 'sort',
