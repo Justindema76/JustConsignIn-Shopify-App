@@ -119,9 +119,29 @@ export default function ManualSaleStatus({
               </span>
             </div>
 
-            <p className="consignment-sold-status-message">
-              {isPaid ? "Payout recorded." : "Waiting for consignor payment."}
-            </p>
+            {!isPaid && (
+              <button
+                type="button"
+                className="consignment-btn"
+                onClick={() => onStartPayout?.(item.consignorId)}
+              >
+                Pay consignor
+              </button>
+            )}
+
+            {isPaid && item.payoutId && (
+              <button
+                type="button"
+                className="consignment-btn secondary"
+                onClick={() => onOpenPayoutReceipt?.(item.payoutId)}
+              >
+                View payout receipt
+              </button>
+            )}
+
+            {isPaid && !item.payoutId && (
+              <p className="consignment-sold-status-message">Payout recorded.</p>
+            )}
           </div>
 
           <div className="consignment-sold-detail-grid">
@@ -200,28 +220,6 @@ export default function ManualSaleStatus({
                   </strong>
                 </div>
               </>
-            )}
-          </div>
-
-          <div className="consignment-sold-status-action">
-            {!isPaid && (
-              <button
-                type="button"
-                className="consignment-btn"
-                onClick={() => onStartPayout?.(item.consignorId)}
-              >
-                Pay consignor
-              </button>
-            )}
-
-            {isPaid && item.payoutId && (
-              <button
-                type="button"
-                className="consignment-btn secondary"
-                onClick={() => onOpenPayoutReceipt?.(item.payoutId)}
-              >
-                View payout receipt
-              </button>
             )}
           </div>
         </div>
