@@ -1,4 +1,4 @@
-import { redirect, useLoaderData } from 'react-router';
+import { redirect, useLoaderData, useOutletContext } from 'react-router';
 import { authenticate } from '../shopify.server';
 import { getActivePlan } from '../billing.server';
 import TierOneConsignmentApp from '../tier1_consignment_app';
@@ -32,5 +32,12 @@ export const loader = async ({ request }) => {
 
 export default function AppIndex() {
   const { activePlan } = useLoaderData();
-  return <TierOneConsignmentApp activePlan={activePlan} />;
+  const { theme, setTheme } = useOutletContext();
+  return (
+    <TierOneConsignmentApp
+      activePlan={activePlan}
+      theme={theme}
+      setTheme={setTheme}
+    />
+  );
 }
