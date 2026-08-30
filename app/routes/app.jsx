@@ -1,133 +1,49 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
+import { Outlet, useLoaderData, useRouteError } from "react-router";
+import { boundary } from "@shopify/shopify-app-react-router/server";
+import { AppProvider } from "@shopify/shopify-app-react-router/react";
+import { authenticate } from "../shopify.server";
+import { ensureMetaobjectsInstalled } from "../metaobjects.server";
 
-import {
-  Outlet,
-  useLoaderData,
-  useRouteError,
-} from "react-router";
-
-import {
-  boundary,
-} from "@shopify/shopify-app-react-router/server";
-
-import {
-  AppProvider,
-} from "@shopify/shopify-app-react-router/react";
-
-import {
-  authenticate,
-} from "../shopify.server";
-
-import {
-  ensureMetaobjectsInstalled,
-} from "../metaobjects.server";
-
-
-export const loader = async ({
-  request,
-}) => {
-  const {
-    admin,
-    session,
-  } =
-    await authenticate.admin(
-      request,
-    );
-
-  const setup =
-    await ensureMetaobjectsInstalled(
-      admin,
-      session.shop,
-    );
+export const loader = async ({ request }) => {
+  const { admin, session } = await authenticate.admin(request);
+  const setup = await ensureMetaobjectsInstalled(admin, session.shop);
 
   if (!setup.ok) {
-    console.warn(
-      `Metaobject setup skipped for ${session.shop}:`,
-      setup.errors,
-    );
+    console.warn(`Metaobject setup skipped for ${session.shop}:`, setup.errors);
   }
 
   // eslint-disable-next-line no-undef
-  return {
-    apiKey:
-      process.env
-        .SHOPIFY_API_KEY ||
-      "",
-  };
+  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
 };
 
+const THEME_STORAGE_KEY = "justconsignin-theme";
 
-const THEME_STORAGE_KEY =
-  "justconsignin-theme";
-
-
-function isThemePreference(
-  value,
-) {
-  return (
-    value === "system" ||
-    value === "light" ||
-    value === "dark"
-  );
+function isThemePreference(value) {
+  return value === "system" || value === "light" || value === "dark";
 }
 
-
 export default function App() {
-  const {
-    apiKey,
-  } = useLoaderData();
-
-  const [
-    theme,
-    setTheme,
-  ] = useState(
-    "system",
-  );
-
-  const [
-    themeReady,
-    setThemeReady,
-  ] = useState(false);
-
+  const { apiKey } = useLoaderData();
+  const [theme, setTheme] = useState("system");
+  const [themeReady, setThemeReady] = useState(false);
 
   useEffect(() => {
-    const savedTheme =
-      window.localStorage.getItem(
-        THEME_STORAGE_KEY,
-      );
+    const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
 
-    if (
-      isThemePreference(
-        savedTheme,
-      )
-    ) {
-      setTheme(
-        savedTheme,
-      );
+    if (isThemePreference(savedTheme)) {
+      setTheme(savedTheme);
     }
 
     setThemeReady(true);
   }, []);
 
-
   useEffect(() => {
-    if (!themeReady) {
-      return undefined;
-    }
+    if (!themeReady) return undefined;
 
-    window.localStorage.setItem(
-      THEME_STORAGE_KEY,
-      theme,
-    );
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
 
-    const systemTheme =
-      window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      );
-
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 
     function applyTheme() {
       const resolvedTheme =
@@ -137,67 +53,31 @@ export default function App() {
             : "light"
           : theme;
 
-      document.documentElement
-        .dataset
-        .consignmentTheme =
-        resolvedTheme;
+      document.documentElement.dataset.consignmentTheme = resolvedTheme;
     }
-
 
     applyTheme();
 
-
-    if (
-      theme === "system"
-    ) {
-      systemTheme.addEventListener(
-        "change",
-        applyTheme,
-      );
+    if (theme === "system") {
+      systemTheme.addEventListener("change", applyTheme);
     }
 
-
     return () => {
-      systemTheme.removeEventListener(
-        "change",
-        applyTheme,
-      );
+      systemTheme.removeEventListener("change", applyTheme);
     };
-  }, [
-    theme,
-    themeReady,
-  ]);
-
+  }, [theme, themeReady]);
 
   return (
-    <AppProvider
-      embedded
-      apiKey={apiKey}
-    >
-
+    <AppProvider embedded apiKey={apiKey}>
       <s-app-nav>
-
-        <s-link href="/app/plans">
-          Pricing
-        </s-link>
-
-        <s-link href="/app/settings">
-          Settings
-        </s-link>
-
+        <s-link href="/app/plans">Upgrade Plan</s-link>
+        <s-link href="/app/settings">Settings</s-link>
       </s-app-nav>
 
-
-      <Outlet
-        context={{
-          theme,
-          setTheme,
-        }}
-      />
-
+      <Outlet context={{ theme, setTheme }} />
 
       <style>{`
-
+        /* Keep the original Shopify product section unchanged. */
         .tier1-hidden-create-choice {
           display: flex !important;
         }
@@ -205,25 +85,15 @@ export default function App() {
         .tier1-shopify-save {
           display: none !important;
         }
-
       `}</style>
-
     </AppProvider>
   );
 }
 
-
 export function ErrorBoundary() {
-  return boundary.error(
-    useRouteError(),
-  );
+  return boundary.error(useRouteError());
 }
 
-
-export const headers = (
-  headersArgs,
-) => {
-  return boundary.headers(
-    headersArgs,
-  );
+export const headers = (headersArgs) => {
+  return boundary.headers(headersArgs);
 };
