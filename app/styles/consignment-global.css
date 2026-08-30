@@ -446,10 +446,18 @@ html[data-consignment-theme='dark'] .consignment textarea {
         background: var(--surface-subtle); border-color: var(--line); color: var(--muted);
         opacity: .72; pointer-events: none;
       }
-      .consignment-status-card {
-        border: 1px solid var(--line); border-radius: 5px; padding: 12px 14px;
-        background: var(--surface); margin: 0 0 14px;
+
+    .consignment-status-card {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto 14px;
+
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 12px 14px;
+      background: var(--surface);
       }
+
       .consignment-manual-sale {
         display: block;
       }
