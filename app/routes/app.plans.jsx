@@ -23,7 +23,7 @@ export const action = async ({ request }) => {
   // instead, which is NOT stripped. That's the only way to see what's
   // actually going wrong without pulling server logs.
   try {
-    const { admin } = await authenticate.admin(request);
+    const { admin, session } = await authenticate.admin(request);
     const formData = await request.formData();
     const planKey = formData.get('plan');
 
@@ -35,10 +35,25 @@ export const action = async ({ request }) => {
     if (!appUrl) {
       return { error: 'SHOPIFY_APP_URL is not set on the server — required to build an absolute returnUrl for billing.' };
     }
-    const returnUrl = `${appUrl}/app`;
+
+    // IMPORTANT: Shopify sends the merchant back to exactly this returnUrl
+    // as a brand-new top-level page load, outside the embedded iframe. If it
+    // doesn't carry `shop` (and `host`, when available), the app has no way
+    // to identify which store the request is for and authentication fails —
+    // this is the exact bug documented in app._index.jsx's loader comment.
+    // Use session.shop (from the already-authenticated request) rather than
+    // trying to read it back off the browser URL later.
+    const returnUrl = new URL('/app', appUrl);
+    returnUrl.searchParams.set('shop', session.shop);
+
+    const requestUrl = new URL(request.url);
+    const hostParam = requestUrl.searchParams.get('host');
+    if (hostParam) {
+      returnUrl.searchParams.set('host', hostParam);
+    }
 
     const confirmationUrl = await createSubscription(admin, planKey, {
-      returnUrl,
+      returnUrl: returnUrl.toString(),
       // Do NOT derive this from NODE_ENV — Render sets NODE_ENV=production
       // on every Node web service by default, whether or not you're really
       // in production. That silently sent test: false to Shopify, which a
