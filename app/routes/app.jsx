@@ -69,11 +69,6 @@ export default function App() {
 
   return (
     <AppProvider embedded apiKey={apiKey}>
-      <s-app-nav>
-        <s-link href="/app/plans">Upgrade Plan</s-link>
-        <s-link href="/app/settings">Settings</s-link>
-      </s-app-nav>
-
       <Outlet context={{ theme, setTheme }} />
 
       <style>{`
