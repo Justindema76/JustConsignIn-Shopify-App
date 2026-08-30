@@ -16,12 +16,6 @@ export const loader = async ({ request }) => {
 };
 
 export const action = async ({ request }) => {
-  // IMPORTANT: this action never throws on purpose. React Router strips the
-  // real message off thrown errors before they reach the browser in a
-  // production build ("Unexpected Server Error" is all you'll ever see) —
-  // so any failure here is caught and returned as normal action data
-  // instead, which is NOT stripped. That's the only way to see what's
-  // actually going wrong without pulling server logs.
   try {
     const { admin } = await authenticate.admin(request);
     const formData = await request.formData();
@@ -33,19 +27,9 @@ export const action = async ({ request }) => {
 
     const appUrl = process.env.SHOPIFY_APP_URL || '';
     if (!appUrl) {
-      return { error: 'SHOPIFY_APP_URL is not set on the server — required to build an absolute returnUrl for billing.' };
+      return { error: 'SHOPIFY_APP_URL is not set on the server - required to build an absolute returnUrl for billing.' };
     }
-    // IMPORTANT: Shopify appends `charge_id` to whatever returnUrl we give
-    // it and redirects the TOP-LEVEL browser tab there (not the iframe) —
-    // but it does NOT add `shop`/`host` for us. If returnUrl is bare
-    // (`/app`), the round trip lands with only `?charge_id=...`, and
-    // authenticate.admin() has no shop to identify — it throws a raw
-    // Response (status defaults to 200) from Shopify's own renderAppBridge()
-    // helper trying to bootstrap App Bridge with nothing to redirect to.
-    // That Response isn't caught by the app's error boundary (it's a raw
-    // Response, not the wrapped error type the boundary checks for), so it
-    // falls through to a bare "200" page. Carrying shop/host through fixes
-    // the round trip.
+
     const requestUrl = new URL(request.url);
     const shopParam = requestUrl.searchParams.get('shop');
     const hostParam = requestUrl.searchParams.get('host');
@@ -56,13 +40,6 @@ export const action = async ({ request }) => {
 
     const confirmationUrl = await createSubscription(admin, planKey, {
       returnUrl,
-      // Do NOT derive this from NODE_ENV — Render sets NODE_ENV=production
-      // on every Node web service by default, whether or not you're really
-      // in production. That silently sent test: false to Shopify, which a
-      // Developer Preview / dev store can't accept ("The shop cannot accept
-      // the provided charge"). Use an explicit, deliberate flag instead —
-      // set BILLING_LIVE_MODE=true on Render only once you're ready to
-      // charge real merchants for real.
       isTest: process.env.BILLING_LIVE_MODE !== 'true',
     });
 
@@ -70,24 +47,10 @@ export const action = async ({ request }) => {
       return { error: `createSubscription returned an invalid confirmationUrl: ${JSON.stringify(confirmationUrl)}` };
     }
 
-    // IMPORTANT: do NOT Response.redirect() here. This runs inside an
-    // embedded app's iframe, and a server-side 3xx redirect gets followed
-    // by the iframe's own document load — landing on
-    // admin.shopify.com/.../confirm_recurring_application_charge INSIDE the
-    // iframe, which Shopify's own anti-framing protection blocks outright
-    // ("admin.shopify.com refused to connect"). The confirmation screen has
-    // to load in the full top-level browser tab instead. So we hand the URL
-    // back as normal data, and the client breaks out of the iframe itself
-    // using target="_top" (Shopify's documented pattern for this exact case).
     return { confirmationUrl };
   } catch (error) {
-    // Catches literally anything: GraphQL client errors, network failures,
-    // authenticate.admin() failures, thrown Errors from billing.server.js,
-    // bad URL construction in Response.redirect, all of it.
     const message = error instanceof Error ? (error.stack || error.message) : String(error);
-    // Still goes to Render's logs for a permanent record...
     console.error('[app.plans action] failed:', message);
-    // ...and also comes straight back to the browser, unstripped.
     return { error: message };
   }
 };
@@ -109,7 +72,15 @@ function LockIcon() {
   );
 }
 
-function PlanCard({ plan, isActive, isBestValue, submitting }) {
+function PlanCard({ plan, isActive, isBestValue, submitting, activePlan }) {
+  let actionLabel = `Start ${plan.trialDays}-day free trial`;
+
+  if (activePlan === 'TIER1' && plan.key === 'TIER2') {
+    actionLabel = `Start ${plan.trialDays}-day Shopify trial`;
+  } else if (activePlan === 'TIER2' && plan.key === 'TIER1') {
+    actionLabel = `Start ${plan.trialDays}-day Manual trial`;
+  }
+
   return (
     <div className={`pricing-card${isBestValue ? ' featured' : ''}`}>
       {isBestValue && <span className="pricing-kicker">Best value</span>}
@@ -140,7 +111,7 @@ function PlanCard({ plan, isActive, isBestValue, submitting }) {
         <Form method="post">
           <input type="hidden" name="plan" value={plan.key} />
           <button type="submit" className="pricing-cta primary" disabled={submitting}>
-            {submitting ? 'Redirecting…' : 'Start free trial'}
+            {submitting ? 'Redirecting...' : actionLabel}
           </button>
         </Form>
       )}
@@ -154,9 +125,6 @@ export default function PlansScreen() {
   const navigation = useNavigation();
   const submitting = navigation.state === 'submitting' || Boolean(actionData?.confirmationUrl);
 
-  // Escape the app's iframe to load Shopify's billing confirmation screen
-  // in the full top-level browser tab. A server-side redirect can't do this
-  // — it gets blocked by admin.shopify.com's own anti-framing protection.
   useEffect(() => {
     if (actionData?.confirmationUrl) {
       window.open(actionData.confirmationUrl, '_top');
@@ -165,21 +133,22 @@ export default function PlansScreen() {
 
   const manualPlan = { ...plans.TIER1, shortName: 'Manual' };
   const shopifyPlan = { ...plans.TIER2, shortName: 'Shopify' };
+  const hasActivePlan = Boolean(activePlan);
 
   return (
     <div className="pricing-page">
       <div className="pricing-wrap">
         <p className="pricing-eyebrow">Pricing</p>
-        <h1>Start with the manual consignment workflow.</h1>
+        <h1>{hasActivePlan ? 'Change your JustConsignIn plan.' : 'Start with the plan that fits your workflow.'}</h1>
         <p className="pricing-sub">
-          Try JustConsignIn free for 14 days on either plan below. A payment
-          method is collected at signup, and billing starts only after the
-          trial unless you cancel first.
+          {hasActivePlan
+            ? 'Your current plan stays active until you approve a different plan through Shopify. Changing plans starts a new 14-day free trial on the plan you choose.'
+            : 'Try JustConsignIn free for 14 days on either plan below. A payment method is collected at signup, and billing starts only after the trial unless you cancel first.'}
         </p>
 
         {actionData?.error && (
           <div className="pricing-error">
-            <p>Couldn't start that plan:</p>
+            <p>Could not start that plan:</p>
             <pre>{actionData.error}</pre>
           </div>
         )}
@@ -190,12 +159,14 @@ export default function PlansScreen() {
             isActive={activePlan === manualPlan.key}
             isBestValue={false}
             submitting={submitting}
+            activePlan={activePlan}
           />
           <PlanCard
             plan={shopifyPlan}
             isActive={activePlan === shopifyPlan.key}
             isBestValue
             submitting={submitting}
+            activePlan={activePlan}
           />
 
           <div className="pricing-card muted">
@@ -218,8 +189,8 @@ export default function PlansScreen() {
         </div>
 
         <p className="pricing-fineprint">
-          Prices shown in USD, billed every 30 days after your 14-day trial ends.
-          Cancel anytime before the trial ends and you won't be charged.
+          Prices shown in USD, billed every 30 days after the selected plan's 14-day trial ends.
+          Cancel anytime before the trial ends and you will not be charged for that plan.
         </p>
       </div>
     </div>
