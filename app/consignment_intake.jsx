@@ -5,6 +5,7 @@ import {
   Loader2, Tag, Check, Trash2, ShoppingBag, LayoutDashboard,
   Users, ReceiptText, WalletCards, PackageSearch, TrendingUp, CircleDollarSign,
   CalendarDays, FileUp, Download, MapPin, Pencil, List, Grid3X3, ArrowUp,
+  Sun, Moon,
 } from 'lucide-react';
 import {
   createConsignor,
@@ -251,14 +252,33 @@ function PhotoPicker({ value, onChange, onChooseShopify }) {
 function statusClass(status) { return String(status || 'Draft').toLowerCase(); }
 function statusLabel(status) { const value = status || 'Draft'; return value === 'Draft' ? 'Available' : value; }
 
-function AppNavigation({ view, onNavigate }) {
+function AppNavigation({ view, onNavigate, darkActive, onToggleTheme }) {
   const entries = [['dashboard','Dashboard',LayoutDashboard],['home','Consignors',Users],['items','Items',PackageSearch],['sales','Sales',ReceiptText],['payouts','Payouts',WalletCards],['reports','Reports',TrendingUp]];
   return (
     <nav className="consignment-main-nav" aria-label="Consignment manager">
       <div className="consignment-brand"><span className="consignment-brand-mark"><Tag size={18} /></span>JustConsignIn</div>
       {entries.map(([key,label,Icon]) => <button key={key} type="button" className={`consignment-nav-button ${view === key ? 'active' : ''}`} onClick={() => onNavigate(key)}><Icon size={17} />{label}</button>)}
+      <button
+        type="button"
+        className="consignment-nav-button consignment-theme-toggle"
+        onClick={onToggleTheme}
+        aria-pressed={darkActive}
+        title={darkActive ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        {darkActive ? <Sun size={17} /> : <Moon size={17} />}
+        {darkActive ? 'Light mode' : 'Dark mode'}
+      </button>
     </nav>
   );
+}
+
+function isDarkThemeActive(theme) {
+  if (theme === 'dark') return true;
+  if (theme === 'light') return false;
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  return false;
 }
 
 function formatPayoutSoldDate(value) {
@@ -1331,7 +1351,9 @@ function EditItemScreen({
   );
 }
 
-export default function ConsignmentIntakeApp({ activePlan = null }) {
+export default function ConsignmentIntakeApp({ activePlan = null, theme = 'system', setTheme = () => {} }) {
+  const darkActive = isDarkThemeActive(theme);
+  function toggleTheme() { setTheme(darkActive ? 'light' : 'dark'); }
   const tier2Enabled=activePlan==='TIER2'; const [ready,setReady]=useState(false); const [consignors,setConsignors]=useState([]); const [items,setItems]=useState([]); const [view,setView]=useState('dashboard'); const [activeId,setActiveId]=useState(null); const [activeItemId,setActiveItemId]=useState(null); const [query,setQuery]=useState(''); const [newConsignorNext,setNewConsignorNext]=useState('consignor'); const [newConsignorBack,setNewConsignorBack]=useState('home'); const [importKind,setImportKind]=useState('consignors'); const [importBack,setImportBack]=useState('home'); const [importConsignorId,setImportConsignorId]=useState(null); const [toast,setToast]=useState(''); const [toastTone,setToastTone]=useState(''); const [error,setError]=useState(''); const [showBackToTop,setShowBackToTop]=useState(false); const [payoutReceipt,setPayoutReceipt]=useState(null); const [payoutReceiptBackView,setPayoutReceiptBackView]=useState('payouts');
   function errorMessage(value,fallback){return value instanceof Error?value.message:fallback;} async function refreshData(){const data=await getConsignmentData();setConsignors(data.consignors);setItems(data.items);return data;}
   useEffect(()=>{refreshData().catch((e)=>setError(errorMessage(e,'Could not load Shopify data'))).finally(()=>setReady(true));},[]); 
@@ -1435,7 +1457,7 @@ async function handleUpdateItemStatus(itemId,status,details={}){
   async function handleDeleteItemFromEdit(itemId){await handleDeleteItem(itemId);setView('consignor');}
   const activeConsignor=consignors.find((c)=>c.id===activeId); const activeItem=items.find((i)=>i.id===activeItemId); const nextConsignorNumber=Math.max(0,...consignors.map((consignor)=>Number(consignor.number)||0))+1; const navigationView=['newConsignor','chooseConsignor','consignor','intake','editConsignor'].includes(view)?'home':view==='editItem'?'items':['createPayout','payoutReceipt'].includes(view)?'payouts':view;
   function navigate(viewName){setError('');setView(viewName);} function openConsignor(id){setActiveId(id);setView('consignor');} function openItem(id){const item=items.find((entry)=>entry.id===id);setActiveItemId(id);if(item?.consignorId)setActiveId(item.consignorId);setView('editItem');} function startNewConsignor(nextView='consignor',backView='home'){setNewConsignorNext(nextView);setNewConsignorBack(backView);setView('newConsignor');} function startNewItem(){if(!consignors.length){startNewConsignor('intake','dashboard');return;}setView('chooseConsignor');}
-  return <div className="consignment">{ready&&<AppNavigation view={navigationView} onNavigate={navigate}/>} {toast&&<div className="consignment-toast" style={toastTone==='success'?{background:'#1C7A3E'}:undefined}><Check size={14}/> {toast}</div>} {error&&<div className="consignment-toast" style={{ background:'var(--danger)',top:12 }}><X size={14}/> {error}</div>} {!ready&&<div className="consignment-loading"><Loader2 className="consignment-spin" size={22}/></div>}
+  return <div className="consignment">{ready&&<AppNavigation view={navigationView} onNavigate={navigate} darkActive={darkActive} onToggleTheme={toggleTheme}/>} {toast&&<div className="consignment-toast" style={toastTone==='success'?{background:'#1C7A3E'}:undefined}><Check size={14}/> {toast}</div>} {error&&<div className="consignment-toast" style={{ background:'var(--danger)',top:12 }}><X size={14}/> {error}</div>} {!ready&&<div className="consignment-loading"><Loader2 className="consignment-spin" size={22}/></div>}
   {ready&&view==='dashboard'&&<DashboardScreen consignors={consignors} items={items} onOpenConsignor={openConsignor} onNavigate={navigate} onNewConsignor={()=>startNewConsignor('consignor','dashboard')} onNewItem={startNewItem} onImport={()=>startImport('consignors','dashboard')} onExport={()=>exportConsignors(consignors)}/>} {ready&&view==='home'&&<ConsignorsScreen consignors={consignors} items={items} query={query} setQuery={setQuery} tier2Enabled={tier2Enabled} onOpenConsignor={openConsignor} onOpenItem={openItem} onMarkSold={(itemId,details)=>handleUpdateItemStatus(itemId,'Sold',details)} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}} onNewConsignor={()=>startNewConsignor('consignor','home')} onNewItem={startNewItem} onImport={()=>startImport('consignors','home')} onExport={()=>exportConsignors(consignors)}/>} {ready&&view==='items'&&<ItemsScreen items={items} consignors={consignors} tier2Enabled={tier2Enabled} onOpenItem={openItem} onOpenConsignor={openConsignor} onMarkSold={(itemId,details)=>handleUpdateItemStatus(itemId,'Sold',details)} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}} onNewItem={startNewItem}/>} {ready&&view==='sales'&&<SalesScreen items={items} consignors={consignors} tier2Enabled={tier2Enabled} onOpenItem={openItem} onOpenConsignor={openConsignor} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}}/>} {ready&&view==='payouts'&&<PayoutsScreen items={items} consignors={consignors} tier2Enabled={tier2Enabled} onOpenItem={openItem} onOpenConsignor={openConsignor} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}}/>} {ready&&view==='reports'&&<ReportsScreen items={items} consignors={consignors} onOpenConsignor={openConsignor} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}}/>}
   {ready&&view==='createPayout'&&activeConsignor&&<CreatePayoutScreen consignor={activeConsignor} items={items} onBack={()=>setView('payouts')} onRecordPayout={handleRecordPayout}/>} {ready&&view==='payoutReceipt'&&payoutReceipt&&<PayoutReceiptScreen receipt={payoutReceipt} onBack={()=>setView(payoutReceiptBackView)} onOpenConsignor={()=>{setActiveId(payoutReceipt.consignor.id);setView('consignor');}}/>} {ready&&view==='import'&&<ImportScreen kind={importKind} fixedConsignor={consignors.find((entry)=>entry.id===importConsignorId)||null} onBack={()=>setView(importBack)} onImport={handleImport}/>} {ready&&view==='newConsignor'&&<CreateConsignorScreen onBack={()=>setView(newConsignorBack)} onSave={handleNewConsignor} nextNumber={nextConsignorNumber}/>} {ready&&view==='chooseConsignor'&&<ChooseConsignorScreen consignors={consignors} onBack={()=>setView('dashboard')} onChoose={(consignorId)=>{setActiveId(consignorId);setView('intake');}} onCreate={()=>startNewConsignor('intake','chooseConsignor')}/>} {ready&&view==='consignor'&&activeConsignor&&<ConsignorDashboard consignor={activeConsignor} items={items} onBack={()=>setView('home')} onStartIntake={()=>setView('intake')} onOpenItem={openItem} onDeleteConsignor={handleDeleteConsignor} onEditConsignor={()=>setView('editConsignor')} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}}/>} {ready&&view==='editConsignor'&&activeConsignor&&<EditConsignorScreen consignor={activeConsignor} onBack={()=>setView('consignor')} onSave={handleUpdateConsignor}/>} {ready&&view==='intake'&&activeConsignor&&<IntakeScreen consignor={activeConsignor} items={items} onBack={()=>setView('consignor')} onSaveBatch={handleSaveBatch} onSaveAndSync={handleSaveAndSync} tier2Enabled={tier2Enabled}/>} {ready&&view==='editItem'&&activeItem&&<EditItemScreen item={activeItem} onBack={()=>setView('consignor')} onSave={handleUpdateItem} onDelete={handleDeleteItemFromEdit} onSyncProduct={handleSyncProduct} onUpdateStatus={handleUpdateItemStatus} onOpenPayoutReceipt={(payoutId)=>openPayoutReceipt(payoutId,'editItem')} onStartPayout={(consignorId)=>{setActiveId(consignorId);setView('createPayout');}} tier2Enabled={tier2Enabled}/>} {ready&&showBackToTop&&<button className="consignment-back-to-top" type="button" onClick={scrollToTop} aria-label="Back to top" title="Back to top"><ArrowUp size={20} aria-hidden="true"/></button>}</div>;
 }

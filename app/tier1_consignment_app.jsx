@@ -7,6 +7,16 @@ import ConsignmentIntakeApp from './consignment_intake';
  * changes must be implemented inside consignment_intake.jsx so navigation,
  * form state, image saving, and Shopify actions remain reliable.
  */
-export default function TierOneConsignmentApp({ activePlan = null }) {
-  return <ConsignmentIntakeApp activePlan={activePlan} />;
+export default function TierOneConsignmentApp({
+  activePlan = null,
+  theme = 'system',
+  setTheme = () => {},
+}) {
+  return (
+    <ConsignmentIntakeApp
+      activePlan={activePlan}
+      theme={theme}
+      setTheme={setTheme}
+    />
+  );
 }
