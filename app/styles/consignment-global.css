@@ -25,10 +25,14 @@
   --border: var(--line);
   --blue: var(--green);
   --blue-soft: var(--green-soft);
+  --toast-bg: #202223;
+  --toast-text: #FFFFFF;
+  --toast-bg: #F2F4F5;
+  --toast-text: #202223;
 
   /* Global corner size for normal action buttons.
      Change this one value to adjust button corners app-wide. */
-  --button-radius: 4px;
+  --button-radius: 1px;
 
   font-family: 'Inter', system-ui, sans-serif;
   background: var(--bg);
@@ -979,13 +983,13 @@ html[data-consignment-theme='dark'] .consignment textarea {
         color: var(--danger); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
       }
 
-     .consignment-toast {
+.consignment-toast {
   position: absolute;
   top: 14px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--ink);
-  color: #000;
+  background: var(--toast-bg);
+  color: var(--toast-text);
   padding: 10px 18px;
   border-radius: 999px;
   font-size: 13px;
@@ -994,7 +998,7 @@ html[data-consignment-theme='dark'] .consignment textarea {
   display: flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
       .consignment-loading { display: flex; align-items: center; justify-content: center; height: 100%; padding: 80px 0; color: var(--muted); }
