@@ -1,0 +1,18 @@
+name: Keep Render instance warm
+
+on:
+  schedule:
+    # Every 10 minutes — Render's free tier spins down after ~15 minutes of
+    # no traffic, so this stays comfortably ahead of that window even with
+    # GitHub's scheduling jitter (schedules can run a few minutes late under
+    # load).
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping app
+        run: |
+          curl -sS -o /dev/null -w "status=%{http_code} time=%{time_total}s\n" https://app.justconsignin.com/ || true
