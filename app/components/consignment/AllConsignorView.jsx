@@ -216,12 +216,15 @@ export default function AllConsignorView({
         item.status === 'Draft',
     ).length;
 
-  const soldCount =
-    items.filter(
-      (item) =>
+const unpaidCount =
+  items.filter(
+    (item) =>
+      (
         item.status === 'Sold' ||
-        item.dateSold,
-    ).length;
+        item.dateSold
+      ) &&
+      !item.paidOut,
+  ).length;
 
   const total =
     items.reduce(
@@ -270,10 +273,9 @@ export default function AllConsignorView({
       value: availableCount,
     },
     {
-      label: 'Sold',
-      value: soldCount,
-    },
-    {
+      label: 'Unpaid',
+      value: unpaidCount,
+    },    {
       label: 'Total',
       value: money(total),
     },

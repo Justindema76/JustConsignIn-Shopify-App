@@ -6,13 +6,19 @@ import AllConsignorView from '../../components/consignment/AllConsignorView';
 import ConsignmentFilterBar from '../../components/consignment/ConsignmentFilterBar';
 import { money, productLabel } from '../../lib/consignmentHelpers';
 
-const STATUS_OPTIONS = ['Current', 'Available', 'Sold', 'Archived', 'All'];
+const STATUS_OPTIONS = ['Current', 'Available', 'Unpaid', 'Archived', 'All'];
 
 function matchesStatusFilter(item, filter) {
   if (filter === 'All') return true;
   if (filter === 'Current') return !item.paidOut;
   if (filter === 'Archived') return item.paidOut;
   if (filter === 'Available') return item.status === 'Available' || item.status === 'Active' || item.status === 'Draft';
+   if (filter === 'Unpaid') {
+    return (
+      (item.status === 'Sold' || Boolean(item.dateSold)) &&
+      !item.paidOut
+    );
+  }
   return item.status === filter && !item.paidOut;
 }
 
