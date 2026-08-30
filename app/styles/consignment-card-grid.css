@@ -415,130 +415,28 @@
 
 /* =========================================================
    RESPONSIVE
+   One clean breakpoint stack. No duplicate mobile overrides.
    ========================================================= */
 
-/*
-   Keep six cards through the normal Shopify desktop width.
-*/
-
 @media (max-width: 1050px) {
-
   .consignment-entity-grid,
-  .consignment-readable-grid {
+  .consignment-readable-grid,
+  .consignment-sales-grid-view {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 850px) {
-
   .consignment-entity-grid,
-  .consignment-readable-grid {
+  .consignment-readable-grid,
+  .consignment-sales-grid-view {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 /* =========================================================
    MOBILE
-   Approved compact two-column layout
-   ========================================================= */
-
-@media (max-width: 760px) {
-
-  .consignment-entity-grid,
-  .consignment-readable-grid,
-  .consignment-sales-grid-view {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-
-    gap: 8px;
-
-    margin-left: -6px;
-    margin-right: -6px;
-  }
-
-  .consignment-readable-card {
-    padding: 10px;
-
-    border-radius: 8px;
-  }
-
-  .consignment-grid-thumb {
-    width: 48px;
-    height: 48px;
-
-    flex: 0 0 48px;
-  }
-
-  .consignment-readable-card-top strong {
-    font-size: var(--font-size-lg);
-  }
-
-  .consignment-readable-card-sku,
-  .consignment-readable-card-sku b {
-    font-size: var(--font-size-md) !important;
-  }
-
-  .consignment-readable-product-row {
-    margin-top: 9px;
-  }
-
-  .consignment-readable-consignor-link {
-    margin-top: 10px;
-
-    font-size: var(--font-size-md);
-  }
-
-  .consignment-readable-card-meta,
-  .consignment-readable-card-meta.consignment-sales-money-rows {
-    margin: 12px 0 10px;
-
-    padding-top: 7px;
-  }
-
-  .consignment-readable-card-meta > span,
-  .consignment-readable-card-meta.consignment-sales-money-rows > span {
-    padding: 7px 0;
-  }
-
-  .consignment-readable-card-meta small {
-    font-size: var(--font-size-sm);
-  }
-
-  .consignment-readable-card-meta strong {
-    font-size: var(--font-size-2xl);
-  }
-
-  .consignment-readable-card-details {
-    margin-bottom: 9px;
-  }
-
-  .consignment-readable-card-details small {
-    font-size: var(--font-size-sm);
-  }
-
-  .consignment-sales-grid-order {
-    margin-bottom: 9px;
-
-    font-size: var(--font-size-sm);
-  }
-
-  .consignment-readable-card-actions > *,
-  .consignment-readable-card-actions .consignment-list-action,
-  .consignment-readable-card-actions .consignment-quick-sold-btn,
-  .consignment-readable-card-actions .consignment-grid-open-btn,
-  .consignment-readable-card-actions .consignment-sales-pay-btn,
-  .consignment-readable-card-actions .consignment-item-open-btn,
-  .consignment-sales-grid-actions .consignment-sales-pay-btn,
-  .consignment-sales-pay-btn.compact {
-    min-height: 32px;
-
-    padding: 6px 7px;
-
-    font-size: var(--font-size-sm);
-  }
-}
-/* =========================================================
-   MOBILE
-   Compact two-column card layout
+   Final compact two-column layout
    ========================================================= */
 
 @media (max-width: 500px) {
@@ -566,7 +464,8 @@
   }
 
   .consignment-readable-card-top,
-  .consignment-readable-card-top > div {
+  .consignment-readable-card-top > div,
+  .consignment-readable-title-copy {
     min-width: 0;
   }
 
@@ -580,8 +479,10 @@
   }
 
   .consignment-readable-card-sku {
-    display: block;
+    display: block !important;
+    width: 100%;
     max-width: 100%;
+    min-width: 0;
     overflow: hidden;
     font-size: var(--font-size-md) !important;
     text-overflow: ellipsis;
@@ -612,17 +513,19 @@
     padding-top: 7px;
   }
 
-  /* STOP LABEL + VALUE FROM FIGHTING FOR ONE ROW */
   .consignment-readable-card-meta > span,
   .consignment-readable-card-meta.consignment-sales-money-rows > span {
     display: grid !important;
     grid-template-columns: 1fr !important;
+    align-items: start;
+    justify-items: start;
     gap: 3px;
     padding: 7px 0;
   }
 
   .consignment-readable-card-meta small {
     display: block;
+    width: 100%;
     min-width: 0;
     font-size: var(--font-size-sm);
     line-height: 1.2;
@@ -630,6 +533,7 @@
 
   .consignment-readable-card-meta strong {
     display: block;
+    width: 100%;
     min-width: 0;
     max-width: 100%;
     font-size: var(--font-size-lg);
@@ -638,7 +542,7 @@
     white-space: nowrap;
   }
 
-  /* DETAIL ROWS - DATE RECEIVED / SOLD / STATUS */
+  /* DATE / STATUS ROWS */
   .consignment-readable-card-details {
     margin-bottom: 9px;
   }
