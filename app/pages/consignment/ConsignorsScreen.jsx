@@ -155,13 +155,17 @@ export default function ConsignorsScreen({ consignors, items, query, setQuery, o
               const consignor = consignorById[consignorId];
               const initials = consignor ? `${consignor.firstName?.[0] || ''}${consignor.lastName?.[0] || ''}` : '—';
               const availableCount = consignorItems.filter((item) => item.status === 'Available' || item.status === 'Active').length;
-              const soldCount = consignorItems.filter((item) => item.status === 'Sold' || item.dateSold).length;
+              const unpaidCount = consignorItems.filter(
+                (item) =>
+                  (item.status === 'Sold' || item.dateSold) &&
+                  !item.paidOut
+              ).length;              
+
               const due = consignorItems.filter((item) => (item.status === 'Sold' || item.dateSold) && !item.paidOut).reduce((sum, item) => sum + (Number(item.salePrice ?? item.price ?? 0) * Number(item.commissionPct ?? consignor?.commissionPct ?? 0)) / 100, 0);
               return (
                 <article className="consignment-consignor-card" key={consignorId}>
                   <div className="consignment-consignor-card-top"><span className="consignment-avatar">{initials}</span><span className="consignment-consignor-card-name"><strong>{consignor ? `${consignor.firstName} ${consignor.lastName}` : 'Unassigned'}</strong><small>#{consignor?.number || '—'}</small></span></div>
-                  <div className="consignment-consignor-card-stats"><span><strong>{availableCount}</strong><small>Active</small></span><span><strong>{soldCount}</strong><small>Sold</small></span></div>
-                  <div className="consignment-consignor-card-due"><small>Amount due</small><strong>{money(due)}</strong></div>
+                  <div className="consignment-consignor-card-stats"><span><strong>{availableCount}</strong><small>Active</small></span><span><strong>{unpaidCount}</strong><small>Unpaid</small></span></div>                  <div className="consignment-consignor-card-due"><small>Amount due</small><strong>{money(due)}</strong></div>
                   <button type="button" className="consignment-consignor-card-open" onClick={() => onOpenConsignor(consignorId)}>View consignor</button>
                 </article>
               );
