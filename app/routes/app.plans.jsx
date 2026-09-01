@@ -15,6 +15,7 @@ import {
   PLANS,
   getActivePlan,
   createSubscription,
+  cancelActiveSubscription,
 } from '../billing.server';
 import '../styles/pricing-plans.css';
 
@@ -33,6 +34,19 @@ export const action = async ({ request }) => {
     const { admin, session } = await authenticate.admin(request);
 
     const formData = await request.formData();
+    const intent = formData.get('intent');
+
+    if (intent === 'cancel') {
+      const cancelledSubscription = await cancelActiveSubscription(admin, {
+        prorate: false,
+      });
+
+      return {
+        cancelled: true,
+        cancelledSubscription,
+      };
+    }
+
     const planKey = formData.get('plan');
 
     if (!planKey || !PLANS[planKey]) {
@@ -249,6 +263,10 @@ export default function PlansScreen() {
     navigation.state === 'submitting' ||
     Boolean(actionData?.confirmationUrl);
 
+  const cancelling =
+    navigation.state === 'submitting' &&
+    navigation.formData?.get('intent') === 'cancel';
+
   useEffect(() => {
     if (!actionData?.confirmationUrl) {
       return;
@@ -277,6 +295,13 @@ export default function PlansScreen() {
   const hasActivePlan =
     Boolean(activePlan);
 
+  const currentPlanName =
+    activePlan === 'TIER2'
+      ? 'Manual + Shopify Sync'
+      : activePlan === 'TIER1'
+        ? 'Manual'
+        : null;
+
   return (
     <div className="pricing-page">
       <div className="pricing-wrap">
@@ -296,10 +321,18 @@ export default function PlansScreen() {
             : 'Try JustConsignIn free for 14 days on either plan below. A payment method is collected at signup, and billing starts only after the trial unless you cancel first.'}
         </p>
 
+        {actionData?.cancelled && (
+          <div className="pricing-error" role="status">
+            <p>
+              Subscription cancelled successfully through Shopify.
+            </p>
+          </div>
+        )}
+
         {actionData?.error && (
           <div className="pricing-error">
             <p>
-              Could not start that plan:
+              Could not complete that billing action:
             </p>
 
             <pre>
@@ -384,6 +417,50 @@ export default function PlansScreen() {
             </button>
           </div>
         </div>
+
+        {hasActivePlan && (
+          <div className="pricing-card" style={{ marginTop: 24 }}>
+            <div className="pricing-card-top">
+              <div>
+                <p className="pricing-eyebrow" style={{ marginBottom: 6 }}>
+                  Subscription
+                </p>
+                <h3 className="pricing-card-name">
+                  {currentPlanName}
+                </h3>
+              </div>
+            </div>
+
+            <p className="pricing-desc">
+              Cancelling stops your active JustConsignIn Shopify app subscription. You can start a plan again later from this page.
+            </p>
+
+            <Form
+              method="post"
+              onSubmit={(event) => {
+                if (!window.confirm('Cancel your JustConsignIn subscription?')) {
+                  event.preventDefault();
+                }
+              }}
+            >
+              <input
+                type="hidden"
+                name="intent"
+                value="cancel"
+              />
+
+              <button
+                type="submit"
+                className="pricing-cta"
+                disabled={cancelling}
+              >
+                {cancelling
+                  ? 'Cancelling...'
+                  : 'Cancel subscription'}
+              </button>
+            </Form>
+          </div>
+        )}
 
         <p className="pricing-fineprint">
           Prices shown in USD, billed every 30 days after the selected
