@@ -92,6 +92,11 @@ export default function App() {
     setThemeReady,
   ] = useState(false);
 
+  const [
+    resolvedTheme,
+    setResolvedTheme,
+  ] = useState("light");
+
 
   useEffect(() => {
     const savedTheme =
@@ -130,7 +135,7 @@ export default function App() {
 
 
     function applyTheme() {
-      const resolvedTheme =
+      const nextResolvedTheme =
         theme === "system"
           ? systemTheme.matches
             ? "dark"
@@ -140,7 +145,11 @@ export default function App() {
       document.documentElement
         .dataset
         .consignmentTheme =
-        resolvedTheme;
+        nextResolvedTheme;
+
+      setResolvedTheme(
+        nextResolvedTheme,
+      );
     }
 
 
@@ -192,6 +201,7 @@ export default function App() {
         context={{
           theme,
           setTheme,
+          resolvedTheme,
         }}
       />
 

@@ -19,6 +19,7 @@
   align-items: center;
   gap: 10px;
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .consignment-header-action {
@@ -30,6 +31,33 @@
   padding: 10px 14px;
   border-radius: 9px;
   box-shadow: none;
+}
+
+.consignment-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  flex: 0 0 40px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+.consignment-theme-toggle:hover {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green-dark);
+}
+
+.consignment-theme-toggle:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
 }
 
 .consignment-back {
@@ -82,12 +110,25 @@
   }
 
   .consignment-header-row {
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
     gap: 10px;
   }
 
+  .consignment-header-main {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .consignment-theme-toggle {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
   .consignment-header-action {
+    grid-column: 1 / -1;
+    grid-row: 2;
     width: 100%;
   }
 
