@@ -1,0 +1,56 @@
+name: Remove SEO autofill once
+
+on:
+  push:
+    paths:
+      - '.github/workflows/remove-seo-autofill-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Remove automatic SEO autofill
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          path = Path('app/consignment_intake.jsx')
+          text = path.read_text()
+
+          old = """    seoTitle: description,
+    seoDescription: [
+      description,
+      brand ? `Brand: ${brand}` : '',
+      size ? `Size: ${size}` : '',
+      condition ? `Condition: ${condition}` : '',
+    ].filter(Boolean).join(' Ã‚Â· ').slice(0, 320),
+"""
+          new = """    seoTitle: '',
+    seoDescription: '',
+"""
+
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected exactly one SEO autofill block, found {count}')
+
+          path.write_text(text.replace(old, new, 1))
+          PY
+
+      - name: Commit change and remove one-time workflow
+        shell: bash
+        run: |
+          rm .github/workflows/remove-seo-autofill-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/consignment_intake.jsx .github/workflows/remove-seo-autofill-once.yml
+          git commit -m "Stop auto-populating Shopify SEO fields"
+          git push origin main
