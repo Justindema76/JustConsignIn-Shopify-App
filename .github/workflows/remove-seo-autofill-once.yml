@@ -2,6 +2,8 @@ name: Remove SEO autofill once
 
 on:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/remove-seo-autofill-once.yml'
 
@@ -16,41 +18,28 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-
-      - name: Remove automatic SEO autofill
-        shell: bash
+      - name: Update intake SEO defaults
         run: |
-          python3 <<'PY'
+          python3 - <<'PY'
           from pathlib import Path
-
-          path = Path('app/consignment_intake.jsx')
-          text = path.read_text()
-
-          old = """    seoTitle: description,
-    seoDescription: [
-      description,
-      brand ? `Brand: ${brand}` : '',
-      size ? `Size: ${size}` : '',
-      condition ? `Condition: ${condition}` : '',
-    ].filter(Boolean).join(' Ã‚Â· ').slice(0, 320),
-"""
-          new = """    seoTitle: '',
-    seoDescription: '',
-"""
-
-          count = text.count(old)
-          if count != 1:
-              raise SystemExit(f'Expected exactly one SEO autofill block, found {count}')
-
-          path.write_text(text.replace(old, new, 1))
+          path = Path("app/consignment_intake.jsx")
+          text = path.read_text(encoding="utf-8")
+          start_marker = "    seoTitle: description,\n    seoDescription: [\n"
+          start = text.find(start_marker)
+          if start < 0:
+              raise SystemExit("SEO autofill start not found")
+          end_marker = ".slice(0, 320),"
+          end = text.find(end_marker, start)
+          if end < 0:
+              raise SystemExit("SEO autofill end not found")
+          end = text.find("\n", end) + 1
+          replacement = "    seoTitle: '',\n    seoDescription: '',\n"
+          path.write_text(text[:start] + replacement + text[end:], encoding="utf-8")
           PY
-
-      - name: Commit change and remove one-time workflow
-        shell: bash
+      - name: Commit change
         run: |
-          rm .github/workflows/remove-seo-autofill-once.yml
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/consignment_intake.jsx .github/workflows/remove-seo-autofill-once.yml
-          git commit -m "Stop auto-populating Shopify SEO fields"
+          git config user.name github-actions-bot
+          git config user.email github-actions-bot@users.noreply.github.com
+          git add app/consignment_intake.jsx
+          git commit -m 'Stop auto-populating Shopify SEO fields'
           git push origin main
