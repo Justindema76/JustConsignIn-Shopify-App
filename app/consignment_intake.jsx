@@ -108,13 +108,8 @@ function buildShopifyAutoFill(item = {}, consignor = null) {
       condition ? `Condition: ${condition}` : '',
       category ? `Category: ${category}` : '',
     ].filter(Boolean).join('\n'),
-    seoTitle: description,
-    seoDescription: [
-      description,
-      brand ? `Brand: ${brand}` : '',
-      size ? `Size: ${size}` : '',
-      condition ? `Condition: ${condition}` : '',
-    ].filter(Boolean).join(' Ã‚Â· ').slice(0, 320),
+    seoTitle: '',
+    seoDescription: '',
   };
 }
 
