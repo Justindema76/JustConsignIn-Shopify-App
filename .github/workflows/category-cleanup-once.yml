@@ -25,45 +25,12 @@ jobs:
           python3 <<'PY'
           from pathlib import Path
           import re
-
           path = Path('app/consignment_intake.jsx')
           text = path.read_text()
-
-          replacement = """const CATEGORIES = [
-  'Clothing',
-  'Shoes',
-  'Jewellery',
-  'Handbags & Accessories',
-  'Baby & Kids',
-  'Toys & Games',
-  'Bicycles & Cycling',
-  'Sporting Goods',
-  'Outdoor & Camping',
-  'Home Decor',
-  'Furniture',
-  'Kitchen & Housewares',
-  'Electronics',
-  'Appliances',
-  'Books & Media',
-  'Video Games',
-  'Collectibles',
-  'Tools',
-  'Automotive',
-  'Pet Supplies',
-  'Art',
-  'Other',
-];"""
-
-          updated, count = re.subn(
-              r"const CATEGORIES = \[.*?\];(?=\nconst CONDITIONS)",
-              replacement,
-              text,
-              count=1,
-              flags=re.S,
-          )
+          replacement = "const CATEGORIES = [\n  'Clothing',\n  'Shoes',\n  'Jewellery',\n  'Handbags & Accessories',\n  'Baby & Kids',\n  'Toys & Games',\n  'Bicycles & Cycling',\n  'Sporting Goods',\n  'Outdoor & Camping',\n  'Home Decor',\n  'Furniture',\n  'Kitchen & Housewares',\n  'Electronics',\n  'Appliances',\n  'Books & Media',\n  'Video Games',\n  'Collectibles',\n  'Tools',\n  'Automotive',\n  'Pet Supplies',\n  'Art',\n  'Other',\n];"
+          updated, count = re.subn(r"const CATEGORIES = \[.*?\];(?=\nconst CONDITIONS)", replacement, text, count=1, flags=re.S)
           if count != 1:
               raise SystemExit(f'Expected one CATEGORIES block, found {count}')
-
           path.write_text(updated)
           PY
 
@@ -76,4 +43,4 @@ jobs:
           git commit -m "Improve consignment categories and remove bad encoding"
           git push origin main
 
-# trigger after workflow exists on main
+# valid trigger
