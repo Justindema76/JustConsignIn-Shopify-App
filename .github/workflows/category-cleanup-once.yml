@@ -75,3 +75,5 @@ jobs:
           git add app/consignment_intake.jsx
           git commit -m "Improve consignment categories and remove bad encoding"
           git push origin main
+
+# trigger after workflow exists on main
