@@ -74,10 +74,28 @@ function resizeImage(file, maxWidth = 320, quality = 0.55) {
 }
 
 const CATEGORIES = [
-  'Clothing', 'Shoes', 'Jewellery', 'Handbags', 'Home DÃƒÂ©cor', 'Furniture',
-  'Electronics', 'Appliances', 'Books', 'Movies & Music', 'Video Games',
-  'Collectibles', 'Sporting Goods', 'Tools', 'Toys', 'Baby Gear',
-  'Pet Supplies', 'Outdoor & Garden', 'Art', 'Automotive', 'Other',
+  'Clothing',
+  'Shoes',
+  'Jewellery',
+  'Handbags & Accessories',
+  'Baby & Kids',
+  'Toys & Games',
+  'Bicycles & Cycling',
+  'Sporting Goods',
+  'Outdoor & Camping',
+  'Home Decor',
+  'Furniture',
+  'Kitchen & Housewares',
+  'Electronics',
+  'Appliances',
+  'Books & Media',
+  'Video Games',
+  'Collectibles',
+  'Tools',
+  'Automotive',
+  'Pet Supplies',
+  'Art',
+  'Other',
 ];
 const CONDITIONS = ['New with tags', 'Like new', 'Good', 'Fair'];
 
