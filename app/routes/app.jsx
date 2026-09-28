@@ -25,6 +25,10 @@ import {
   ensureMetaobjectsInstalled,
 } from "../metaobjects.server";
 
+import {
+  isFoundingAdmin,
+} from "../founding.server";
+
 
 export const loader = async ({
   request,
@@ -56,6 +60,10 @@ export const loader = async ({
       process.env
         .SHOPIFY_API_KEY ||
       "",
+    foundingAdmin:
+      isFoundingAdmin(
+        session.shop,
+      ),
   };
 };
 
@@ -78,6 +86,7 @@ function isThemePreference(
 export default function App() {
   const {
     apiKey,
+    foundingAdmin,
   } = useLoaderData();
 
   const [
@@ -189,6 +198,12 @@ export default function App() {
         <s-link href="/app/plans">
           Pricing
         </s-link>
+
+        {foundingAdmin && (
+          <s-link href="/app/founding">
+            Founding Members
+          </s-link>
+        )}
 
       </s-app-nav>
 
