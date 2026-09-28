@@ -1,7 +1,6 @@
 // app/routes/app.plans.jsx
 //
-// Plan picker screen. Merchants land here after install if they have no
-// active subscription, or any time they want to upgrade/downgrade.
+// Plan picker + founding member request screen.
 
 import { useEffect } from 'react';
 import {
@@ -14,18 +13,31 @@ import { authenticate } from '../shopify.server';
 import {
   PLANS,
   getActivePlan,
+  getEffectivePlan,
   createSubscription,
   cancelActiveSubscription,
 } from '../billing.server';
+import {
+  getFoundingAccess,
+  getFoundingStats,
+  requestFoundingAccess,
+} from '../founding.server';
 import '../styles/pricing-plans.css';
 
 export const loader = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
-  const activePlan = await getActivePlan(admin);
+  const { admin, session } = await authenticate.admin(request);
+
+  const [activePlan, foundingAccess, foundingStats] = await Promise.all([
+    getEffectivePlan(admin, session.shop),
+    getFoundingAccess(session.shop),
+    getFoundingStats(),
+  ]);
 
   return {
     activePlan,
     plans: PLANS,
+    foundingAccess,
+    foundingStats,
   };
 };
 
@@ -35,6 +47,24 @@ export const action = async ({ request }) => {
 
     const formData = await request.formData();
     const intent = formData.get('intent');
+
+    if (intent === 'request-founding') {
+      const paidPlan = await getActivePlan(admin);
+
+      if (paidPlan) {
+        return {
+          error:
+            'This store already has an active paid subscription. Founding access is for stores that have not started a paid plan.',
+        };
+      }
+
+      const foundingAccess = await requestFoundingAccess(session.shop);
+
+      return {
+        foundingRequested: true,
+        foundingAccess,
+      };
+    }
 
     if (intent === 'cancel') {
       const cancelledSubscription = await cancelActiveSubscription(admin, {
@@ -64,25 +94,10 @@ export const action = async ({ request }) => {
       };
     }
 
-    /*
-     * IMPORTANT:
-     * Shopify sends the merchant back to exactly the returnUrl we provide.
-     *
-     * Do NOT depend on `shop` being present in the current browser URL.
-     * In an embedded app, the plan form can be submitted without `shop`
-     * surviving in request.url.
-     *
-     * We already have the authoritative shop from the authenticated Shopify
-     * session, so use session.shop every time.
-     */
     const returnUrl = new URL('/app/plans', appUrl);
 
     returnUrl.searchParams.set('shop', session.shop);
 
-    /*
-     * Preserve host when Shopify supplied it. It is useful for embedded
-     * navigation, but the shop value above never depends on it.
-     */
     const requestUrl = new URL(request.url);
     const hostParam = requestUrl.searchParams.get('host');
 
@@ -250,10 +265,94 @@ function PlanCard({
   );
 }
 
+function FoundingCard({
+  activePlan,
+  access,
+  stats,
+  requesting,
+}) {
+  const approved = activePlan === 'FOUNDING';
+  const pending = access?.status === 'PENDING';
+  const rejected = access?.status === 'REJECTED';
+  const canRequest =
+    !approved &&
+    !pending &&
+    !stats.full;
+
+  return (
+    <div className={`pricing-card${approved ? ' featured' : ''}`} style={{ marginBottom: 24 }}>
+      <div className="pricing-card-top">
+        <h3 className="pricing-card-name">
+          Founding Member
+        </h3>
+
+        <span className="pricing-badge">
+          {approved
+            ? `#${access.position} of ${stats.limit}`
+            : `${stats.remaining} of ${stats.limit} spots left`}
+        </span>
+      </div>
+
+      <p className="pricing-price-line">
+        $0 <span>/ forever</span>
+      </p>
+
+      <p className="pricing-desc">
+        Approved founding stores receive full JustConsignIn access permanently at no monthly charge.
+        Every founding member is personally approved before the free plan is activated.
+      </p>
+
+      <ul className="pricing-features">
+        <li><CheckIcon />Everything in Manual</li>
+        <li><CheckIcon />Shopify product creation and sync</li>
+        <li><CheckIcon />Shopify POS and inventory integration</li>
+        <li><CheckIcon />Permanent $0 founding membership after approval</li>
+      </ul>
+
+      {approved && (
+        <span className="pricing-cta primary current">
+          Approved — free forever
+        </span>
+      )}
+
+      {pending && !approved && (
+        <span className="pricing-cta current">
+          Request pending approval
+        </span>
+      )}
+
+      {stats.full && !approved && (
+        <span className="pricing-cta disabled">
+          Founding spots filled
+        </span>
+      )}
+
+      {canRequest && (
+        <Form method="post">
+          <input type="hidden" name="intent" value="request-founding" />
+          <button
+            type="submit"
+            className="pricing-cta primary"
+            disabled={requesting}
+          >
+            {requesting
+              ? 'Sending request...'
+              : rejected
+                ? 'Request reconsideration'
+                : 'Request founding access'}
+          </button>
+        </Form>
+      )}
+    </div>
+  );
+}
+
 export default function PlansScreen() {
   const {
     activePlan,
     plans,
+    foundingAccess,
+    foundingStats,
   } = useLoaderData();
 
   const actionData = useActionData();
@@ -267,15 +366,15 @@ export default function PlansScreen() {
     navigation.state === 'submitting' &&
     navigation.formData?.get('intent') === 'cancel';
 
+  const requesting =
+    navigation.state === 'submitting' &&
+    navigation.formData?.get('intent') === 'request-founding';
+
   useEffect(() => {
     if (!actionData?.confirmationUrl) {
       return;
     }
 
-    /*
-     * Billing approval must leave the embedded iframe and open at the top
-     * Shopify window.
-     */
     window.open(
       actionData.confirmationUrl,
       '_top',
@@ -296,11 +395,13 @@ export default function PlansScreen() {
     Boolean(activePlan);
 
   const currentPlanName =
-    activePlan === 'TIER2'
-      ? 'Manual + Shopify Sync'
-      : activePlan === 'TIER1'
-        ? 'Manual'
-        : null;
+    activePlan === 'FOUNDING'
+      ? 'Founding Member'
+      : activePlan === 'TIER2'
+        ? 'Manual + Shopify Sync'
+        : activePlan === 'TIER1'
+          ? 'Manual'
+          : null;
 
   return (
     <div className="pricing-page">
@@ -310,16 +411,28 @@ export default function PlansScreen() {
         </p>
 
         <h1>
-          {hasActivePlan
-            ? 'Change your JustConsignIn plan.'
-            : 'Start with the plan that fits your workflow.'}
+          {activePlan === 'FOUNDING'
+            ? 'Your Founding Member access is active.'
+            : hasActivePlan
+              ? 'Change your JustConsignIn plan.'
+              : 'Start with the plan that fits your workflow.'}
         </h1>
 
         <p className="pricing-sub">
-          {hasActivePlan
-            ? 'Your current plan stays active until you approve a different plan through Shopify. Changing plans starts a new 14-day free trial on the plan you choose.'
-            : 'Try JustConsignIn free for 14 days on either plan below. A payment method is collected at signup, and billing starts only after the trial unless you cancel first.'}
+          {activePlan === 'FOUNDING'
+            ? 'Your store has permanent full access at $0 as an approved JustConsignIn Founding Member.'
+            : hasActivePlan
+              ? 'Your current plan stays active until you approve a different plan through Shopify.'
+              : 'Request one of the 20 manually approved Founding Member spots, or start a paid plan immediately.'}
         </p>
+
+        {actionData?.foundingRequested && (
+          <div className="pricing-error" role="status">
+            <p>
+              Founding Member request sent. Access stays pending until it is personally approved.
+            </p>
+          </div>
+        )}
 
         {actionData?.cancelled && (
           <div className="pricing-error" role="status">
@@ -332,7 +445,7 @@ export default function PlansScreen() {
         {actionData?.error && (
           <div className="pricing-error">
             <p>
-              Could not complete that billing action:
+              Could not complete that action:
             </p>
 
             <pre>
@@ -341,84 +454,95 @@ export default function PlansScreen() {
           </div>
         )}
 
-        <div className="pricing-grid">
-          <PlanCard
-            plan={manualPlan}
-            isActive={
-              activePlan === manualPlan.key
-            }
-            isBestValue={false}
-            submitting={submitting}
+        {!['TIER1', 'TIER2'].includes(activePlan) && (
+          <FoundingCard
             activePlan={activePlan}
+            access={foundingAccess}
+            stats={foundingStats}
+            requesting={requesting}
           />
+        )}
 
-          <PlanCard
-            plan={shopifyPlan}
-            isActive={
-              activePlan === shopifyPlan.key
-            }
-            isBestValue
-            submitting={submitting}
-            activePlan={activePlan}
-          />
+        {activePlan !== 'FOUNDING' && (
+          <div className="pricing-grid">
+            <PlanCard
+              plan={manualPlan}
+              isActive={
+                activePlan === manualPlan.key
+              }
+              isBestValue={false}
+              submitting={submitting}
+              activePlan={activePlan}
+            />
 
-          <div className="pricing-card muted">
-            <div className="pricing-card-top">
-              <h3 className="pricing-card-name">
-                Advanced
-              </h3>
+            <PlanCard
+              plan={shopifyPlan}
+              isActive={
+                activePlan === shopifyPlan.key
+              }
+              isBestValue
+              submitting={submitting}
+              activePlan={activePlan}
+            />
 
-              <div className="pricing-lock">
-                <LockIcon />
+            <div className="pricing-card muted">
+              <div className="pricing-card-top">
+                <h3 className="pricing-card-name">
+                  Advanced
+                </h3>
+
+                <div className="pricing-lock">
+                  <LockIcon />
+                </div>
               </div>
+
+              <p
+                className="pricing-trial-line"
+                style={{
+                  marginBottom: 20,
+                }}
+              >
+                Coming later
+              </p>
+
+              <p className="pricing-desc">
+                For larger operations and additional workflows.
+              </p>
+
+              <ul className="pricing-features">
+                <li>
+                  <CheckIcon />
+                  Multi-location
+                </li>
+
+                <li>
+                  <CheckIcon />
+                  Consignor portal
+                </li>
+
+                <li>
+                  <CheckIcon />
+                  Advanced reporting
+                </li>
+
+                <li>
+                  <CheckIcon />
+                  Additional integrations
+                </li>
+              </ul>
+
+              <button
+                type="button"
+                className="pricing-cta disabled"
+                disabled
+              >
+                Not available yet
+              </button>
             </div>
-
-            <p
-              className="pricing-trial-line"
-              style={{
-                marginBottom: 20,
-              }}
-            >
-              Coming later
-            </p>
-
-            <p className="pricing-desc">
-              For larger operations and additional workflows.
-            </p>
-
-            <ul className="pricing-features">
-              <li>
-                <CheckIcon />
-                Multi-location
-              </li>
-
-              <li>
-                <CheckIcon />
-                Consignor portal
-              </li>
-
-              <li>
-                <CheckIcon />
-                Advanced reporting
-              </li>
-
-              <li>
-                <CheckIcon />
-                Additional integrations
-              </li>
-            </ul>
-
-            <button
-              type="button"
-              className="pricing-cta disabled"
-              disabled
-            >
-              Not available yet
-            </button>
           </div>
-        </div>
+        )}
 
-        {hasActivePlan && (
+        {['TIER1', 'TIER2'].includes(activePlan) && (
           <div className="pricing-card" style={{ marginTop: 24 }}>
             <div className="pricing-card-top">
               <div>
@@ -463,9 +587,8 @@ export default function PlansScreen() {
         )}
 
         <p className="pricing-fineprint">
-          Prices shown in USD, billed every 30 days after the selected
-          plan&apos;s 14-day trial ends. Cancel anytime before the trial
-          ends and you will not be charged for that plan.
+          Founding Member access is limited to 20 stores and requires manual approval.
+          Paid plans are shown in USD and billed every 30 days after the selected plan&apos;s trial.
         </p>
       </div>
     </div>
