@@ -1,154 +1,81 @@
 // app/billing.server.js
 //
-// JustConsignIn Shopify Billing
+// JustConsignIn Shopify App Pricing access control.
 //
-// TIER1 = Manual
-// TIER2 = Manual + Shopify Sync
-//
-// Shopify Billing API only.
-// No Stripe, PayPal, or external billing.
+// Shopify owns plan prices, trials, approvals and recurring billing.
+// This module only reads the active plan and gates app features.
+
+import { fetchActiveSubscription } from './partner-api.server';
 
 export const PLANS = {
   TIER1: {
     key: 'TIER1',
-    name: 'JustConsignIn - Manual',
-    amount: 19,
-    currencyCode: 'USD',
-    interval: 'EVERY_30_DAYS',
-    trialDays: 14,
-
-    description:
-      'Manual consignment management for stores that do not need Shopify product syncing.',
-
-    features: [
-      'Consignors',
-      'Items',
-      'Manual sales',
-      'Payouts',
-      'Transactions',
-      'Reports',
-      'CSV import / export',
-    ],
+    handle: 'tier1',
+    label: 'Manual',
+    access: 'manual',
   },
 
   TIER2: {
     key: 'TIER2',
-    name: 'JustConsignIn - Manual + Shopify Sync',
-    amount: 29,
-    currencyCode: 'USD',
-    interval: 'EVERY_30_DAYS',
-    trialDays: 14,
+    handle: 'tier2',
+    label: 'Manual + Shopify Sync',
+    access: 'full',
+  },
 
-    description:
-      'Full consignment management with Shopify products, POS, inventory and Online Store publishing.',
+  BETA_TESTER: {
+    key: 'BETA_TESTER',
+    handle: 'beta-tester',
+    label: 'Beta Tester',
+    access: 'full',
+  },
 
-    features: [
-      'Everything in Manual',
-      'Create real Shopify products',
-      'Upload product photos',
-      'Shopify POS sync',
-      'Online Store publishing',
-      'Inventory synchronization',
-      'Automatic Shopify sale tracking',
-    ],
+  SHOPIFY_TEST: {
+    key: 'SHOPIFY_TEST',
+    handle: 'shopify-test',
+    label: 'Shopify Test',
+    access: 'full',
   },
 };
 
+const PLAN_KEY_BY_HANDLE = Object.values(PLANS).reduce(
+  (map, plan) => {
+    map[plan.handle] = plan.key;
+    return map;
+  },
+  {},
+);
 
-/* =========================================================
-   GRAPHQL
-   ========================================================= */
+const LEGACY_PLAN_NAMES = {
+  'JustConsignIn - Manual': 'TIER1',
+  'JustConsignIn - Manual + Shopify Sync': 'TIER2',
+};
 
-const ACTIVE_SUBSCRIPTIONS_QUERY = `#graphql
+const LEGACY_ACTIVE_SUBSCRIPTIONS_QUERY = `#graphql
   query ActiveSubscriptions {
     currentAppInstallation {
       activeSubscriptions {
         id
         name
         status
-        createdAt
-        currentPeriodEnd
-        trialDays
       }
     }
   }
 `;
 
-
-const CREATE_SUBSCRIPTION_MUTATION = `#graphql
-  mutation AppSubscriptionCreate(
-    $name: String!
-    $lineItems: [AppSubscriptionLineItemInput!]!
-    $returnUrl: URL!
-    $test: Boolean
-    $trialDays: Int
-    $replacementBehavior: AppSubscriptionReplacementBehavior
-  ) {
-    appSubscriptionCreate(
-      name: $name
-      returnUrl: $returnUrl
-      lineItems: $lineItems
-      test: $test
-      trialDays: $trialDays
-      replacementBehavior: $replacementBehavior
-    ) {
-      confirmationUrl
-
-      appSubscription {
-        id
-        name
-        status
-      }
-
-      userErrors {
-        field
-        message
-      }
+const SHOP_ID_QUERY = `#graphql
+  query ShopId {
+    shop {
+      id
     }
   }
 `;
 
+const PLAN_CACHE_TTL_MS = 5 * 60 * 1000;
+const planCache = new Map();
 
-const CANCEL_SUBSCRIPTION_MUTATION = `#graphql
-  mutation AppSubscriptionCancel(
-    $id: ID!
-    $prorate: Boolean
-  ) {
-    appSubscriptionCancel(
-      id: $id
-      prorate: $prorate
-    ) {
-      appSubscription {
-        id
-        name
-        status
-      }
-
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-`;
-
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
-
-function planKeyFromSubscriptionName(name) {
-  if (name === PLANS.TIER1.name) {
-    return 'TIER1';
-  }
-
-  if (name === PLANS.TIER2.name) {
-    return 'TIER2';
-  }
-
-  return null;
+function normalizeShop(shop) {
+  return String(shop || '').trim().toLowerCase();
 }
-
 
 function graphqlErrors(data) {
   if (!data?.errors?.length) {
@@ -160,25 +87,46 @@ function graphqlErrors(data) {
     .join(', ');
 }
 
+async function getShopId(admin) {
+  const response = await admin.graphql(SHOP_ID_QUERY);
+  const data = await response.json();
 
-function userErrors(errors = []) {
-  if (!errors.length) {
-    return null;
+  const topLevelError = graphqlErrors(data);
+
+  if (topLevelError) {
+    throw new Error(topLevelError);
   }
 
-  return errors
-    .map((error) => error.message)
-    .join(', ');
+  const shopId = data?.data?.shop?.id;
+
+  if (!shopId) {
+    throw new Error(
+      'Shopify did not return the shop GID required for App Pricing.',
+    );
+  }
+
+  return shopId;
 }
 
+function planKeyFromSubscription(subscription) {
+  const handles = (subscription?.items || [])
+    .map((item) => item?.handle)
+    .filter(Boolean);
 
-/* =========================================================
-   ACTIVE SUBSCRIPTION
-   ========================================================= */
+  for (const handle of handles) {
+    const planKey = PLAN_KEY_BY_HANDLE[handle];
 
-export async function getActiveSubscription(admin) {
+    if (planKey) {
+      return planKey;
+    }
+  }
+
+  return null;
+}
+
+async function getLegacyActivePlan(admin) {
   const response = await admin.graphql(
-    ACTIVE_SUBSCRIPTIONS_QUERY,
+    LEGACY_ACTIVE_SUBSCRIPTIONS_QUERY,
   );
 
   const data = await response.json();
@@ -190,239 +138,117 @@ export async function getActiveSubscription(admin) {
   }
 
   const subscriptions =
-    data?.data
-      ?.currentAppInstallation
-      ?.activeSubscriptions || [];
+    data?.data?.currentAppInstallation?.activeSubscriptions || [];
 
-  const active =
-    subscriptions.find(
-      (subscription) =>
-        subscription.status === 'ACTIVE',
-    ) || null;
+  const active = subscriptions.find(
+    (subscription) => subscription.status === 'ACTIVE',
+  );
 
   if (!active) {
     return null;
   }
 
-  return {
-    ...active,
-
-    planKey:
-      planKeyFromSubscriptionName(
-        active.name,
-      ),
-  };
+  return LEGACY_PLAN_NAMES[active.name] || null;
 }
 
+export async function getActivePlan(admin, shop) {
+  const normalizedShop = normalizeShop(shop);
 
-/* =========================================================
-   ACTIVE PLAN
-   ========================================================= */
+  if (!normalizedShop) {
+    throw new Error(
+      'A Shopify shop domain is required to check the active plan.',
+    );
+  }
 
-export async function getActivePlan(admin) {
-  const subscription =
-    await getActiveSubscription(admin);
+  const cached = planCache.get(normalizedShop);
 
-  return subscription?.planKey || null;
+  if (
+    cached &&
+    Date.now() - cached.checkedAt < PLAN_CACHE_TTL_MS
+  ) {
+    return cached.planKey;
+  }
+
+  const shopId = await getShopId(admin);
+  const subscription = await fetchActiveSubscription(shopId);
+
+  if (!subscription) {
+    return null;
+  }
+
+  let planKey = planKeyFromSubscription(subscription);
+
+  // During the Billing API -> Shopify App Pricing migration, an existing
+  // legacy subscription can still be active until its scheduled move takes
+  // effect. Keep read-only legacy detection so those merchants aren't locked
+  // out while the migration completes.
+  if (!planKey && subscription.legacySubscriptionId) {
+    planKey = await getLegacyActivePlan(admin);
+  }
+
+  if (!planKey) {
+    const handles = (subscription.items || [])
+      .map((item) => item?.handle)
+      .filter(Boolean);
+
+    throw new Error(
+      `Active Shopify subscription uses an unknown plan handle: ${JSON.stringify(
+        handles,
+      )}`,
+    );
+  }
+
+  // Cache only confirmed active plans. Never cache a missing subscription,
+  // because a merchant may have just selected a plan and immediately returned.
+  planCache.set(normalizedShop, {
+    planKey,
+    checkedAt: Date.now(),
+  });
+
+  return planKey;
 }
 
-
-/* =========================================================
-   CREATE / CHANGE PLAN
-   ========================================================= */
-
-export async function createSubscription(
-  admin,
-  planKey,
-  {
-    returnUrl,
-    isTest = false,
-  },
-) {
-  const plan = PLANS[planKey];
-
-  if (!plan) {
-    throw new Error(
-      `Unknown plan: ${planKey}`,
-    );
-  }
-
-  if (!returnUrl) {
-    throw new Error(
-      'A Shopify billing returnUrl is required.',
-    );
-  }
-
-  const response = await admin.graphql(
-    CREATE_SUBSCRIPTION_MUTATION,
-    {
-      variables: {
-        name: plan.name,
-
-        returnUrl,
-
-        test: isTest,
-
-        trialDays:
-          plan.trialDays || 0,
-
-        replacementBehavior:
-          'STANDARD',
-
-        lineItems: [
-          {
-            plan: {
-              appRecurringPricingDetails: {
-                price: {
-                  amount:
-                    plan.amount,
-
-                  currencyCode:
-                    plan.currencyCode,
-                },
-
-                interval:
-                  plan.interval,
-              },
-            },
-          },
-        ],
-      },
-    },
-  );
-
-  const data = await response.json();
-
-  const topLevelError =
-    graphqlErrors(data);
-
-  if (topLevelError) {
-    throw new Error(
-      topLevelError,
-    );
-  }
-
-  const result =
-    data?.data
-      ?.appSubscriptionCreate;
-
-  if (!result) {
-    throw new Error(
-      'Shopify did not return appSubscriptionCreate data.',
-    );
-  }
-
-  const mutationError =
-    userErrors(
-      result.userErrors,
-    );
-
-  if (mutationError) {
-    throw new Error(
-      mutationError,
-    );
-  }
-
-  if (!result.confirmationUrl) {
-    throw new Error(
-      'Shopify did not return a billing confirmation URL.',
-    );
-  }
-
-  return result.confirmationUrl;
-}
-
-
-/* =========================================================
-   CANCEL SUBSCRIPTION
-   ========================================================= */
-
-export async function cancelActiveSubscription(
-  admin,
-  {
-    prorate = false,
-  } = {},
-) {
-  const subscription =
-    await getActiveSubscription(
-      admin,
-    );
-
-  if (!subscription?.id) {
-    throw new Error(
-      'No active Shopify subscription was found.',
-    );
-  }
-
-  const response = await admin.graphql(
-    CANCEL_SUBSCRIPTION_MUTATION,
-    {
-      variables: {
-        id: subscription.id,
-        prorate,
-      },
-    },
-  );
-
-  const data = await response.json();
-
-  const topLevelError =
-    graphqlErrors(data);
-
-  if (topLevelError) {
-    throw new Error(
-      topLevelError,
-    );
-  }
-
-  const result =
-    data?.data
-      ?.appSubscriptionCancel;
-
-  if (!result) {
-    throw new Error(
-      'Shopify did not return appSubscriptionCancel data.',
-    );
-  }
-
-  const mutationError =
-    userErrors(
-      result.userErrors,
-    );
-
-  if (mutationError) {
-    throw new Error(
-      mutationError,
-    );
-  }
-
+export function planHasShopifySync(planKey) {
   return (
-    result.appSubscription ||
-    null
+    planKey === 'TIER2' ||
+    planKey === 'BETA_TESTER' ||
+    planKey === 'SHOPIFY_TEST'
   );
 }
 
+export function getHostedPricingUrl(shop) {
+  const normalizedShop = normalizeShop(shop);
 
-/* =========================================================
-   TIER 2 GUARD
-   ========================================================= */
+  if (!normalizedShop.endsWith('.myshopify.com')) {
+    throw new Error(
+      'A valid .myshopify.com domain is required to build the pricing URL.',
+    );
+  }
 
-export async function requireTier2(admin) {
-  const plan =
-    await getActivePlan(admin);
+  const storeHandle = normalizedShop.replace(
+    '.myshopify.com',
+    '',
+  );
 
-  if (plan !== 'TIER2') {
+  const appHandle =
+    process.env.SHOPIFY_APP_HANDLE || 'justconsignin';
+
+  return `https://admin.shopify.com/store/${storeHandle}/charges/${appHandle}/pricing_plans`;
+}
+
+export async function requireTier2(admin, shop) {
+  const plan = await getActivePlan(admin, shop);
+
+  if (!planHasShopifySync(plan)) {
     throw new Response(
       JSON.stringify({
         error:
-          'This feature requires the Manual + Shopify Sync plan.',
+          'This feature requires Shopify integration access.',
       }),
       {
         status: 402,
-
         headers: {
-          'Content-Type':
-            'application/json',
+          'Content-Type': 'application/json',
         },
       },
     );
@@ -431,14 +257,8 @@ export async function requireTier2(admin) {
   return plan;
 }
 
-
-/* =========================================================
-   ACTIVE PLAN GUARD
-   ========================================================= */
-
-export async function requireActivePlan(admin) {
-  const plan =
-    await getActivePlan(admin);
+export async function requireActivePlan(admin, shop) {
+  const plan = await getActivePlan(admin, shop);
 
   if (!plan) {
     throw new Response(
@@ -448,10 +268,8 @@ export async function requireActivePlan(admin) {
       }),
       {
         status: 402,
-
         headers: {
-          'Content-Type':
-            'application/json',
+          'Content-Type': 'application/json',
         },
       },
     );
