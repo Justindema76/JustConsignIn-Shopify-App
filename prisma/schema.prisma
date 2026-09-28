@@ -32,3 +32,14 @@ model Session {
   refreshToken        String?
   refreshTokenExpires DateTime?
 }
+
+
+model FoundingAccess {
+  id          Int       @id @default(autoincrement())
+  shop        String    @unique
+  status      String    @default("PENDING")
+  position    Int?      @unique
+  requestedAt DateTime  @default(now())
+  approvedAt  DateTime?
+  rejectedAt  DateTime?
+}
