@@ -1107,7 +1107,7 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }) {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
 
   try {
     const setup = await ensureMetaobjectsInstalled(admin);
@@ -1315,7 +1315,7 @@ export async function action({ request }) {
             const shopify = importedShopifyFields(row, price);
 
             if (createShopifyProduct) {
-              await requireTier2(admin);
+              await requireTier2(admin, session.shop);
               if (!shopify.shopifyTitle) shopify.shopifyTitle = description;
               if (!shopify.vendor) shopify.vendor = text(row.brand);
               if (!shopify.productDescription) {
@@ -1634,7 +1634,7 @@ export async function action({ request }) {
     }
 
     if (request.method === 'POST' && body.operation === 'syncProduct') {
-      await requireTier2(admin);
+      await requireTier2(admin, session.shop);
       const existing = current.items.find((entry) => entry.id === body.itemId);
       if (!existing) {
         return Response.json({ error: 'Consignment item not found' }, { status: 404 });
