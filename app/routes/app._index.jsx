@@ -1,11 +1,11 @@
 import { redirect, useLoaderData } from 'react-router';
 import { authenticate } from '../shopify.server';
-import { getActivePlan } from '../billing.server';
+import { getEffectivePlan } from '../billing.server';
 import TierOneConsignmentApp from '../tier1_consignment_app';
 
 export const loader = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
-  const activePlan = await getActivePlan(admin);
+  const { admin, session } = await authenticate.admin(request);
+  const activePlan = await getEffectivePlan(admin, session.shop);
 
   // No active subscription — send the merchant to the plan picker first.
   // This is what makes /app/plans the actual landing screen right after
