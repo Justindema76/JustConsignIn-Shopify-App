@@ -25,17 +25,40 @@ import {
   ensureMetaobjectsInstalled,
 } from "../metaobjects.server";
 
+import {
+  getActivePlan,
+  getHostedPricingUrl,
+} from "../billing.server";
+
 
 export const loader = async ({
   request,
 }) => {
   const {
     admin,
+    redirect,
     session,
   } =
     await authenticate.admin(
       request,
     );
+
+  const activePlan =
+    await getActivePlan(
+      admin,
+      session.shop,
+    );
+
+  if (!activePlan) {
+    return redirect(
+      getHostedPricingUrl(
+        session.shop,
+      ),
+      {
+        target: "_top",
+      },
+    );
+  }
 
   const setup =
     await ensureMetaobjectsInstalled(
@@ -56,6 +79,7 @@ export const loader = async ({
       process.env
         .SHOPIFY_API_KEY ||
       "",
+    activePlan,
   };
 };
 
