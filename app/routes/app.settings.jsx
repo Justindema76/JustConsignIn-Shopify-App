@@ -9,8 +9,8 @@ import '../styles/consignment-global.css';
 import '../styles/consignment-forms.css';
 
 export const loader = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
-  const activePlan = await getActivePlan(admin);
+  const { admin, session } = await authenticate.admin(request);
+  const activePlan = await getActivePlan(admin, session.shop);
   return { activePlan, plans: PLANS };
 };
 
@@ -21,18 +21,18 @@ export default function SettingsRoute() {
   const activePlanDetails = activePlan ? plans[activePlan] : null;
 
   const planLabel =
-    activePlan === 'TIER2'
-      ? 'Manual + Shopify Sync'
-      : activePlan === 'TIER1'
-        ? 'Manual'
-        : 'No active plan';
+    activePlanDetails?.label || 'No active plan';
 
   const planActionLabel =
-    activePlan === 'TIER1'
-      ? 'Upgrade to Shopify Sync'
-      : activePlan === 'TIER2'
-        ? 'Manage plan'
-        : 'Choose plan';
+    activePlan ? 'Manage plan' : 'Choose plan';
+
+  const billingLabel =
+    activePlan === 'BETA_TESTER' ||
+    activePlan === 'SHOPIFY_TEST'
+      ? '$0 / month'
+      : activePlan
+        ? 'Managed by Shopify'
+        : '-';
 
   return (
     <div className="consignment">
@@ -65,7 +65,7 @@ export default function SettingsRoute() {
                   <span className="consignment-label">Current plan</span>
                   <strong>{planLabel}</strong>
                   <p className="consignment-form-help">
-                    {activePlan === 'TIER2'
+                    {activePlanDetails?.access === 'full'
                       ? 'Shopify product sync, POS and online publishing are enabled.'
                       : activePlan === 'TIER1'
                         ? 'Manual consignment workflow is enabled.'
@@ -76,9 +76,7 @@ export default function SettingsRoute() {
                 <div className="consignment-form-field">
                   <span className="consignment-label">Billing</span>
                   <strong>
-                    {activePlanDetails
-                      ? `$${activePlanDetails.amount} ${activePlanDetails.currencyCode} / 30 days`
-                      : '-'}
+                    {billingLabel}
                   </strong>
                   <p className="consignment-form-help">
                     Subscription changes are reviewed and approved through Shopify.
