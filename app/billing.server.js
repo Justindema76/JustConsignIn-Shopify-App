@@ -1,3 +1,5 @@
+import { isFoundingMember } from './founding.server';
+
 // app/billing.server.js
 //
 // JustConsignIn Shopify Billing
@@ -227,6 +229,15 @@ export async function getActivePlan(admin) {
 }
 
 
+export async function getEffectivePlan(admin, shop) {
+  if (await isFoundingMember(shop)) {
+    return 'FOUNDING';
+  }
+
+  return getActivePlan(admin);
+}
+
+
 /* =========================================================
    CREATE / CHANGE PLAN
    ========================================================= */
@@ -407,11 +418,11 @@ export async function cancelActiveSubscription(
    TIER 2 GUARD
    ========================================================= */
 
-export async function requireTier2(admin) {
+export async function requireTier2(admin, shop) {
   const plan =
-    await getActivePlan(admin);
+    await getEffectivePlan(admin, shop);
 
-  if (plan !== 'TIER2') {
+  if (plan !== 'TIER2' && plan !== 'FOUNDING') {
     throw new Response(
       JSON.stringify({
         error:
@@ -436,9 +447,9 @@ export async function requireTier2(admin) {
    ACTIVE PLAN GUARD
    ========================================================= */
 
-export async function requireActivePlan(admin) {
+export async function requireActivePlan(admin, shop) {
   const plan =
-    await getActivePlan(admin);
+    await getEffectivePlan(admin, shop);
 
   if (!plan) {
     throw new Response(
