@@ -14,13 +14,64 @@ import { authenticate } from '../shopify.server';
 import {
   PLANS,
   getActivePlan,
-  createSubscription,
   cancelActiveSubscription,
 } from '../billing.server';
 import '../styles/pricing-plans.css';
 
+/*
+ * Shopify App Pricing: Shopify hosts the plan selection page. Public plans
+ * (tier1, tier2) and any private plans assigned to this store (beta-tester)
+ * only appear there, so every plan button sends the merchant to it.
+ */
+const APP_HANDLE = process.env.SHOPIFY_APP_HANDLE || 'justconsignin';
+
+function hostedPricingUrl(shopDomain) {
+  const storeHandle = shopDomain.replace('.myshopify.com', '');
+  return `https://admin.shopify.com/store/${storeHandle}/charges/${APP_HANDLE}/pricing_plans`;
+}
+
+const DEBUG_SUBSCRIPTIONS_QUERY = `#graphql
+  query DebugSubscriptions {
+    currentAppInstallation {
+      activeSubscriptions {
+        id
+        name
+        status
+        test
+        trialDays
+        currentPeriodEnd
+      }
+    }
+  }
+`;
+
 export const loader = async ({ request }) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
+
+  /*
+   * TEMPORARY DIAGNOSTIC: log exactly what the Admin API returns after a
+   * merchant picks a plan on the hosted page (including beta-tester), plus
+   * the plan_handle Shopify appends on the welcome-link redirect. Remove
+   * once getActivePlan() is updated to map plan handles.
+   */
+  try {
+    const debugResponse = await admin.graphql(DEBUG_SUBSCRIPTIONS_QUERY);
+    const debugData = await debugResponse.json();
+    const planHandleParam = new URL(request.url).searchParams.get('plan_handle');
+    console.log(
+      '[billing debug]',
+      JSON.stringify({
+        shop: session.shop,
+        plan_handle: planHandleParam,
+        activeSubscriptions:
+          debugData?.data?.currentAppInstallation?.activeSubscriptions || [],
+        errors: debugData?.errors || null,
+      }),
+    );
+  } catch (debugError) {
+    console.warn('[billing debug] query failed:', debugError?.message || debugError);
+  }
+
   const activePlan = await getActivePlan(admin);
 
   return {
@@ -55,53 +106,12 @@ export const action = async ({ request }) => {
       };
     }
 
-    const appUrl = process.env.SHOPIFY_APP_URL || '';
-
-    if (!appUrl) {
-      return {
-        error:
-          'SHOPIFY_APP_URL is not set on the server - required to build an absolute returnUrl for billing.',
-      };
-    }
-
     /*
-     * IMPORTANT:
-     * Shopify sends the merchant back to exactly the returnUrl we provide.
-     *
-     * Do NOT depend on `shop` being present in the current browser URL.
-     * In an embedded app, the plan form can be submitted without `shop`
-     * surviving in request.url.
-     *
-     * We already have the authoritative shop from the authenticated Shopify
-     * session, so use session.shop every time.
+     * Shopify App Pricing: no appSubscriptionCreate. Send the merchant to
+     * Shopify's hosted plan selection page. The component's useEffect opens
+     * this URL at _top, same as the old billing confirmation URL.
      */
-    const returnUrl = new URL('/app/plans', appUrl);
-
-    returnUrl.searchParams.set('shop', session.shop);
-
-    /*
-     * Preserve host when Shopify supplied it. It is useful for embedded
-     * navigation, but the shop value above never depends on it.
-     */
-    const requestUrl = new URL(request.url);
-    const hostParam = requestUrl.searchParams.get('host');
-
-    if (hostParam) {
-      returnUrl.searchParams.set('host', hostParam);
-    }
-
-    const confirmationUrl = await createSubscription(admin, planKey, {
-      returnUrl: returnUrl.toString(),
-      isTest: process.env.BILLING_LIVE_MODE !== 'true',
-    });
-
-    if (!confirmationUrl || typeof confirmationUrl !== 'string') {
-      return {
-        error: `createSubscription returned an invalid confirmationUrl: ${JSON.stringify(
-          confirmationUrl,
-        )}`,
-      };
-    }
+    const confirmationUrl = hostedPricingUrl(session.shop);
 
     return {
       confirmationUrl,
