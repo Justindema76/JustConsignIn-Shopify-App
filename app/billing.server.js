@@ -137,16 +137,27 @@ const CANCEL_SUBSCRIPTION_MUTATION = `#graphql
    HELPERS
    ========================================================= */
 
+/*
+ * Subscription name -> plan key.
+ *
+ * Legacy Billing API names (PLANS.*.name) are kept so any existing
+ * subscriptions still resolve. Shopify App Pricing subscriptions report the
+ * plan display name set in the Partner Dashboard:
+ *   'Starter'     -> TIER1 ($19)
+ *   'Growth'      -> TIER2 ($29)
+ *   'Beta Tester' -> TIER2 (private, $0, full access)
+ * If a plan is renamed in the Partner Dashboard, update this map.
+ */
+const SUBSCRIPTION_NAME_TO_PLAN = {
+  [PLANS.TIER1.name]: 'TIER1',
+  [PLANS.TIER2.name]: 'TIER2',
+  Starter: 'TIER1',
+  Growth: 'TIER2',
+  'Beta Tester': 'TIER2',
+};
+
 function planKeyFromSubscriptionName(name) {
-  if (name === PLANS.TIER1.name) {
-    return 'TIER1';
-  }
-
-  if (name === PLANS.TIER2.name) {
-    return 'TIER2';
-  }
-
-  return null;
+  return SUBSCRIPTION_NAME_TO_PLAN[name] || null;
 }
 
 
