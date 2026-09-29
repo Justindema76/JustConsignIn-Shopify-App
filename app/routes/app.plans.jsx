@@ -327,8 +327,8 @@ export default function PlansScreen() {
 
         <p className="pricing-sub">
           {hasActivePlan
-            ? 'Your current plan stays active until you approve a different plan through Shopify. Changing plans starts a new 14-day free trial on the plan you choose.'
-            : 'Try JustConsignIn free for 14 days on either plan below. A payment method is collected at signup, and billing starts only after the trial unless you cancel first.'}
+            ? 'Your current plan stays active until you approve a different plan through Shopify. Changing plans starts a new 30-day free trial on the plan you choose.'
+            : 'Try JustConsignIn free for 30 days on either plan below. A payment method is collected at signup, and billing starts only after the trial unless you cancel first.'}
         </p>
 
         {actionData?.cancelled && (
@@ -474,7 +474,7 @@ export default function PlansScreen() {
 
         <p className="pricing-fineprint">
           Prices shown in USD, billed every 30 days after the selected
-          plan&apos;s 14-day trial ends. Cancel anytime before the trial
+          plan&apos;s 30-day trial ends. Cancel anytime before the trial
           ends and you will not be charged for that plan.
         </p>
       </div>

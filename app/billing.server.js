@@ -15,7 +15,7 @@ export const PLANS = {
     amount: 19,
     currencyCode: 'USD',
     interval: 'EVERY_30_DAYS',
-    trialDays: 14,
+    trialDays: 30,
 
     description:
       'Manual consignment management for stores that do not need Shopify product syncing.',
@@ -37,7 +37,7 @@ export const PLANS = {
     amount: 29,
     currencyCode: 'USD',
     interval: 'EVERY_30_DAYS',
-    trialDays: 14,
+    trialDays: 30,
 
     description:
       'Full consignment management with Shopify products, POS, inventory and Online Store publishing.',
