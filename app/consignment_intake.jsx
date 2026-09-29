@@ -34,6 +34,7 @@ import PayoutReceiptScreen from './pages/consignment/PayoutReceiptScreen';
 import ConsignorDashboard from './pages/consignment/ConsignorDashboard';
 import CreateConsignorScreen from './pages/consignment/CreateConsignorScreen';
 import ConsignmentFilterBar from './components/consignment/ConsignmentFilterBar';
+import SocialPostPanel from './components/social/SocialPostPanel';
 import './styles/consignment-global.css';
 import './styles/consignment-forms.css';
 import './styles/shopify-file-picker.css';
@@ -1146,6 +1147,24 @@ function IntakeScreen({
             syncing={syncing}
             onSync={canSave ? saveShopifyProduct : null}
           />
+
+          <SocialPostPanel
+            item={{
+              id: `new-${nextItemNumber}`,
+              description: form.description,
+              brand: form.brand,
+              size: form.size,
+              condition: form.condition,
+              price: form.price,
+              shopifyTitle: shopifyForm.shopifyTitle,
+              shopifyPrice: shopifyForm.shopifyPrice,
+              vendor: shopifyForm.vendor,
+              productDescription: shopifyForm.productDescription,
+              tags: shopifyForm.tags,
+              photo: shopifyForm.photo,
+              shopifyPhoto: shopifyForm.photo,
+            }}
+          />
         </div>
       </div>
     </>
@@ -1295,6 +1314,8 @@ function EditItemScreen({
               }
             }}
           />
+
+          <SocialPostPanel item={item} disabled={isSold} />
 
           {!confirmingDelete ? (
             <button
