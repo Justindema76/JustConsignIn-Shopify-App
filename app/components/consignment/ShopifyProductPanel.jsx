@@ -814,51 +814,7 @@ export default function ShopifyProductPanel({
                   )}
                 </div>
 
-                <details className="consignment-shopify-product-advanced">
-                  <summary>SEO / advanced Shopify fields</summary>
-                  <div className="consignment-detail-grid">
-                    <div className="consignment-field">
-                      <label className="consignment-label">Shopify price</label>
-                      <input
-                        className="consignment-input"
-                        type="number"
-                        inputMode="decimal"
-                        min="0"
-                        step="0.01"
-                        value={shopifyForm.shopifyPrice ?? ''}
-                        onChange={(event) =>
-                          setValue('shopifyPrice', event.target.value)
-                        }
-                        placeholder="Defaults to manual item price"
-                      />
-                    </div>
 
-                    <div className="consignment-field">
-                      <label className="consignment-label">SEO title</label>
-                      <input
-                        className="consignment-input"
-                        value={shopifyForm.seoTitle || ''}
-                        onChange={(event) =>
-                          setValue('seoTitle', event.target.value)
-                        }
-                        placeholder="Defaults to item title"
-                      />
-                    </div>
-
-                    <div className="consignment-field wide">
-                      <label className="consignment-label">SEO description</label>
-                      <textarea
-                        className="consignment-textarea"
-                        rows={2}
-                        value={shopifyForm.seoDescription || ''}
-                        onChange={(event) =>
-                          setValue('seoDescription', event.target.value)
-                        }
-                        placeholder="Optional search description"
-                      />
-                    </div>
-                  </div>
-                </details>
               </div>
             </div>
 
