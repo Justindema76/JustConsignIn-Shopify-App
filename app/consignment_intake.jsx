@@ -35,6 +35,7 @@ import ConsignorDashboard from './pages/consignment/ConsignorDashboard';
 import CreateConsignorScreen from './pages/consignment/CreateConsignorScreen';
 import ConsignmentFilterBar from './components/consignment/ConsignmentFilterBar';
 import SocialPostPanel from './components/social/SocialPostPanel';
+import ShopifyProductPanel from './components/consignment/ShopifyProductPanel';
 import './styles/consignment-global.css';
 import './styles/consignment-forms.css';
 import './styles/shopify-file-picker.css';
@@ -127,6 +128,7 @@ function buildShopifyAutoFill(item = {}, consignor = null) {
       condition ? `Condition: ${condition}` : '',
       category ? `Category: ${category}` : '',
     ].filter(Boolean).join('\n'),
+    productType: type || category,
     seoTitle: '',
     seoDescription: '',
   };
@@ -1005,6 +1007,9 @@ function IntakeScreen({
   const emptyShopifyForm = {
     photo: null,
     photoId: null,
+    media: [],
+    productType: '',
+    collections: ['Consignment'],
     shopifyTitle: '',
     shopifyPrice: '',
     tags: '',
@@ -1054,6 +1059,9 @@ function IntakeScreen({
       shopifyCategoryName: current.shopifyCategoryName,
       photo: current.photo,
       photoId: current.photoId,
+      media: current.media || [],
+      productType: current.productType || auto.productType,
+      collections: current.collections || ['Consignment'],
       publishToPos: current.publishToPos,
       publishOnline: current.publishOnline,
     }));
@@ -1140,7 +1148,7 @@ function IntakeScreen({
             </div>
           </section>
 
-          <ShopifyProductSection
+          <ShopifyProductPanel
             shopifyForm={shopifyForm}
             setShopifyForm={setShopifyForm}
             tier2Enabled={tier2Enabled}
@@ -1195,6 +1203,19 @@ function EditItemScreen({
   const [shopifyForm, setShopifyForm] = useState({
     photo: item.shopifyPhoto || item.photo || null,
     photoId: item.photoId || null,
+    media: Array.isArray(item.shopifyMedia) && item.shopifyMedia.length
+      ? item.shopifyMedia
+      : (item.shopifyPhoto || item.photo)
+        ? [{
+            id: item.photoId || null,
+            url: item.shopifyPhoto || item.photo,
+            alt: item.shopifyTitle || item.description || '',
+          }]
+        : [],
+    productType: item.shopifyProductType || item.type || item.category || '',
+    collections: Array.isArray(item.shopifyCollections) && item.shopifyCollections.length
+      ? item.shopifyCollections
+      : ['Consignment'],
     shopifyTitle: item.shopifyTitle || '',
     shopifyPrice: item.shopifyPrice ?? item.price ?? '',
     tags: Array.isArray(item.tags) ? item.tags.join(', ') : item.tags || '',
@@ -1222,6 +1243,9 @@ function EditItemScreen({
       shopifyCategoryName: current.shopifyCategoryName,
       photo: current.photo,
       photoId: current.photoId,
+      media: current.media || [],
+      productType: current.productType || auto.productType,
+      collections: current.collections || ['Consignment'],
       publishToPos: current.publishToPos,
       publishOnline: current.publishOnline,
     }));
@@ -1297,7 +1321,7 @@ function EditItemScreen({
             </div>
           </details>
 
-          <ShopifyProductSection
+          <ShopifyProductPanel
             shopifyForm={shopifyForm}
             setShopifyForm={setShopifyForm}
             linkedProductId={item.shopifyProductId}
