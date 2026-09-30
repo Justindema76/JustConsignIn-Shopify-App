@@ -509,13 +509,17 @@ function CollectionEditor({
   const selectedIds = new Set(
     collections.map((entry) => entry.id || entry.title),
   );
+  const selectedTitles = new Set(
+    collections.map((entry) => entry.title).filter(Boolean),
+  );
   const available = options
     .map(normalizeCollection)
     .filter(
       (entry) =>
         entry &&
         entry.isManual !== false &&
-        !selectedIds.has(entry.id || entry.title),
+        !selectedIds.has(entry.id || entry.title) &&
+        !selectedTitles.has(entry.title),
     );
 
   function commit(nextCollections) {
