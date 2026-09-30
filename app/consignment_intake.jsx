@@ -1321,7 +1321,7 @@ function EditItemScreen({
             </div>
           </details>
 
-          <ShopifyProductPanel
+          <ShopifyProductSection
             shopifyForm={shopifyForm}
             setShopifyForm={setShopifyForm}
             linkedProductId={item.shopifyProductId}
