@@ -46,6 +46,22 @@ const DATA_QUERY = `#graphql
                   image { url }
                 }
               }
+              media(first: 20) {
+                nodes {
+                  ... on MediaImage {
+                    id
+                    alt
+                    image { url }
+                  }
+                }
+              }
+              collections(first: 20) {
+                nodes {
+                  id
+                  title
+                  handle
+                }
+              }
               seo {
                 title
                 description
@@ -146,6 +162,25 @@ const SHOPIFY_FILES_QUERY = `#graphql
     }
   }
 `;
+
+const PRODUCT_ORGANIZATION_QUERY = `#graphql
+  query ConsignmentProductOrganization {
+    collections(first: 100, sortKey: TITLE) {
+      nodes {
+        id
+        title
+        handle
+        ruleSet {
+          appliedDisjunctively
+        }
+      }
+    }
+    productTags(first: 250) {
+      nodes
+    }
+  }
+`;
+
 
 
 const CONSIGNMENT_COLLECTION_QUERY = `#graphql
@@ -468,6 +503,19 @@ function mapItem(node) {
     shopifyTitle: productReference?.title || field.shopify_title || savedDetails.shopifyTitle || '',
     shopifyPrice: Number(productReference?.variants?.nodes?.[0]?.price ?? field.shopify_price ?? savedDetails.shopifyPrice ?? field.price ?? 0),
     shopifyPhoto: productReference?.featuredMedia?.image?.url || null,
+    shopifyMedia: (productReference?.media?.nodes || [])
+      .filter((entry) => entry?.id && entry?.image?.url)
+      .map((entry) => ({
+        id: entry.id,
+        url: entry.image.url,
+        alt: entry.alt || '',
+      })),
+    shopifyCollections: (productReference?.collections?.nodes || []).map((entry) => ({
+      id: entry.id,
+      title: entry.title,
+      handle: entry.handle,
+    })),
+    shopifyProductType: productReference?.productType || '',
     notes: savedDetails.notes,
     tags: productReference?.tags || (field.shopify_tags ? String(field.shopify_tags).split(',').map((tag) => tag.trim()).filter(Boolean) : savedDetails.tags),
     vendor: productReference?.vendor || field.shopify_vendor || savedDetails.vendor,
@@ -941,7 +989,14 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
   }
   const collection = await ensureConsignmentCollection(admin, publications);
 
-  const files = item.photoId ? [{ id: item.photoId }] : undefined;
+  const mediaIds = Array.isArray(item.media)
+    ? item.media.map((entry) => entry?.id).filter(Boolean)
+    : [];
+  const files = mediaIds.length
+    ? mediaIds.map((id) => ({ id }))
+    : item.photoId
+      ? [{ id: item.photoId }]
+      : undefined;
   const customTags = Array.isArray(item.tags)
     ? item.tags
     : String(item.tags || '')
@@ -958,7 +1013,7 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
         item.condition ? `<p><strong>Condition:</strong> ${escapeHtml(item.condition)}</p>` : '',
         item.size ? `<p><strong>Size:</strong> ${escapeHtml(item.size)}</p>` : '',
       ].join(''),
-    productType: item.type || item.category,
+    productType: item.productType || item.type || item.category,
     vendor: item.vendor || merchantName || 'Consignment',
     status: 'ACTIVE',
     tags: [
@@ -1009,6 +1064,26 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
     await addProductToManualCollection(
       admin,
       collection.id,
+      data.productSet.product.id,
+    );
+  }
+
+  const selectedCollectionIds = Array.isArray(item.collections)
+    ? item.collections
+        .filter(
+          (entry) =>
+            entry &&
+            typeof entry === 'object' &&
+            String(entry.id || '').startsWith('gid://shopify/Collection/') &&
+            entry.isManual !== false,
+        )
+        .map((entry) => entry.id)
+    : [];
+  for (const collectionId of [...new Set(selectedCollectionIds)]) {
+    if (collectionId === collection?.id) continue;
+    await addProductToManualCollection(
+      admin,
+      collectionId,
       data.productSet.product.id,
     );
   }
@@ -1064,6 +1139,23 @@ export async function loader({ request }) {
       throw new Error(setup.errors.map((error) => error.message).join(', '));
     }
     const url = new URL(request.url);
+
+    if (url.searchParams.get('organization') === '1') {
+      const organizationData = await adminGraphql(
+        admin,
+        PRODUCT_ORGANIZATION_QUERY,
+      );
+
+      return Response.json({
+        collections: (organizationData.collections?.nodes || []).map((entry) => ({
+          id: entry.id,
+          title: entry.title,
+          handle: entry.handle,
+          isManual: !entry.ruleSet,
+        })),
+        tags: organizationData.productTags?.nodes || [],
+      });
+    }
 
     if (url.searchParams.get('files') === '1') {
       const filesQuery = url.searchParams.get('filesQuery')?.trim() || '';
@@ -1648,6 +1740,13 @@ export async function action({ request }) {
         ...existing,
         photoId: productInput.photoId || existing.photoId,
         photo: productInput.photo || existing.photo,
+        media: Array.isArray(productInput.media)
+          ? productInput.media
+          : (existing.shopifyMedia || []),
+        productType: productInput.productType || existing.shopifyProductType || existing.type || existing.category,
+        collections: Array.isArray(productInput.collections)
+          ? productInput.collections
+          : (existing.shopifyCollections || []),
         tags: productInput.tags || '',
         vendor: productInput.vendor || '',
         productDescription: productInput.productDescription || '',
