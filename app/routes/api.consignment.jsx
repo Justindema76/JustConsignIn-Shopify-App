@@ -1070,7 +1070,13 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
 
   const selectedCollectionIds = Array.isArray(item.collections)
     ? item.collections
-        .filter((entry) => entry && typeof entry === 'object' && entry.id && entry.isManual !== false)
+        .filter(
+          (entry) =>
+            entry &&
+            typeof entry === 'object' &&
+            String(entry.id || '').startsWith('gid://shopify/Collection/') &&
+            entry.isManual !== false,
+        )
         .map((entry) => entry.id)
     : [];
   for (const collectionId of [...new Set(selectedCollectionIds)]) {
