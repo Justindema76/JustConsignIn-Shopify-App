@@ -46,6 +46,22 @@ const DATA_QUERY = `#graphql
                   image { url }
                 }
               }
+              media(first: 20) {
+                nodes {
+                  ... on MediaImage {
+                    id
+                    alt
+                    image { url }
+                  }
+                }
+              }
+              collections(first: 20) {
+                nodes {
+                  id
+                  title
+                  handle
+                }
+              }
               seo {
                 title
                 description
@@ -468,6 +484,19 @@ function mapItem(node) {
     shopifyTitle: productReference?.title || field.shopify_title || savedDetails.shopifyTitle || '',
     shopifyPrice: Number(productReference?.variants?.nodes?.[0]?.price ?? field.shopify_price ?? savedDetails.shopifyPrice ?? field.price ?? 0),
     shopifyPhoto: productReference?.featuredMedia?.image?.url || null,
+    shopifyMedia: (productReference?.media?.nodes || [])
+      .filter((entry) => entry?.id && entry?.image?.url)
+      .map((entry) => ({
+        id: entry.id,
+        url: entry.image.url,
+        alt: entry.alt || '',
+      })),
+    shopifyCollections: (productReference?.collections?.nodes || []).map((entry) => ({
+      id: entry.id,
+      title: entry.title,
+      handle: entry.handle,
+    })),
+    shopifyProductType: productReference?.productType || '',
     notes: savedDetails.notes,
     tags: productReference?.tags || (field.shopify_tags ? String(field.shopify_tags).split(',').map((tag) => tag.trim()).filter(Boolean) : savedDetails.tags),
     vendor: productReference?.vendor || field.shopify_vendor || savedDetails.vendor,
@@ -941,7 +970,14 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
   }
   const collection = await ensureConsignmentCollection(admin, publications);
 
-  const files = item.photoId ? [{ id: item.photoId }] : undefined;
+  const mediaIds = Array.isArray(item.media)
+    ? item.media.map((entry) => entry?.id).filter(Boolean)
+    : [];
+  const files = mediaIds.length
+    ? mediaIds.map((id) => ({ id }))
+    : item.photoId
+      ? [{ id: item.photoId }]
+      : undefined;
   const customTags = Array.isArray(item.tags)
     ? item.tags
     : String(item.tags || '')
@@ -958,7 +994,7 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
         item.condition ? `<p><strong>Condition:</strong> ${escapeHtml(item.condition)}</p>` : '',
         item.size ? `<p><strong>Size:</strong> ${escapeHtml(item.size)}</p>` : '',
       ].join(''),
-    productType: item.type || item.category,
+    productType: item.productType || item.type || item.category,
     vendor: item.vendor || merchantName || 'Consignment',
     status: 'ACTIVE',
     tags: [
@@ -1648,6 +1684,13 @@ export async function action({ request }) {
         ...existing,
         photoId: productInput.photoId || existing.photoId,
         photo: productInput.photo || existing.photo,
+        media: Array.isArray(productInput.media)
+          ? productInput.media
+          : (existing.shopifyMedia || []),
+        productType: productInput.productType || existing.shopifyProductType || existing.type || existing.category,
+        collections: Array.isArray(productInput.collections)
+          ? productInput.collections
+          : (existing.shopifyCollections || []),
         tags: productInput.tags || '',
         vendor: productInput.vendor || '',
         productDescription: productInput.productDescription || '',
