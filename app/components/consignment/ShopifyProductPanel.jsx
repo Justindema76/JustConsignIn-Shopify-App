@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import {
+  getShopifyProductOrganization,
   searchShopifyCategories,
   searchShopifyFiles,
 } from '../../consignmentApi';
@@ -26,6 +27,8 @@ function normalizeCollection(entry) {
   return {
     id: entry.id || entry.handle || entry.title,
     title: entry.title || entry.name || entry.handle || 'Collection',
+    handle: entry.handle || '',
+    isManual: entry.isManual !== false,
   };
 }
 
@@ -402,9 +405,15 @@ function ProductMedia({
   );
 }
 
-function TagEditor({ value, onChange, disabled }) {
+function TagEditor({
+  value,
+  onChange,
+  disabled,
+  suggestions = [],
+}) {
   const tags = useMemo(() => parseTags(value), [value]);
   const [draft, setDraft] = useState('');
+  const [showExisting, setShowExisting] = useState(false);
 
   function commit(nextTags) {
     onChange([...new Set(nextTags)].join(', '));
@@ -416,6 +425,10 @@ function TagEditor({ value, onChange, disabled }) {
     commit([...tags, next]);
     setDraft('');
   }
+
+  const available = suggestions
+    .map((tag) => String(tag).trim())
+    .filter((tag) => tag && !tags.includes(tag));
 
   return (
     <div className="consignment-shopify-product-tags">
@@ -437,19 +450,139 @@ function TagEditor({ value, onChange, disabled }) {
       </div>
 
       {!disabled && (
-        <input
-          className="consignment-input consignment-shopify-product-tag-input"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          onBlur={addDraft}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ',') {
-              event.preventDefault();
-              addDraft();
-            }
-          }}
-          placeholder="Add tag"
-        />
+        <>
+          <div className="consignment-shopify-product-add-row">
+            <input
+              className="consignment-input consignment-shopify-product-tag-input"
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              onBlur={addDraft}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ',') {
+                  event.preventDefault();
+                  addDraft();
+                }
+              }}
+              placeholder="Add tag"
+            />
+
+            {available.length > 0 && (
+              <button
+                type="button"
+                className="consignment-shopify-product-inline-link"
+                onClick={() => setShowExisting((current) => !current)}
+              >
+                {showExisting ? 'Hide existing' : 'Add existing'}
+              </button>
+            )}
+          </div>
+
+          {showExisting && available.length > 0 && (
+            <div className="consignment-shopify-product-option-list">
+              {available.map((tag) => (
+                <button
+                  type="button"
+                  key={tag}
+                  onClick={() => commit([...tags, tag])}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function CollectionEditor({
+  value,
+  onChange,
+  disabled,
+  options = [],
+}) {
+  const collections = (Array.isArray(value) ? value : ['Consignment'])
+    .map(normalizeCollection)
+    .filter(Boolean);
+  const [showExisting, setShowExisting] = useState(false);
+  const selectedIds = new Set(
+    collections.map((entry) => entry.id || entry.title),
+  );
+  const available = options
+    .map(normalizeCollection)
+    .filter(
+      (entry) =>
+        entry &&
+        entry.isManual !== false &&
+        !selectedIds.has(entry.id || entry.title),
+    );
+
+  function commit(nextCollections) {
+    onChange(
+      nextCollections.map((entry) => ({
+        id: entry.id,
+        title: entry.title,
+        handle: entry.handle || '',
+        isManual: entry.isManual !== false,
+      })),
+    );
+  }
+
+  return (
+    <div>
+      <div className="consignment-shopify-product-chip-list">
+        {collections.map((collection) => (
+          <span
+            className="consignment-shopify-product-chip"
+            key={collection.id || collection.title}
+          >
+            {collection.title}
+            {!disabled && collection.title !== 'Consignment' && (
+              <button
+                type="button"
+                onClick={() =>
+                  commit(
+                    collections.filter(
+                      (entry) =>
+                        (entry.id || entry.title) !==
+                        (collection.id || collection.title),
+                    ),
+                  )
+                }
+                aria-label={`Remove ${collection.title}`}
+              >
+                <X size={12} />
+              </button>
+            )}
+          </span>
+        ))}
+      </div>
+
+      {!disabled && available.length > 0 && (
+        <>
+          <button
+            type="button"
+            className="consignment-shopify-product-inline-link"
+            onClick={() => setShowExisting((current) => !current)}
+          >
+            {showExisting ? 'Hide collections' : 'Add collection'}
+          </button>
+
+          {showExisting && (
+            <div className="consignment-shopify-product-option-list">
+              {available.map((collection) => (
+                <button
+                  type="button"
+                  key={collection.id || collection.title}
+                  onClick={() => commit([...collections, collection])}
+                >
+                  {collection.title}
+                </button>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -470,10 +603,37 @@ export default function ShopifyProductPanel({
   );
   const [categoryResults, setCategoryResults] = useState([]);
   const [searchingCategories, setSearchingCategories] = useState(false);
+  const [organization, setOrganization] = useState({
+    collections: [],
+    tags: [],
+  });
 
   useEffect(() => {
     setCategorySearch(shopifyForm.shopifyCategoryName || '');
   }, [shopifyForm.shopifyCategoryName]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getShopifyProductOrganization()
+      .then((result) => {
+        if (!cancelled) {
+          setOrganization({
+            collections: result.collections || [],
+            tags: result.tags || [],
+          });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setOrganization({ collections: [], tags: [] });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const query = categorySearch.trim();
@@ -498,12 +658,6 @@ export default function ShopifyProductPanel({
   }, [categorySearch, shopifyForm.shopifyCategoryName]);
 
   const canSync = Boolean(onSync) && tier2Enabled;
-  const collections = (Array.isArray(shopifyForm.collections)
-    ? shopifyForm.collections
-    : ['Consignment'])
-    .map(normalizeCollection)
-    .filter(Boolean);
-
   function setValue(key, value) {
     setShopifyForm((current) => ({ ...current, [key]: value }));
   }
@@ -783,16 +937,12 @@ export default function ShopifyProductPanel({
                   <label className="consignment-shopify-product-field-label">
                     Collections
                   </label>
-                  <div className="consignment-shopify-product-chip-list">
-                    {collections.map((collection) => (
-                      <span
-                        className="consignment-shopify-product-chip"
-                        key={collection.id}
-                      >
-                        {collection.title}
-                      </span>
-                    ))}
-                  </div>
+                  <CollectionEditor
+                    value={shopifyForm.collections}
+                    disabled={disabled}
+                    options={organization.collections}
+                    onChange={(value) => setValue('collections', value)}
+                  />
                 </div>
 
                 <div className="consignment-form-field">
@@ -802,6 +952,7 @@ export default function ShopifyProductPanel({
                   <TagEditor
                     value={shopifyForm.tags}
                     disabled={disabled}
+                    suggestions={organization.tags}
                     onChange={(value) => setValue('tags', value)}
                   />
                 </div>
