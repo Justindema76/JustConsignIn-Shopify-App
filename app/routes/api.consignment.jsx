@@ -163,6 +163,25 @@ const SHOPIFY_FILES_QUERY = `#graphql
   }
 `;
 
+const PRODUCT_ORGANIZATION_QUERY = `#graphql
+  query ConsignmentProductOrganization {
+    collections(first: 100, sortKey: TITLE) {
+      nodes {
+        id
+        title
+        handle
+        ruleSet {
+          appliedDisjunctively
+        }
+      }
+    }
+    productTags(first: 250) {
+      nodes
+    }
+  }
+`;
+
+
 
 const CONSIGNMENT_COLLECTION_QUERY = `#graphql
   query ConsignmentCollection($identifier: CollectionIdentifierInput!) {
@@ -1048,6 +1067,20 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
       data.productSet.product.id,
     );
   }
+
+  const selectedCollectionIds = Array.isArray(item.collections)
+    ? item.collections
+        .filter((entry) => entry && typeof entry === 'object' && entry.id && entry.isManual !== false)
+        .map((entry) => entry.id)
+    : [];
+  for (const collectionId of [...new Set(selectedCollectionIds)]) {
+    if (collectionId === collection?.id) continue;
+    await addProductToManualCollection(
+      admin,
+      collectionId,
+      data.productSet.product.id,
+    );
+  }
   await publishResource(admin, data.productSet.product.id, publications, 'product');
   return data.productSet.product;
 }
@@ -1100,6 +1133,23 @@ export async function loader({ request }) {
       throw new Error(setup.errors.map((error) => error.message).join(', '));
     }
     const url = new URL(request.url);
+
+    if (url.searchParams.get('organization') === '1') {
+      const organizationData = await adminGraphql(
+        admin,
+        PRODUCT_ORGANIZATION_QUERY,
+      );
+
+      return Response.json({
+        collections: (organizationData.collections?.nodes || []).map((entry) => ({
+          id: entry.id,
+          title: entry.title,
+          handle: entry.handle,
+          isManual: !entry.ruleSet,
+        })),
+        tags: organizationData.productTags?.nodes || [],
+      });
+    }
 
     if (url.searchParams.get('files') === '1') {
       const filesQuery = url.searchParams.get('filesQuery')?.trim() || '';
