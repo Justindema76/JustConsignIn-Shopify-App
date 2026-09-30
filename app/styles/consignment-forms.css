@@ -655,6 +655,22 @@ details:not([open]) > summary.consignment-form-section-head::after {
   font-weight: 600;
 }
 
+.consignment-shopify-product-media-add-actions {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.consignment-shopify-product-media-add-actions .consignment-btn {
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+  padding: 7px 8px;
+  font-size: 10px;
+}
+
 .consignment-shopify-product-media-status,
 .consignment-shopify-product-media-error {
   display: flex;

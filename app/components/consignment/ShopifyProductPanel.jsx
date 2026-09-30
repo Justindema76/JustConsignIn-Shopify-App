@@ -81,11 +81,16 @@ async function uploadImage(file, alt) {
   };
 }
 
-function ShopifyFilePicker({ onClose, onSelect }) {
+function ShopifyFilePicker({
+  onClose,
+  onConfirm,
+  existingIds = [],
+}) {
   const [search, setSearch] = useState('');
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pickerError, setPickerError] = useState('');
+  const [selectedIds, setSelectedIds] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -114,6 +119,27 @@ function ShopifyFilePicker({ onClose, onSelect }) {
     };
   }, [search]);
 
+  const existingSet = useMemo(
+    () => new Set(existingIds.filter(Boolean)),
+    [existingIds],
+  );
+
+  function toggleFile(file) {
+    if (existingSet.has(file.id)) return;
+
+    setSelectedIds((current) =>
+      current.includes(file.id)
+        ? current.filter((id) => id !== file.id)
+        : [...current, file.id],
+    );
+  }
+
+  function confirmSelection() {
+    const selected = files.filter((file) => selectedIds.includes(file.id));
+    if (!selected.length) return;
+    onConfirm(selected);
+  }
+
   return (
     <div
       className="shopify-file-picker-overlay"
@@ -133,7 +159,7 @@ function ShopifyFilePicker({ onClose, onSelect }) {
             <strong id="shopify-product-file-picker-title">
               Choose from Shopify Files
             </strong>
-            <span>Select an image already stored in Shopify Content → Files.</span>
+            <span>Select one or more images, then add them together.</span>
           </div>
 
           <button
@@ -174,24 +200,73 @@ function ShopifyFilePicker({ onClose, onSelect }) {
 
           {!loading && !pickerError && files.length > 0 && (
             <div className="shopify-file-picker-grid">
-              {files.map((file) => (
-                <button
-                  key={file.id}
-                  type="button"
-                  className="shopify-file-picker-card"
-                  onClick={() => onSelect(file)}
-                >
-                  <span className="shopify-file-picker-image">
-                    <img src={file.url} alt={file.alt || 'Shopify file'} />
-                  </span>
-                  <span className="shopify-file-picker-name">
-                    {file.alt || 'Shopify image'}
-                  </span>
-                </button>
-              ))}
+              {files.map((file) => {
+                const selected = selectedIds.includes(file.id);
+                const alreadyAdded = existingSet.has(file.id);
+
+                return (
+                  <button
+                    key={file.id}
+                    type="button"
+                    className={[
+                      'shopify-file-picker-card',
+                      selected ? 'is-selected' : '',
+                      alreadyAdded ? 'is-added' : '',
+                    ].filter(Boolean).join(' ')}
+                    onClick={() => toggleFile(file)}
+                    disabled={alreadyAdded}
+                    aria-pressed={selected}
+                  >
+                    <span className="shopify-file-picker-image">
+                      <img src={file.url} alt={file.alt || 'Shopify file'} />
+                      {selected && (
+                        <span className="shopify-file-picker-selected-mark">
+                          <Check size={16} />
+                        </span>
+                      )}
+                      {alreadyAdded && (
+                        <span className="shopify-file-picker-added-mark">
+                          Added
+                        </span>
+                      )}
+                    </span>
+
+                    <span className="shopify-file-picker-name">
+                      {file.alt || 'Shopify image'}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
+
+        <footer className="shopify-file-picker-footer">
+          <span className="shopify-file-picker-selection-count">
+            {selectedIds.length
+              ? `${selectedIds.length} selected`
+              : 'Select images to add'}
+          </span>
+
+          <div className="shopify-file-picker-footer-actions">
+            <button
+              type="button"
+              className="consignment-btn secondary"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              className="consignment-btn"
+              disabled={!selectedIds.length}
+              onClick={confirmSelection}
+            >
+              Add selected{selectedIds.length ? ` (${selectedIds.length})` : ''}
+            </button>
+          </div>
+        </footer>
       </section>
     </div>
   );
@@ -248,12 +323,15 @@ function ProductMedia({
     }
   }
 
-  function addShopifyFile(file) {
-    const next = [...media, {
-      id: file.id,
-      url: file.url,
-      alt: file.alt || '',
-    }];
+  function addShopifyFiles(files) {
+    const next = [
+      ...media,
+      ...files.map((file) => ({
+        id: file.id,
+        url: file.url,
+        alt: file.alt || '',
+      })),
+    ];
 
     const seen = new Set();
     commitMedia(
@@ -264,6 +342,7 @@ function ProductMedia({
         return true;
       }),
     );
+    setShowShopifyFiles(false);
   }
 
   function move(index, direction) {
@@ -282,33 +361,6 @@ function ProductMedia({
     <div className="consignment-shopify-product-media">
       <div className="consignment-shopify-product-media-toolbar">
         <span className="consignment-shopify-product-field-label">Media</span>
-
-        <div className="consignment-shopify-product-media-actions">
-          <label className="consignment-btn secondary consignment-shopify-product-small-action">
-            <ImagePlus size={15} />
-            Add images
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              disabled={disabled || uploading}
-              onChange={(event) => {
-                addLocalFiles(event.target.files);
-                event.target.value = '';
-              }}
-            />
-          </label>
-
-          <button
-            type="button"
-            className="consignment-btn secondary consignment-shopify-product-small-action"
-            disabled={disabled || uploading}
-            onClick={() => setShowShopifyFiles(true)}
-          >
-            Select existing
-          </button>
-        </div>
       </div>
 
       <div className="consignment-shopify-product-media-grid">
@@ -365,21 +417,36 @@ function ProductMedia({
           </div>
         ))}
 
-        <label className="consignment-shopify-product-media-add">
+        <div className="consignment-shopify-product-media-add">
           <ImagePlus size={22} />
-          <span>Add more</span>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            hidden
-            disabled={disabled || uploading}
-            onChange={(event) => {
-              addLocalFiles(event.target.files);
-              event.target.value = '';
-            }}
-          />
-        </label>
+          <span>Add images</span>
+
+          <div className="consignment-shopify-product-media-add-actions">
+            <label className="consignment-btn secondary consignment-shopify-product-small-action">
+              From device
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                disabled={disabled || uploading}
+                onChange={(event) => {
+                  addLocalFiles(event.target.files);
+                  event.target.value = '';
+                }}
+              />
+            </label>
+
+            <button
+              type="button"
+              className="consignment-btn secondary consignment-shopify-product-small-action"
+              disabled={disabled || uploading}
+              onClick={() => setShowShopifyFiles(true)}
+            >
+              Shopify Files
+            </button>
+          </div>
+        </div>
       </div>
 
       {uploading && (
@@ -398,7 +465,8 @@ function ProductMedia({
       {showShopifyFiles && (
         <ShopifyFilePicker
           onClose={() => setShowShopifyFiles(false)}
-          onSelect={addShopifyFile}
+          onConfirm={addShopifyFiles}
+          existingIds={media.map((entry) => entry.id).filter(Boolean)}
         />
       )}
     </div>
