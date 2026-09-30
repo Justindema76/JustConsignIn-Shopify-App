@@ -823,7 +823,10 @@ export default function ShopifyProductPanel({
                 !canSync ||
                 disabled ||
                 syncing ||
-                shopifyForm.publishToPos === false
+                (
+                  shopifyForm.publishToPos === false &&
+                  shopifyForm.publishOnline !== true
+                )
               }
               onClick={onSync}
             >
