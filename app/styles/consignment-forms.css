@@ -756,6 +756,56 @@ details:not([open]) > summary.consignment-form-section-head::after {
   font-size: 14px !important;
 }
 
+.consignment-shopify-product-add-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 7px;
+}
+
+.consignment-shopify-product-add-row .consignment-shopify-product-tag-input {
+  margin-top: 0;
+}
+
+.consignment-shopify-product-inline-link {
+  width: auto;
+  flex: 0 0 auto;
+  padding: 7px 0;
+  color: var(--green-dark);
+  background: transparent;
+  border: 0;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.consignment-shopify-product-option-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 150px;
+  margin-top: 7px;
+  padding: 8px;
+  overflow-y: auto;
+  background: var(--surface-subtle);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+
+.consignment-shopify-product-option-list button {
+  width: auto;
+  max-width: 100%;
+  padding: 6px 8px;
+  overflow: hidden;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--button-radius);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
 .consignment-shopify-product-advanced {
   margin-top: 14px;
   padding-top: 12px;
@@ -864,6 +914,21 @@ details:not([open]) > summary.consignment-form-section-head::after {
 
   .consignment-shopify-product-description {
     min-height: 110px;
+  }
+
+  .consignment-shopify-product-add-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .consignment-shopify-product-inline-link {
+    width: 100%;
+    padding: 8px 0;
+    text-align: left;
+  }
+
+  .consignment-shopify-product-option-list {
+    max-height: 180px;
   }
 }
 
