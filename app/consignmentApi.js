@@ -39,6 +39,21 @@ export async function searchShopifyFiles(search) {
   return payload.files || [];
 }
 
+
+export async function getShopifyProductOrganization() {
+  const response = await fetch(`${API_URL}?organization=1`);
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(
+      payload.error || `Could not load Shopify product organization (${response.status})`,
+    );
+  }
+  return {
+    collections: payload.collections || [],
+    tags: payload.tags || [],
+  };
+}
+
 export function createConsignor(consignor) {
   return request('POST', { operation: 'createConsignor', consignor });
 }
