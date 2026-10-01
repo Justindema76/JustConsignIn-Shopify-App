@@ -984,14 +984,15 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
       'Facebook & Instagram by Meta is not available. Connect the Meta sales channel or turn off Meta publishing.',
     );
   }
-  if (item.publishOnline && !onlineStorePublication?.id) {
+  const publishOnline = Boolean(item.publishOnline || item.publishMeta);
+  if (publishOnline && !onlineStorePublication?.id) {
     throw new Error(
       'The Online Store sales channel is not available. Add Online Store or turn off online publishing.',
     );
   }
   const publications = [
     ...(item.publishToPos !== false ? [posPublication] : []),
-    ...(item.publishOnline ? [onlineStorePublication] : []),
+    ...(publishOnline ? [onlineStorePublication] : []),
     ...(item.publishMeta ? [metaPublication] : []),
   ];
   if (!publications.length) {
@@ -1028,15 +1029,7 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
     productType: item.productType || item.type || item.category,
     vendor: item.vendor || merchantName || 'Consignment',
     status: 'ACTIVE',
-    tags: [
-      'Consignment',
-      item.category,
-      item.type,
-      item.condition,
-      item.brand,
-      `Consignor ${consignor.number}`,
-      ...customTags,
-    ].filter(Boolean),
+    tags: customTags,
     category: item.shopifyCategoryId || undefined,
     seo: (item.seoTitle || item.seoDescription) ? {
       title: item.seoTitle || item.shopifyTitle || item.description || undefined,
