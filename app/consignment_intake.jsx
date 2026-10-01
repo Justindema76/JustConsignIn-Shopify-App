@@ -846,7 +846,7 @@ function IntakeScreen({
       photoId: current.photoId,
       media: current.media || [],
       productType: current.productType || auto.productType,
-      collections: current.collections || ['Consignment'],
+      collections: current.collections,
       publishToPos: current.publishToPos,
       publishOnline: current.publishOnline,
     }));
@@ -999,7 +999,7 @@ function EditItemScreen({
         : [],
     productType: item.shopifyProductType || item.type || item.category || '',
     collections: Array.isArray(item.shopifyCollections) && item.shopifyCollections.length
-      ? item.shopifyCollections
+      ? item.shopifyCollections.filter((entry) => String(entry?.title || entry || '').toLowerCase() === 'consignment')
       : ['Consignment'],
     shopifyTitle: item.shopifyTitle || '',
     shopifyPrice: item.shopifyPrice ?? item.price ?? '',
