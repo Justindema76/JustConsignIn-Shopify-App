@@ -807,6 +807,24 @@ export default function ShopifyProductPanel({
 
                 <div className="consignment-form-field">
                   <label className="consignment-shopify-product-field-label">
+                    Price
+                  </label>
+                  <input
+                    className="consignment-input"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputMode="decimal"
+                    value={shopifyForm.shopifyPrice ?? ''}
+                    onChange={(event) =>
+                      setValue('shopifyPrice', event.target.value)
+                    }
+                    placeholder="0.00"
+                  />
+                </div>
+
+                <div className="consignment-form-field">
+                  <label className="consignment-shopify-product-field-label">
                     Description
                   </label>
                   <textarea
