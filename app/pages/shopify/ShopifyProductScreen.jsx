@@ -74,6 +74,7 @@ export default function ShopifyProductScreen({
             tier2Enabled={tier2Enabled}
             syncing={syncing}
             onSync={linkedProduct ? null : createProduct}
+            direct
           />
 
           <SocialPostPanel
