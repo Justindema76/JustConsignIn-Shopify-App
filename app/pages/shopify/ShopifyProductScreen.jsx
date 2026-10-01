@@ -54,7 +54,7 @@ export default function ShopifyProductScreen({
     <>
       <Header
         eyebrow="Direct to Shopify"
-        title="Shopify Product"
+        title="Add Shopify Product"
         onBack={onBack}
       />
 
