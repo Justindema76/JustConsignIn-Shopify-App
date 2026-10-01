@@ -1354,7 +1354,16 @@ function EditItemScreen({
             }}
           />
 
-          <SocialPostPanel item={item} disabled={isSold} />
+          <SocialPostPanel
+            item={{
+              ...item,
+              shopifyPhoto: shopifyForm.media?.[0]?.url || shopifyForm.photo || item.shopifyPhoto || item.photo,
+              shopifyMedia: Array.isArray(shopifyForm.media) && shopifyForm.media.length
+                ? shopifyForm.media
+                : (item.shopifyMedia || []),
+            }}
+            disabled={isSold}
+          />
 
           {!confirmingDelete ? (
             <button
