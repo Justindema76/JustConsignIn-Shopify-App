@@ -1019,32 +1019,7 @@ function EditItemScreen({
   const isSold = item.status === 'Sold' || Boolean(item.dateSold);
   const canSave = form.description.trim() && form.price !== '';
 
-  useEffect(() => {
-    if (item.shopifyProductId) return;
-    const auto = buildShopifyAutoFill(form);
-    setShopifyForm((current) => ({
-      ...current,
-      ...auto,
-      shopifyCategoryId: current.shopifyCategoryId,
-      shopifyCategoryName: current.shopifyCategoryName,
-      photo: current.photo,
-      photoId: current.photoId,
-      media: current.media || [],
-      productType: current.productType || auto.productType,
-      collections: current.collections || ['Consignment'],
-      publishToPos: current.publishToPos,
-      publishOnline: current.publishOnline,
-    }));
-  }, [
-    form.description,
-    form.price,
-    form.brand,
-    form.size,
-    form.condition,
-    form.category,
-    form.type,
-    item.shopifyProductId,
-  ]);
+
 
   return (
     <>
