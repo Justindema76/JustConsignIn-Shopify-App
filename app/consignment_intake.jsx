@@ -1034,6 +1034,7 @@ function IntakeScreen({
     seoDescription: '',
     publishToPos: true,
     publishOnline: false,
+    publishMeta: false,
   };
 
   const [form, setForm] = useState(emptyForm);
@@ -1240,6 +1241,7 @@ function EditItemScreen({
     seoDescription: item.seoDescription || '',
     publishToPos: true,
     publishOnline: item.publishOnline === true,
+    publishMeta: false,
   });
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [syncing, setSyncing] = useState(false);
