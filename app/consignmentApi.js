@@ -40,6 +40,15 @@ export async function searchShopifyFiles(search) {
 }
 
 
+export async function getShopifyPublishingChannels() {
+  const response = await fetch(`${API_URL}?publishing=1`);
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `Could not load Shopify publishing channels (${response.status})`);
+  }
+  return payload;
+}
+
 export async function getShopifyProductOrganization() {
   const response = await fetch(`${API_URL}?organization=1`);
   const payload = await response.json().catch(() => ({}));
