@@ -828,7 +828,12 @@ async function getProductSetup(admin) {
     const name = String(entry.name || '').toLowerCase();
     return name.includes('online store');
   });
-  return { location, posPublication, onlineStorePublication };
+  const metaPublication = data.publications.nodes.find((entry) => {
+    const name = String(entry.name || '').toLowerCase();
+    return name.includes('facebook') || name.includes('instagram') || name.includes('meta');
+  });
+  return { location, posPublication, onlineStorePublication, metaPublication };
+
 }
 
 async function publishResource(admin, resourceId, publications, resourceName) {
@@ -962,6 +967,7 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
     location,
     posPublication,
     onlineStorePublication,
+    metaPublication,
   } = await getProductSetup(admin);
   if (!location) {
     throw new Error(
@@ -973,6 +979,11 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
       'The Point of Sale sales channel is not available. Add Shopify POS, then try again.',
     );
   }
+  if (item.publishMeta && !metaPublication?.id) {
+    throw new Error(
+      'Facebook & Instagram by Meta is not available. Connect the Meta sales channel or turn off Meta publishing.',
+    );
+  }
   if (item.publishOnline && !onlineStorePublication?.id) {
     throw new Error(
       'The Online Store sales channel is not available. Add Online Store or turn off online publishing.',
@@ -981,10 +992,11 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
   const publications = [
     ...(item.publishToPos !== false ? [posPublication] : []),
     ...(item.publishOnline ? [onlineStorePublication] : []),
+    ...(item.publishMeta ? [metaPublication] : []),
   ];
   if (!publications.length) {
     throw new Error(
-      'Choose at least one Shopify sales channel: Point of Sale or Online Store.',
+      'Choose at least one Shopify sales channel: Point of Sale, Online Store, or Facebook & Instagram.',
     );
   }
   const collection = await ensureConsignmentCollection(admin, publications);
@@ -1139,6 +1151,14 @@ export async function loader({ request }) {
       throw new Error(setup.errors.map((error) => error.message).join(', '));
     }
     const url = new URL(request.url);
+
+    if (url.searchParams.get('publishing') === '1') {
+      const publishing = await getProductSetup(admin);
+      return Response.json({
+        metaInstalled: Boolean(publishing.metaPublication?.id),
+        metaPublicationName: publishing.metaPublication?.name || '',
+      });
+    }
 
     if (url.searchParams.get('organization') === '1') {
       const organizationData = await adminGraphql(
@@ -1759,6 +1779,7 @@ export async function action({ request }) {
         seoTitle: productInput.seoTitle || '',
         seoDescription: productInput.seoDescription || '',
         publishOnline: productInput.publishOnline === true,
+        publishMeta: productInput.publishMeta === true,
         publishToPos: productInput.publishToPos !== false,
       };
       const sellPrice = Number(productSource.shopifyPrice ?? productSource.price);
