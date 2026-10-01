@@ -158,6 +158,11 @@ export function deleteConsignmentItem(itemId) {
   return request('DELETE', { operation: 'deleteItem', itemId });
 }
 
+export async function createShopifyProduct(product) {
+  const preparedProduct = await prepareItemPhoto(product);
+  return request('POST', { operation: 'createShopifyProduct', product: preparedProduct });
+}
+
 export async function syncShopifyProduct(itemId, product) {
   const preparedProduct = await prepareItemPhoto(product);
   return request('POST', { operation: 'syncProduct', itemId, product: preparedProduct });
