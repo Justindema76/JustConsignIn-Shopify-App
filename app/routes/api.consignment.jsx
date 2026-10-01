@@ -962,7 +962,7 @@ async function activateForPos(admin, productId) {
   return updateData.productUpdate.product;
 }
 
-async function syncPosProduct(admin, item, consignor, merchantName) {
+async function syncPosProduct(admin, item, consignor, merchantName, { consignment = true } = {}) {
   const {
     location,
     posPublication,
@@ -1000,7 +1000,9 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
       'Choose at least one Shopify sales channel: Point of Sale, Online Store, or Facebook & Instagram.',
     );
   }
-  const collection = await ensureConsignmentCollection(admin, publications);
+  const collection = consignment
+    ? await ensureConsignmentCollection(admin, publications)
+    : null;
 
   const mediaIds = Array.isArray(item.media)
     ? item.media.map((entry) => entry?.id).filter(Boolean)
@@ -1018,7 +1020,7 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
       .filter(Boolean);
   const input = {
     ...(item.shopifyProductId ? { id: item.shopifyProductId } : {}),
-    title: String(item.shopifyTitle || item.description || item.type || `Consignment item ${item.itemNumber}`).trim(),
+    title: String(item.shopifyTitle || item.description || item.type || (consignment ? `Consignment item ${item.itemNumber}` : 'Shopify product')).trim(),
     descriptionHtml: item.productDescription
       ? `<p>${escapeHtml(item.productDescription).replaceAll('\n', '<br>')}</p>`
       : [
@@ -1027,7 +1029,7 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
         item.size ? `<p><strong>Size:</strong> ${escapeHtml(item.size)}</p>` : '',
       ].join(''),
     productType: item.productType || item.type || item.category,
-    vendor: item.vendor || merchantName || 'Consignment',
+    vendor: item.vendor || merchantName || (consignment ? 'Consignment' : ''),
     status: 'ACTIVE',
     tags: customTags,
     category: item.shopifyCategoryId || undefined,
@@ -1044,11 +1046,11 @@ async function syncPosProduct(admin, item, consignor, merchantName) {
     variants: [{
       optionValues: [{ optionName: 'Title', name: 'Default Title' }],
       price: Number(item.shopifyPrice ?? item.price ?? 0).toFixed(2),
-      sku: item.itemNumber,
+      ...(item.itemNumber ? { sku: item.itemNumber } : {}),
       inventoryPolicy: 'DENY',
       taxable: true,
       inventoryItem: {
-        sku: item.itemNumber,
+        ...(item.itemNumber ? { sku: item.itemNumber } : {}),
         tracked: true,
         requiresShipping: true,
       },
@@ -1736,6 +1738,42 @@ export async function action({ request }) {
         }),
       );
       return Response.json(mapItem(saved));
+    }
+
+    if (request.method === 'POST' && body.operation === 'createShopifyProduct') {
+      await requireTier2(admin);
+      const productInput = body.product || {};
+      const sellPrice = Number(productInput.shopifyPrice);
+      if (!String(productInput.shopifyTitle || '').trim()) {
+        return Response.json({ error: 'Enter a Shopify product title.' }, { status: 400 });
+      }
+      if (!Number.isFinite(sellPrice) || sellPrice <= 0) {
+        return Response.json(
+          { error: 'Enter a Shopify price greater than $0.00 before creating the product.' },
+          { status: 400 },
+        );
+      }
+      const productSource = {
+        ...productInput,
+        description: String(productInput.shopifyTitle || '').trim(),
+        shopifyTitle: String(productInput.shopifyTitle || '').trim(),
+        shopifyPrice: sellPrice,
+        publishOnline: productInput.publishOnline === true,
+        publishMeta: productInput.publishMeta === true,
+        publishToPos: productInput.publishToPos !== false,
+      };
+      const product = await syncPosProduct(
+        admin,
+        productSource,
+        null,
+        current.shop?.name,
+        { consignment: false },
+      );
+      return Response.json({
+        id: product.id,
+        status: product.status || 'ACTIVE',
+        title: product.title || productSource.shopifyTitle,
+      });
     }
 
     if (request.method === 'POST' && body.operation === 'syncProduct') {
