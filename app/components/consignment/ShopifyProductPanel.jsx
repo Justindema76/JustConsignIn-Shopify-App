@@ -12,6 +12,7 @@ import {
 
 import {
   getShopifyProductOrganization,
+  getShopifyPublishingChannels,
   searchShopifyCategories,
   searchShopifyFiles,
 } from '../../consignmentApi';
@@ -679,10 +680,26 @@ export default function ShopifyProductPanel({
     collections: [],
     tags: [],
   });
+  const [publishingChannels, setPublishingChannels] = useState({
+    metaInstalled: false,
+    metaPublicationName: '',
+  });
 
   useEffect(() => {
     setCategorySearch(shopifyForm.shopifyCategoryName || '');
   }, [shopifyForm.shopifyCategoryName]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getShopifyPublishingChannels()
+      .then((result) => {
+        if (!cancelled) setPublishingChannels(result);
+      })
+      .catch(() => {
+        if (!cancelled) setPublishingChannels({ metaInstalled: false, metaPublicationName: '' });
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -929,18 +946,26 @@ export default function ShopifyProductPanel({
                   </span>
                 </label>
 
-                <p className="consignment-shopify-help" style={{ margin: '10px 0 0' }}>
-                  Want to tag this product in Facebook or Instagram posts? Install and
-                  connect Meta's official Facebook &amp; Instagram sales channel so Shopify
-                  can sync eligible products to your Meta catalog.{' '}
-                  <a
-                    href="https://apps.shopify.com/facebook"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Install Facebook &amp; Instagram by Meta
-                  </a>
-                </p>
+                {publishingChannels.metaInstalled ? (
+                  <label className="consignment-shopify-product-publish-option">
+                    <input
+                      type="checkbox"
+                      checked={shopifyForm.publishMeta === true}
+                      onChange={(event) => setValue('publishMeta', event.target.checked)}
+                    />
+                    <span>
+                      <strong>Facebook &amp; Instagram</strong>
+                      <small>Publish this product to the connected Meta sales channel.</small>
+                    </span>
+                  </label>
+                ) : (
+                  <p className="consignment-shopify-help" style={{ margin: '10px 0 0' }}>
+                    Want to tag this product in Facebook or Instagram posts?{' '}
+                    <a href="https://apps.shopify.com/facebook" target="_blank" rel="noreferrer">
+                      Install Facebook &amp; Instagram by Meta
+                    </a>
+                  </p>
+                )}
               </div>
 
               <div className="consignment-shopify-product-side-card">
@@ -1017,7 +1042,8 @@ export default function ShopifyProductPanel({
                 syncing ||
                 (
                   shopifyForm.publishToPos === false &&
-                  shopifyForm.publishOnline !== true
+                  shopifyForm.publishOnline !== true &&
+                  shopifyForm.publishMeta !== true
                 )
               }
               onClick={onSync}
