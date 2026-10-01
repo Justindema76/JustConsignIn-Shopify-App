@@ -27,6 +27,24 @@ import {
 const SUPPORTED_SERVICES = new Set(['instagram', 'facebook', 'tiktok']);
 const MAX_MEDIA_ITEMS = 10;
 
+function productMedia(item) {
+  const source = Array.isArray(item.shopifyMedia) && item.shopifyMedia.length
+    ? item.shopifyMedia
+    : (item.shopifyPhoto || item.photo)
+      ? [{ id: 'product-image', url: item.shopifyPhoto || item.photo, alt: item.shopifyTitle || item.description || '' }]
+      : [];
+  return source
+    .filter((entry) => entry?.url)
+    .slice(0, MAX_MEDIA_ITEMS)
+    .map((entry, index) => ({
+      id: entry.id || `shopify-product-image-${index}`,
+      type: 'image',
+      url: entry.url,
+      previewUrl: entry.url,
+      name: entry.alt || `Shopify product image ${index + 1}`,
+    }));
+}
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -93,10 +111,7 @@ export default function SocialPostPanel({ item, disabled = false }) {
   const [caption, setCaption] = useState(() => defaultCaption(item));
   const [captionTouched, setCaptionTouched] = useState(false);
   const [mediaTouched, setMediaTouched] = useState(false);
-  const [media, setMedia] = useState(() => {
-    const url = item.shopifyPhoto || item.photo || '';
-    return url ? [{ id: 'product-image', type: 'image', url, previewUrl: url, name: 'Product image' }] : [];
-  });
+  const [media, setMedia] = useState(() => productMedia(item));
   const [postTypes, setPostTypes] = useState({});
   const [uploading, setUploading] = useState(false);
   const [savingAction, setSavingAction] = useState('');
@@ -108,7 +123,6 @@ export default function SocialPostPanel({ item, disabled = false }) {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const imageUrl = item.shopifyPhoto || item.photo || '';
   const socialSettingsHref = typeof window === 'undefined'
     ? '/app/social'
     : `/app/social${window.location.search || ''}`;
@@ -186,10 +200,9 @@ export default function SocialPostPanel({ item, disabled = false }) {
 
   useEffect(() => {
     if (!mediaTouched) {
-      const url = item.shopifyPhoto || item.photo || '';
-      setMedia(url ? [{ id: 'product-image', type: 'image', url, previewUrl: url, name: 'Product image' }] : []);
+      setMedia(productMedia(item));
     }
-  }, [item.id, item.shopifyPhoto, item.photo, mediaTouched]);
+  }, [item.id, item.shopifyMedia, item.shopifyPhoto, item.photo, mediaTouched]);
 
   useEffect(() => {
     let cancelled = false;
