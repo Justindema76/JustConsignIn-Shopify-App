@@ -670,6 +670,7 @@ export default function ShopifyProductPanel({
   onSync = null,
   syncing = false,
   tier2Enabled = true,
+  direct = false,
 }) {
   const [categorySearch, setCategorySearch] = useState(
     shopifyForm.shopifyCategoryName || '',
@@ -778,7 +779,7 @@ export default function ShopifyProductPanel({
         </span>
 
         <span className="consignment-row-sub">
-          {linkedProductId ? 'Connected' : 'Create linked product'}
+          {linkedProductId ? 'Connected' : direct ? 'Create product' : 'Create linked product'}
         </span>
       </summary>
 
