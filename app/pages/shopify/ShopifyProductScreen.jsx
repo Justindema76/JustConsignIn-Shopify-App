@@ -100,6 +100,11 @@ export default function ShopifyProductScreen({
               description: shopifyForm.shopifyTitle,
               shopifyTitle: shopifyForm.shopifyTitle,
               shopifyPrice: shopifyForm.shopifyPrice,
+              vendor: shopifyForm.vendor,
+              productDescription: shopifyForm.productDescription,
+              tags: shopifyForm.tags,
+              photo: shopifyForm.media?.[0]?.url || shopifyForm.photo,
+              shopifyPhoto: shopifyForm.media?.[0]?.url || shopifyForm.photo,
               shopifyMedia: shopifyForm.media || [],
             }}
           />
