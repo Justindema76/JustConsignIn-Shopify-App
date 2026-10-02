@@ -202,7 +202,6 @@ export default function SocialPostPanel({ item, disabled = false }) {
   const [mediaTouched, setMediaTouched] = useState(false);
   const [media, setMedia] = useState(() => productMedia(item));
   const [postTypes, setPostTypes] = useState({});
-  const [tagShopifyProduct, setTagShopifyProduct] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showShopifyFiles, setShowShopifyFiles] = useState(false);
   const [savingAction, setSavingAction] = useState('');
@@ -234,7 +233,6 @@ export default function SocialPostPanel({ item, disabled = false }) {
     setLastAction('');
     setScheduleAt('');
     setScheduleOpen(false);
-    setTagShopifyProduct(false);
     setMessage('');
     setError('');
   }, [item.id]);
@@ -260,7 +258,6 @@ export default function SocialPostPanel({ item, disabled = false }) {
         setScheduleOpen(draft.scheduleOpen === true);
         setBufferPosts(Array.isArray(draft.bufferPosts) ? draft.bufferPosts : []);
         setLastAction(String(draft.lastAction || 'draft'));
-        setTagShopifyProduct(draft.tagShopifyProduct === true);
       } catch (draftError) {
         if (!cancelled) {
           setError(draftError instanceof Error ? draftError.message : 'Could not load the saved social draft.');
@@ -456,7 +453,6 @@ export default function SocialPostPanel({ item, disabled = false }) {
       scheduleOpen,
       bufferPosts: nextBufferPosts,
       lastAction: nextAction,
-      tagShopifyProduct,
     };
   }
 
@@ -495,10 +491,6 @@ export default function SocialPostPanel({ item, disabled = false }) {
           dueAt: action === 'schedule' ? new Date(scheduleAt).toISOString() : null,
           existingPosts: ['draft', 'schedule'].includes(lastAction) ? bufferPosts : [],
           itemId: item.id,
-          productTag: tagShopifyProduct && item.shopifyProductId ? {
-            shopifyProductId: item.shopifyProductId,
-            title: item.shopifyTitle || item.description || '',
-          } : null,
         }),
       });
       const payload = await response.json().catch(() => ({}));
@@ -719,33 +711,6 @@ export default function SocialPostPanel({ item, disabled = false }) {
                 })}
               </div>
             </div>
-
-            {channels.some((channel) => selectedIds.includes(String(channel.id)) && ['facebook', 'instagram'].includes(String(channel.service).toLowerCase())) && (
-              <div className="social-post-product-tag">
-                <label className="social-post-channel">
-                  <input
-                    type="checkbox"
-                    checked={tagShopifyProduct}
-                    onChange={(event) => setTagShopifyProduct(event.target.checked)}
-                    disabled={disabled || !item.shopifyProductId}
-                  />
-                  <Tag size={17} aria-hidden="true" />
-                  <span>
-                    <strong>Tag Shopify product</strong>
-                    <small>
-                      {item.shopifyProductId
-                        ? (item.shopifyTitle || item.description || 'Current Shopify product')
-                        : 'Create the Shopify product first'}
-                    </small>
-                  </span>
-                </label>
-                {tagShopifyProduct && item.shopifyProductId && (
-                  <p className="consignment-form-help">
-                    Product selected for Facebook / Instagram tagging.
-                  </p>
-                )}
-              </div>
-            )}
 
             {media.length === 0 && channels.some((channel) => ['instagram', 'tiktok'].includes(String(channel.service).toLowerCase())) && (
               <p className="consignment-form-help">
