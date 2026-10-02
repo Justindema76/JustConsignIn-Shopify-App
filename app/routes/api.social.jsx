@@ -43,17 +43,8 @@ export const action = async ({ request }) => {
         existingPosts: Array.isArray(body.existingPosts) ? body.existingPosts : [],
       });
 
-      // Preserve the selected Shopify product with the response so the UI can
-      // exercise the product-tagging workflow while direct Meta publishing is
-      // connected separately from Buffer.
-      const productTag = body.productTag?.shopifyProductId
-        ? {
-            shopifyProductId: String(body.productTag.shopifyProductId),
-            title: String(body.productTag.title || ''),
-          }
-        : null;
 
-      return Response.json({ posts, productTag });
+      return Response.json({ posts });
     }
 
     if (body.operation === 'createBufferDrafts') {
