@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Header from '../../components/consignment/Header';
 import ShopifyProductPanel from '../../components/consignment/ShopifyProductPanel';
 import SocialPostPanel from '../../components/social/SocialPostPanel';
+import MetaProductPostPanel from '../../components/social/MetaProductPostPanel';
 import { createShopifyProduct } from '../../consignmentApi';
 
 const EMPTY_PRODUCT = {
@@ -89,6 +90,16 @@ export default function ShopifyProductScreen({
               tags: shopifyForm.tags,
               photo: shopifyForm.media?.[0]?.url || shopifyForm.photo,
               shopifyPhoto: shopifyForm.media?.[0]?.url || shopifyForm.photo,
+              shopifyMedia: shopifyForm.media || [],
+            }}
+          />
+
+          <MetaProductPostPanel
+            item={{
+              shopifyProductId: linkedProduct?.id || '',
+              description: shopifyForm.shopifyTitle,
+              shopifyTitle: shopifyForm.shopifyTitle,
+              shopifyPrice: shopifyForm.shopifyPrice,
               shopifyMedia: shopifyForm.media || [],
             }}
           />
