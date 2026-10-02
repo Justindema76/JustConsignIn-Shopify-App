@@ -163,6 +163,32 @@ const SHOPIFY_FILES_QUERY = `#graphql
   }
 `;
 
+const SHOPIFY_PRODUCTS_SEARCH_QUERY = `#graphql
+  query SearchExistingShopifyProducts($query: String) {
+    products(first: 40, query: $query, sortKey: UPDATED_AT, reverse: true) {
+      nodes {
+        id
+        title
+        handle
+        description
+        vendor
+        productType
+        tags
+        status
+        featuredMedia {
+          ... on MediaImage { id alt image { url } }
+        }
+        media(first: 10) {
+          nodes {
+            ... on MediaImage { id alt image { url } }
+          }
+        }
+        variants(first: 1) { nodes { price } }
+      }
+    }
+  }
+`;
+
 const PRODUCT_ORGANIZATION_QUERY = `#graphql
   query ConsignmentProductOrganization {
     collections(first: 100, sortKey: TITLE) {
@@ -1152,6 +1178,34 @@ export async function loader({ request }) {
       return Response.json({
         metaInstalled: Boolean(publishing.metaPublication?.id),
         metaPublicationName: publishing.metaPublication?.name || '',
+      });
+    }
+
+    if (url.searchParams.get('products') === '1') {
+      const productsQuery = url.searchParams.get('productsQuery')?.trim() || '';
+      const productsData = await adminGraphql(admin, SHOPIFY_PRODUCTS_SEARCH_QUERY, {
+        query: productsQuery || null,
+      });
+      return Response.json({
+        products: (productsData.products?.nodes || []).map((product) => ({
+          id: product.id,
+          title: product.title || '',
+          handle: product.handle || '',
+          description: product.description || '',
+          vendor: product.vendor || '',
+          productType: product.productType || '',
+          tags: product.tags || [],
+          status: product.status || '',
+          price: product.variants?.nodes?.[0]?.price || '',
+          media: (product.media?.nodes || [])
+            .filter((entry) => entry?.image?.url)
+            .map((entry) => ({
+              id: entry.id,
+              url: entry.image.url,
+              alt: entry.alt || product.title || '',
+            })),
+          photo: product.featuredMedia?.image?.url || '',
+        })),
       });
     }
 
