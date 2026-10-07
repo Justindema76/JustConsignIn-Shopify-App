@@ -72,6 +72,7 @@ export default function ItemBarcode({ value, description = "Consignment item", p
   const barcodeRef = useRef(null);
   const [copyStatus, setCopyStatus] = useState("idle");
   const [printStatus, setPrintStatus] = useState("idle");
+  const [printError, setPrintError] = useState("");
   let barcode;
   try { barcode = buildBarcode(value); } catch { barcode = null; }
 
@@ -106,25 +107,36 @@ export default function ItemBarcode({ value, description = "Consignment item", p
 
   function openPrintLabel(svg) {
     const win = window.open("", "_blank");
-    if (!win) return false;
+    if (!win) throw new Error("The print window was blocked. Open JustConsignIn in Safari and allow pop-ups, then tap Print label again.");
     const svgMarkup = new XMLSerializer().serializeToString(svg);
     win.document.open();
     win.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Barcode ${escapeHtml(barcode.readableValue)}</title><style>
 *{box-sizing:border-box}html,body{margin:0;background:#fff;color:#000;font-family:Arial,sans-serif}body{padding:16px}.label{width:2.25in;height:1.25in;padding:.08in;background:#fff;border:1px solid #ddd;overflow:hidden}.head{display:flex;justify-content:space-between;gap:6px;height:.22in;font-size:8pt;font-weight:700;line-height:1.1}.title{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.price{white-space:nowrap}.label svg{display:block;width:2.09in;height:.86in}.print-button{display:block;width:2.25in;margin-top:12px;padding:10px;border:0;border-radius:4px;background:#1677d2;color:#fff;font-weight:700}.hint{width:2.25in;font-size:11px;color:#555;line-height:1.3}@media print{@page{margin:.25in}body{padding:0}.label{border:0}.print-button,.hint{display:none!important}}
 </style></head><body><section class="label"><div class="head"><span class="title">${escapeHtml(description)}</span>${priceLabel ? `<span class="price">${escapeHtml(priceLabel)}</span>` : ""}</div>${svgMarkup}</section><button class="print-button" onclick="window.print()">Print label</button><p class="hint">Label prints at 2.25 × 1.25 inches at 100% scale.</p></body></html>`);
     win.document.close();
+    win.focus();
+    // Open the window during the original tap; print once its label is ready.
+    // Keep the preview's Print label button available if automatic printing fails.
+    win.setTimeout(() => {
+      try { win.print(); } catch { /* The preview provides a manual retry. */ }
+    }, 250);
     return true;
   }
 
-  async function printLabel() {
+  function printLabel() {
     const svg = getSvg();
     if (!svg) return;
+    setPrintError("");
     setPrintStatus("working");
-    const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
-    if (mobile && await shareBarcode(svg)) { setPrintStatus("idle"); return; }
-    const opened = openPrintLabel(svg);
-    setPrintStatus(opened ? "idle" : "error");
-    if (!opened) window.setTimeout(() => setPrintStatus("idle"), 1800);
+    try {
+      // Sharing is a separate action. Printing must not await an image/share
+      // operation before opening the window, particularly in mobile browsers.
+      openPrintLabel(svg);
+      setPrintStatus("idle");
+    } catch (error) {
+      setPrintStatus("error");
+      setPrintError(error?.message || "Unable to open the print preview. Open JustConsignIn in Safari and try again.");
+    }
   }
 
   if (!barcode) return null;
@@ -134,5 +146,6 @@ export default function ItemBarcode({ value, description = "Consignment item", p
       <button type="button" className="consignment-btn secondary consignment-item-barcode-button" onClick={copyBarcode}>{copyStatus === "copied" ? <Check size={17} /> : <Copy size={17} />}{copyStatus === "copied" ? "Copied" : copyStatus === "shared" ? "Share opened" : copyStatus === "error" ? "Copy unavailable" : "Copy barcode"}</button>
       <button type="button" className="consignment-btn consignment-item-barcode-button" onClick={printLabel} disabled={printStatus === "working"}><Printer size={17} />{printStatus === "working" ? "Opening…" : printStatus === "error" ? "Print unavailable" : "Print label"}</button>
     </div>
+    {printError && <p role="alert" className="consignment-item-barcode-print-error">{printError}</p>}
   </section>;
 }
