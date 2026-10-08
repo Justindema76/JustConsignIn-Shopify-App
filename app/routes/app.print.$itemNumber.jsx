@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Link, useLoaderData, useLocation, useRouteError, isRouteErrorResponse } from "react-router";
 import { loadItemLabel } from "../item-label.server";
 import { BarcodeGraphic, buildBarcode } from "../components/consignment/ItemBarcode";
@@ -30,49 +29,9 @@ const PRINT_STYLES = `
 export default function PrintItemLabel() {
   const item = useLoaderData();
   const location = useLocation();
-  const [error, setError] = useState("");
-  const [labelFile, setLabelFile] = useState(null);
   const pdfUrl = `/app/print/${encodeURIComponent(item.itemNumber)}.pdf${location.search}`;
   const barcode = buildBarcode(item.itemNumber);
   const price = new Intl.NumberFormat("en-CA", { style: "currency", currency: item.currency }).format(Number(item.price));
-
-  function print() {
-    setError("");
-    try { window.print(); }
-    catch { setError("The printer dialog could not open in this browser."); }
-  }
-
-  useEffect(() => {
-    const controller = new AbortController();
-    setLabelFile(null);
-    fetch(pdfUrl, { signal: controller.signal }).then(async (response) => {
-      if (!response.ok || !response.headers.get("content-type")?.includes("application/pdf")) {
-        throw new Error("Unable to prepare the label PDF. Please reload this page.");
-      }
-      const blob = await response.blob();
-      if (!controller.signal.aborted) {
-        setLabelFile(new File([blob], `label-${item.itemNumber}.pdf`, { type: "application/pdf" }));
-      }
-    }).catch((failure) => {
-      if (failure.name !== "AbortError") setError(failure.message);
-    });
-    return () => controller.abort();
-  }, [pdfUrl, item.itemNumber]);
-
-  async function shareLabel() {
-    setError("");
-    if (!labelFile) return;
-    if (!navigator.share || (navigator.canShare && !navigator.canShare({ files: [labelFile] }))) {
-      setError("Sharing is unavailable in this view. Download the PDF, open it in Files, then choose Share → Print.");
-      return;
-    }
-    try {
-      // The file is prepared before this tap, preserving native-share activation.
-      await navigator.share({ files: [labelFile], title: `Item ${item.itemNumber} label` });
-    } catch (failure) {
-      if (failure.name !== "AbortError") setError("This view blocked native sharing. Download the PDF, open it in Files, then choose Share → Print.");
-    }
-  }
 
   return <main className="item-label-route">
     <style>{PRINT_STYLES}</style>
@@ -82,13 +41,10 @@ export default function PrintItemLabel() {
       <BarcodeGraphic barcode={barcode} />
     </section>
     <div className="item-label-actions">
-      <button type="button" onClick={shareLabel} disabled={!labelFile}>{labelFile ? "Share / Print PDF" : "Preparing PDF…"}</button>
-      <button type="button" onClick={print}>Printer dialog</button>
       <a href={pdfUrl} download={`label-${item.itemNumber}.pdf`}>Download PDF</a>
       <Link to={`/app${location.search}`}>Back to app</Link>
     </div>
-    <p>Label size: 2.25 × 1.25 inches. Tap Share / Print PDF to open your device’s sharing options. On iPhone, choose Print when available.</p>
-    {error && <p role="alert">{error}</p>}
+    <p>Label size: 2.25 × 1.25 inches. Download the PDF, open it in Files, then choose Share → Print.</p>
   </main>;
 }
 
