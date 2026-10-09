@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types, jsx-a11y/label-has-associated-control */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { uploadImage } from './productMedia.client';
 import {
   Check,
   ChevronLeft,
@@ -40,6 +41,8 @@ function normalizeMedia(form) {
       id: entry?.id || null,
       url: entry?.url || entry?.previewUrl || null,
       alt: entry?.alt || '',
+      pending: entry?.pending === true,
+      clientKey: entry?.clientKey,
     }))
     .filter((entry) => entry.id || entry.url);
 
@@ -60,27 +63,6 @@ function normalizeMedia(form) {
   });
 }
 
-async function uploadImage(file, alt) {
-  const body = new FormData();
-  body.append('image', file, file.name || 'consignment-photo.jpg');
-  body.append('alt', alt || 'Consignment item');
-
-  const response = await fetch('/api/consignment-image', {
-    method: 'POST',
-    body,
-  });
-  const payload = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(payload.error || `Image upload failed (${response.status})`);
-  }
-
-  return {
-    id: payload.id || null,
-    url: payload.url || null,
-    alt: alt || '',
-  };
-}
 
 function ShopifyFilePicker({
   onClose,
@@ -281,6 +263,10 @@ function ProductMedia({
   const [showShopifyFiles, setShowShopifyFiles] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const previewUrls = useRef([]);
+  useEffect(() => () => {
+    previewUrls.current.forEach((url) => URL.revokeObjectURL(url));
+  }, []);
 
   const media = normalizeMedia(form);
 
@@ -305,21 +291,28 @@ function ProductMedia({
     setUploadError('');
 
     try {
-      const uploaded = [];
-      for (const file of files) {
-        uploaded.push(
-          await uploadImage(
-            file,
-            form.shopifyTitle || form.productDescription || 'Consignment item',
-          ),
-        );
+      const pending = files.map((file) => {
+        const url = URL.createObjectURL(file);
+        previewUrls.current.push(url);
+        return { id: null, url, clientKey: url, alt: file.name, pending: true };
+      });
+      setForm((current) => ({ ...current, media: [...normalizeMedia(current), ...pending] }));
+      for (let index = 0; index < files.length; index += 1) {
+        const uploaded = { ...await uploadImage(files[index], form.shopifyTitle || 'Consignment item'), clientKey: pending[index].url };
+        setForm((current) => {
+          const next = (current.media || []).map((entry) => entry.url === pending[index].url ? uploaded : entry);
+          return { ...current, media: next, photoId: next[0]?.id || null, photo: next[0]?.url || null };
+        });
       }
-      commitMedia([...media, ...uploaded]);
     } catch (error) {
       setUploadError(
         error instanceof Error ? error.message : 'Could not upload image.',
       );
     } finally {
+      setForm((current) => {
+        const next = (current.media || []).filter((entry) => !entry.pending);
+        return { ...current, media: next, photoId: next[0]?.id || null, photo: next[0]?.url || null };
+      });
       setUploading(false);
     }
   }
@@ -711,6 +704,7 @@ export default function ShopifyProductPanel({
           setOrganization({
             collections: result.collections || [],
             tags: result.tags || [],
+            storefrontUrl: result.storefrontUrl || '',
           });
         }
       })
@@ -836,6 +830,32 @@ export default function ShopifyProductPanel({
                     }
                     placeholder="Shown to customers on Shopify"
                   />
+                </div>
+
+                <div className="consignment-form-field">
+                  <label className="consignment-shopify-product-field-label">SKU</label>
+                  <input className="consignment-input" value={shopifyForm.sku ?? ''} onChange={(event) => setValue('sku', event.target.value)} />
+                </div>
+                <div className="consignment-form-field">
+                  <label className="consignment-shopify-product-field-label">Weight</label>
+                  <input className="consignment-input" type="number" min="0" step="any" inputMode="decimal" value={shopifyForm.weight ?? ''} onChange={(event) => setValue('weight', event.target.value)} />
+                  <select className="consignment-select" aria-label="Weight unit" value={shopifyForm.weightUnit || 'KILOGRAMS'} onChange={(event) => setValue('weightUnit', event.target.value)}>
+                    <option value="KILOGRAMS">kg</option><option value="GRAMS">g</option><option value="POUNDS">lb</option><option value="OUNCES">oz</option>
+                  </select>
+                </div>
+                <div className="consignment-form-field">
+                  <h3>Search engine listing</h3>
+                  <div aria-label="Search engine listing preview">
+                    <strong>{shopifyForm.seoTitle || shopifyForm.shopifyTitle || 'Product title'}</strong>
+                    <div>{organization.storefrontUrl}/products/{shopifyForm.shopifyHandle || String(shopifyForm.shopifyTitle || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}</div>
+                    <p>{shopifyForm.seoDescription || shopifyForm.productDescription || 'Product description'}</p>
+                  </div>
+                  <label className="consignment-shopify-product-field-label">Page title</label>
+                  <input className="consignment-input" value={shopifyForm.seoTitle || ''} onChange={(event) => setValue('seoTitle', event.target.value)} />
+                  <label className="consignment-shopify-product-field-label">Meta description</label>
+                  <textarea className="consignment-textarea" rows={3} value={shopifyForm.seoDescription || ''} onChange={(event) => setValue('seoDescription', event.target.value)} />
+                  <label className="consignment-shopify-product-field-label">URL handle</label>
+                  <input className="consignment-input" value={shopifyForm.shopifyHandle || ''} onChange={(event) => setValue('shopifyHandle', event.target.value)} placeholder="product-url-handle" />
                 </div>
 
                 <ProductMedia
@@ -1059,6 +1079,7 @@ export default function ShopifyProductPanel({
                 !canSync ||
                 disabled ||
                 syncing ||
+                shopifyForm.media?.some((entry) => entry.pending) ||
                 (
                   shopifyForm.publishToPos === false &&
                   shopifyForm.publishOnline !== true &&
