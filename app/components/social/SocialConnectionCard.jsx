@@ -136,6 +136,14 @@ export default function SocialConnectionCard({
                 <a className="consignment-btn" href={connectHref} target="_top">
                   Connect Buffer
                 </a>
+                <a
+                  className="consignment-btn social-secondary-button"
+                  href="https://buffer.com/signup"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Create a Buffer account
+                </a>
               </div>
             ) : (
               <div className="social-config-warning">
