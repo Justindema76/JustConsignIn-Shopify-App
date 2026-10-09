@@ -1,5 +1,6 @@
-import { redirect } from 'react-router';
+import { useLoaderData } from 'react-router';
 import db from '../db.server';
+import BufferResultPage from '../components/social/BufferResultPage';
 import {
   decryptSecret,
   exchangeBufferCode,
@@ -7,19 +8,11 @@ import {
   saveBufferConnection,
 } from '../services/buffer.server';
 
-function socialRedirect({ shop, host, status }) {
-  // Return directly to the Shopify Admin app rather than routing an
-  // unauthenticated external OAuth callback through embedded auth.
-  const shopHandle = String(shop || '').split('.')[0];
-  if (!/^[a-z0-9][a-z0-9-]*$/.test(shopHandle)) {
-    throw new Error('Invalid Shopify store for Buffer redirect.');
-  }
-  const url = new URL(`https://admin.shopify.com/store/${shopHandle}/apps/justconsignin/app/social`);
-  if (host) url.searchParams.set('host', host);
-  url.searchParams.set('buffer', status);
-  return url.toString();
-}
-
+// Buffer sends the merchant back here in the same browser window that
+// /buffer/start opened. That window is usually not signed in to Shopify
+// (especially on a phone), so show a plain result page instead of
+// redirecting into Shopify Admin. The Social page refreshes itself when
+// the merchant switches back to it.
 export const loader = async ({ request }) => {
   const requestUrl = new URL(request.url);
   const state = requestUrl.searchParams.get('state');
@@ -27,30 +20,22 @@ export const loader = async ({ request }) => {
   const error = requestUrl.searchParams.get('error');
 
   if (!state) {
-    throw new Response('Missing Buffer OAuth state.', { status: 400 });
+    return { status: 'invalid' };
   }
 
   const pending = await db.bufferOAuthState.findUnique({ where: { state } });
   if (!pending) {
-    throw new Response('This Buffer connection request is no longer valid.', { status: 400 });
+    return { status: 'invalid' };
   }
 
   if (pending.expiresAt < new Date()) {
     await db.bufferOAuthState.delete({ where: { state } });
-    return redirect(socialRedirect({
-      shop: pending.shop,
-      host: pending.host,
-      status: 'expired',
-    }));
+    return { status: 'expired' };
   }
 
   if (error || !code) {
     await db.bufferOAuthState.delete({ where: { state } });
-    return redirect(socialRedirect({
-      shop: pending.shop,
-      host: pending.host,
-      status: error || 'denied',
-    }));
+    return { status: 'denied' };
   }
 
   try {
@@ -66,23 +51,16 @@ export const loader = async ({ request }) => {
 
     await db.bufferOAuthState.delete({ where: { state } });
 
-    return redirect(socialRedirect({
-      shop: pending.shop,
-      host: pending.host,
-      status: 'connected',
-    }));
+    return { status: 'connected' };
   } catch (connectionError) {
     console.error('Buffer OAuth connection failed:', connectionError);
     await db.bufferOAuthState.deleteMany({ where: { state } });
 
-    return redirect(socialRedirect({
-      shop: pending.shop,
-      host: pending.host,
-      status: 'error',
-    }));
+    return { status: 'error' };
   }
 };
 
 export default function BufferCallbackRoute() {
-  return null;
+  const { status } = useLoaderData();
+  return <BufferResultPage status={status} />;
 }

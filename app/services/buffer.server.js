@@ -104,6 +104,66 @@ export function buildBufferAuthorizationUrl({ state, challenge }) {
   return url.toString();
 }
 
+// The Buffer login has to run in a real browser tab, not inside the Shopify
+// Admin iframe or the Shopify mobile app's webview (Google sign-in refuses
+// embedded webviews). The Social page links to /buffer/start with a signed,
+// short-lived ticket so that route knows which shop to connect without
+// needing a Shopify session in that browser.
+const CONNECT_TICKET_TTL_MS = 30 * 60 * 1000;
+
+function connectTicketSignature(payload) {
+  return crypto
+    .createHmac('sha256', encryptionKey())
+    .update(`buffer-connect:${payload}`)
+    .digest('base64url');
+}
+
+export function createConnectTicket(shop) {
+  const payload = `${base64url(shop)}.${Date.now() + CONNECT_TICKET_TTL_MS}`;
+  return `${payload}.${connectTicketSignature(payload)}`;
+}
+
+export function readConnectTicket(ticket) {
+  const [shopValue, expiresValue, signature] = String(ticket || '').split('.');
+  if (!shopValue || !expiresValue || !signature) return { ok: false, reason: 'invalid' };
+
+  const expected = Buffer.from(connectTicketSignature(`${shopValue}.${expiresValue}`));
+  const received = Buffer.from(signature);
+  if (expected.length !== received.length || !crypto.timingSafeEqual(expected, received)) {
+    return { ok: false, reason: 'invalid' };
+  }
+  if (Number(expiresValue) < Date.now()) return { ok: false, reason: 'expired' };
+
+  return { ok: true, shop: Buffer.from(shopValue, 'base64url').toString('utf8') };
+}
+
+export function bufferConnectUrl(shop) {
+  const appUrl = String(process.env.SHOPIFY_APP_URL || '').replace(/\/$/, '');
+  const url = new URL(`${appUrl}/buffer/start`);
+  url.searchParams.set('ticket', createConnectTicket(shop));
+  return url.toString();
+}
+
+export async function startBufferAuthorization(shop) {
+  const { verifier, challenge } = createPkcePair();
+  const state = createOAuthState();
+
+  await db.bufferOAuthState.deleteMany({
+    where: { expiresAt: { lt: new Date() } },
+  });
+
+  await db.bufferOAuthState.create({
+    data: {
+      state,
+      shop,
+      codeVerifier: encryptSecret(verifier),
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    },
+  });
+
+  return buildBufferAuthorizationUrl({ state, challenge });
+}
+
 export async function exchangeBufferCode({ code, verifier }) {
   const config = bufferConfiguration();
   if (!config.oauthConfigured) {
