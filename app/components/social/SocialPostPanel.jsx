@@ -128,6 +128,7 @@ function productMedia(item) {
     .map((entry, index) => ({
       id: entry.id || `shopify-product-image-${index}`,
       type: 'image',
+      sourceKey: entry.clientKey || entry.id || entry.url,
       url: entry.url,
       previewUrl: entry.url,
       name: entry.alt || `Shopify product image ${index + 1}`,
@@ -201,6 +202,13 @@ export default function SocialPostPanel({ item, disabled = false }) {
   const [captionTouched, setCaptionTouched] = useState(false);
   const [mediaTouched, setMediaTouched] = useState(false);
   const [media, setMedia] = useState(() => productMedia(item));
+  const itemMedia = useMemo(() => productMedia({
+    shopifyMedia: item.shopifyMedia,
+    shopifyPhoto: item.shopifyPhoto,
+    photo: item.photo,
+    shopifyTitle: item.shopifyTitle,
+    description: item.description,
+  }), [item.shopifyMedia, item.shopifyPhoto, item.photo, item.shopifyTitle, item.description]);
   const [postTypes, setPostTypes] = useState({});
   const [uploading, setUploading] = useState(false);
   const [showShopifyFiles, setShowShopifyFiles] = useState(false);
@@ -289,10 +297,25 @@ export default function SocialPostPanel({ item, disabled = false }) {
   ]);
 
   useEffect(() => {
+    const productImages = itemMedia;
     if (!mediaTouched) {
-      setMedia(productMedia(item));
+      setMedia(productImages);
+    } else {
+      // Finish pending product uploads without undoing social selections or removals.
+      setMedia((current) => {
+        let changed = false;
+        const next = current.map((entry) => {
+          const ready = productImages.find((image) => image.sourceKey === entry.sourceKey);
+          if (entry.sourceKey && ready && entry.url !== ready.url) {
+            changed = true;
+            return ready;
+          }
+          return entry;
+        });
+        return changed ? next : current;
+      });
     }
-  }, [item.id, item.shopifyMedia, item.shopifyPhoto, item.photo, mediaTouched]);
+  }, [item.id, itemMedia, mediaTouched]);
 
   useEffect(() => {
     let cancelled = false;
@@ -457,6 +480,10 @@ export default function SocialPostPanel({ item, disabled = false }) {
   }
 
   async function submitPosts(action) {
+    if (media.some((entry) => String(entry.url || '').startsWith('blob:'))) {
+      setError('Wait for the product images to finish uploading.');
+      return;
+    }
     if (action === 'schedule' && !scheduleAt) {
       setError('Choose a date and time before scheduling.');
       return;

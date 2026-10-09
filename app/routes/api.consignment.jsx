@@ -74,6 +74,7 @@ const DATA_QUERY = `#graphql
                 nodes {
                   price
                   sku
+                  inventoryItem { measurement { weight { value unit } } }
                 }
               }
             }
@@ -191,6 +192,7 @@ const SHOPIFY_PRODUCTS_SEARCH_QUERY = `#graphql
 
 const PRODUCT_ORGANIZATION_QUERY = `#graphql
   query ConsignmentProductOrganization {
+    shop { primaryDomain { url } }
     collections(first: 100, sortKey: TITLE) {
       nodes {
         id
@@ -525,7 +527,10 @@ function mapItem(node) {
     shopifyProductId: productReference?.id || field.shopify_product || null,
     shopifyProductTitle: productReference?.title || null,
     shopifyProductStatus: productReference?.status || null,
-    shopifyProductHandle: productReference?.handle || null,
+    shopifyProductHandle: productReference?.handle || savedDetails.shopifyHandle || null,
+    sku: productReference?.variants?.nodes?.[0]?.sku ?? savedDetails.sku ?? field.item_number ?? '',
+    weight: productReference?.variants?.nodes?.[0]?.inventoryItem?.measurement?.weight?.value ?? savedDetails.weight ?? '',
+    weightUnit: productReference?.variants?.nodes?.[0]?.inventoryItem?.measurement?.weight?.unit || savedDetails.weightUnit || 'KILOGRAMS',
     shopifyTitle: productReference?.title || field.shopify_title || savedDetails.shopifyTitle || '',
     shopifyPrice: Number(productReference?.variants?.nodes?.[0]?.price ?? field.shopify_price ?? savedDetails.shopifyPrice ?? field.price ?? 0),
     shopifyPhoto: productReference?.featuredMedia?.image?.url || null,
@@ -549,8 +554,8 @@ function mapItem(node) {
     productDescription: shopifyDescriptionToPlainText(productReference?.descriptionHtml || field.shopify_description || savedDetails.productDescription),
     shopifyCategoryId: productReference?.category?.id || field.shopify_category_id || savedDetails.shopifyCategoryId,
     shopifyCategoryName: productReference?.category?.fullName || field.shopify_category_name || savedDetails.shopifyCategoryName,
-    seoTitle: productReference?.seo?.title || field.seo_title || savedDetails.seoTitle,
-    seoDescription: productReference?.seo?.description || field.seo_description || savedDetails.seoDescription,
+    seoTitle: productReference ? (productReference.seo?.title || '') : (field.seo_title || savedDetails.seoTitle),
+    seoDescription: productReference ? (productReference.seo?.description || '') : (field.seo_description || savedDetails.seoDescription),
     publishToPos: field.publish_to_pos !== false && field.publish_to_pos !== 'false',
     publishOnline: field.publish_online === true || field.publish_online === 'true' || savedDetails.publishOnline === true,
     payoutId: savedDetails.payoutId || '',
@@ -625,6 +630,10 @@ function itemDetails(value) {
     shopifyPrice: value.shopifyPrice === '' || value.shopifyPrice == null ? null : Number(value.shopifyPrice),
     shopifyCategoryId: value.shopifyCategoryId || '',
     shopifyCategoryName: value.shopifyCategoryName || '',
+    sku: value.sku ?? value.itemNumber ?? '',
+    weight: value.weight ?? '',
+    weightUnit: value.weightUnit || 'KILOGRAMS',
+    shopifyHandle: value.shopifyHandle || value.shopifyProductHandle || '',
     seoTitle: value.seoTitle || '',
     seoDescription: value.seoDescription || '',
     publishOnline: value.publishOnline === true,
@@ -1044,7 +1053,14 @@ async function syncPosProduct(admin, item, consignor, merchantName, { consignmen
       .split(',')
       .map((tag) => tag.trim())
       .filter(Boolean);
+  if (item.weight !== '' && item.weight != null && (!Number.isFinite(Number(item.weight)) || Number(item.weight) < 0)) {
+    throw new Error('Enter a valid weight of zero or greater.');
+  }
+  if (item.weightUnit && !['KILOGRAMS', 'GRAMS', 'POUNDS', 'OUNCES'].includes(item.weightUnit)) {
+    throw new Error('Choose a valid weight unit.');
+  }
   const input = {
+    ...(item.shopifyHandle ? { handle: String(item.shopifyHandle).trim() } : {}),
     ...(item.shopifyProductId ? { id: item.shopifyProductId } : {}),
     title: String(item.shopifyTitle || item.description || item.type || (consignment ? `Consignment item ${item.itemNumber}` : 'Shopify product')).trim(),
     descriptionHtml: item.productDescription
@@ -1059,10 +1075,7 @@ async function syncPosProduct(admin, item, consignor, merchantName, { consignmen
     status: 'ACTIVE',
     tags: customTags,
     category: item.shopifyCategoryId || undefined,
-    seo: (item.seoTitle || item.seoDescription) ? {
-      title: item.seoTitle || item.shopifyTitle || item.description || undefined,
-      description: item.seoDescription || undefined,
-    } : undefined,
+    seo: { title: item.seoTitle || '', description: item.seoDescription || '' },
     files,
     productOptions: [{
       name: 'Title',
@@ -1072,11 +1085,12 @@ async function syncPosProduct(admin, item, consignor, merchantName, { consignmen
     variants: [{
       optionValues: [{ optionName: 'Title', name: 'Default Title' }],
       price: Number(item.shopifyPrice ?? item.price ?? 0).toFixed(2),
-      ...(item.itemNumber ? { sku: item.itemNumber } : {}),
+      sku: String(item.sku ?? item.itemNumber ?? ''),
       inventoryPolicy: 'DENY',
       taxable: true,
       inventoryItem: {
-        ...(item.itemNumber ? { sku: item.itemNumber } : {}),
+        sku: String(item.sku ?? item.itemNumber ?? ''),
+        ...(item.weight !== '' && item.weight != null ? { measurement: { weight: { value: Number(item.weight), unit: item.weightUnit || 'KILOGRAMS' } } } : {}),
         tracked: true,
         requiresShipping: true,
       },
@@ -1223,6 +1237,7 @@ export async function loader({ request }) {
           isManual: !entry.ruleSet,
         })),
         tags: organizationData.productTags?.nodes || [],
+        storefrontUrl: organizationData.shop?.primaryDomain?.url || '',
       });
     }
 
@@ -1861,6 +1876,10 @@ export async function action({ request }) {
           : Number(productInput.shopifyPrice),
         shopifyCategoryId: productInput.shopifyCategoryId || '',
         shopifyCategoryName: productInput.shopifyCategoryName || '',
+        sku: productInput.sku ?? existing.sku ?? existing.itemNumber ?? '',
+        weight: productInput.weight ?? existing.weight ?? '',
+        weightUnit: productInput.weightUnit || existing.weightUnit || 'KILOGRAMS',
+        shopifyHandle: productInput.shopifyHandle ?? existing.shopifyProductHandle ?? '',
         seoTitle: productInput.seoTitle || '',
         seoDescription: productInput.seoDescription || '',
         publishOnline: productInput.publishOnline === true,
@@ -1891,6 +1910,10 @@ export async function action({ request }) {
           shopifyPrice: productSource.shopifyPrice,
           shopifyCategoryId: productSource.shopifyCategoryId,
           shopifyCategoryName: productSource.shopifyCategoryName,
+          sku: productSource.sku,
+          weight: productSource.weight,
+          weightUnit: productSource.weightUnit,
+          shopifyHandle: productSource.shopifyHandle,
           seoTitle: productSource.seoTitle,
           seoDescription: productSource.seoDescription,
           publishOnline: productSource.publishOnline,

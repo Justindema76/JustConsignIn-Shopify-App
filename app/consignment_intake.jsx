@@ -791,6 +791,10 @@ function IntakeScreen({
   };
 
   const emptyShopifyForm = {
+    sku: undefined,
+    weight: '',
+    weightUnit: 'KILOGRAMS',
+    shopifyHandle: '',
     photo: null,
     photoId: null,
     media: [],
@@ -842,6 +846,9 @@ function IntakeScreen({
     setShopifyForm((current) => ({
       ...current,
       ...auto,
+      sku: current.sku ?? nextItemNumber,
+      seoTitle: current.seoTitle || auto.seoTitle,
+      seoDescription: current.seoDescription || auto.seoDescription,
       shopifyCategoryId: current.shopifyCategoryId,
       shopifyCategoryName: current.shopifyCategoryName,
       photo: current.photo,
@@ -861,6 +868,7 @@ function IntakeScreen({
     form.category,
     form.type,
     consignor.number,
+    nextItemNumber,
   ]);
 
   async function saveShopifyProduct() {
@@ -956,8 +964,9 @@ function IntakeScreen({
               vendor: shopifyForm.vendor,
               productDescription: shopifyForm.productDescription,
               tags: shopifyForm.tags,
-              photo: shopifyForm.photo,
-              shopifyPhoto: shopifyForm.photo,
+              photo: shopifyForm.media?.[0]?.url || shopifyForm.photo,
+              shopifyPhoto: shopifyForm.media?.[0]?.url || shopifyForm.photo,
+              shopifyMedia: shopifyForm.media || [],
             }}
           />
         </div>
@@ -1010,6 +1019,10 @@ function EditItemScreen({
     productDescription: item.productDescription || '',
     shopifyCategoryId: item.shopifyCategoryId || '',
     shopifyCategoryName: item.shopifyCategoryName || '',
+    sku: item.sku ?? item.itemNumber ?? '',
+    weight: item.weight ?? '',
+    weightUnit: item.weightUnit || 'KILOGRAMS',
+    shopifyHandle: item.shopifyProductHandle || item.shopifyHandle || '',
     seoTitle: item.seoTitle || '',
     seoDescription: item.seoDescription || '',
     publishToPos: true,
