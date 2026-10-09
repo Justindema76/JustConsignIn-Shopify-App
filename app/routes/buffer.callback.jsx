@@ -8,14 +8,15 @@ import {
 } from '../services/buffer.server';
 
 function socialRedirect({ shop, host, status }) {
-  // Return directly to the Shopify Admin app rather than routing an
-  // unauthenticated external OAuth callback through embedded auth.
-  const shopHandle = String(shop || '').split('.')[0];
-  if (!/^[a-z0-9][a-z0-9-]*$/.test(shopHandle)) {
-    throw new Error('Invalid Shopify store for Buffer redirect.');
+  const appUrl = String(process.env.SHOPIFY_APP_URL || '').replace(/\/$/, '');
+  if (!appUrl) {
+    throw new Error('SHOPIFY_APP_URL is not configured.');
   }
-  const url = new URL(`https://admin.shopify.com/store/${shopHandle}/apps/justconsignin/app/social`);
+
+  const url = new URL('/app/social', appUrl);
+  if (shop) url.searchParams.set('shop', shop);
   if (host) url.searchParams.set('host', host);
+  url.searchParams.set('embedded', '1');
   url.searchParams.set('buffer', status);
   return url.toString();
 }
