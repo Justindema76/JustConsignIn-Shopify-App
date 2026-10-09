@@ -64,7 +64,7 @@ export function bufferConfiguration() {
   const apiKeyConfigured = Boolean(process.env.BUFFER_API_KEY);
 
   return {
-    configured: oauthConfigured || apiKeyConfigured,
+    configured: oauthConfigured,
     oauthConfigured,
     apiKeyConfigured,
     clientId: process.env.BUFFER_CLIENT_ID || '',
@@ -307,23 +307,7 @@ async function validBufferAccessToken(shop) {
 export async function getBufferConnectionSummary(shop) {
   const connection = await db.bufferConnection.findUnique({ where: { shop } });
 
-  if (!connection) {
-    const apiKey = process.env.BUFFER_API_KEY;
-    if (!apiKey) return null;
-
-    const snapshot = await getBufferAccountSnapshot(apiKey);
-    const firstOrganization = snapshot.organizations?.[0] || null;
-
-    return {
-      connected: true,
-      mode: 'api-key',
-      accountName: snapshot.account?.name || snapshot.account?.email || 'Buffer account',
-      organizationName: firstOrganization?.name || null,
-      channels: snapshot.channels || [],
-      connectedAt: null,
-      updatedAt: null,
-    };
-  }
+  if (!connection) return null;
 
   let channels = [];
   try {
@@ -385,7 +369,6 @@ export async function createBufferPosts({
   existingPosts = [],
 }) {
   const connection = await db.bufferConnection.findUnique({ where: { shop } });
-  const apiKey = process.env.BUFFER_API_KEY || '';
 
   let knownChannels = [];
   let accessToken = '';
@@ -397,10 +380,6 @@ export async function createBufferPosts({
       knownChannels = [];
     }
     accessToken = await validBufferAccessToken(shop);
-  } else if (apiKey) {
-    const snapshot = await getBufferAccountSnapshot(apiKey);
-    knownChannels = snapshot.channels || [];
-    accessToken = apiKey;
   } else {
     throw new Error('Connect Buffer before creating social posts.');
   }
@@ -540,7 +519,6 @@ export async function createBufferPosts({
 
 export async function createBufferDrafts({ shop, channelIds, text, imageUrl }) {
   const connection = await db.bufferConnection.findUnique({ where: { shop } });
-  const apiKey = process.env.BUFFER_API_KEY || '';
 
   let knownChannels = [];
   let accessToken = '';
@@ -552,10 +530,6 @@ export async function createBufferDrafts({ shop, channelIds, text, imageUrl }) {
       knownChannels = [];
     }
     accessToken = await validBufferAccessToken(shop);
-  } else if (apiKey) {
-    const snapshot = await getBufferAccountSnapshot(apiKey);
-    knownChannels = snapshot.channels || [];
-    accessToken = apiKey;
   } else {
     throw new Error('Connect Buffer before creating social drafts.');
   }
