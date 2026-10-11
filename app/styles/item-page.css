@@ -1,0 +1,688 @@
+/* ============================================================================
+   ITEM DETAILS PAGE
+   Header (photo, title, price, badges, barcode, ••• menu), tabs, and the
+   Details tab. Every button, input and dropdown on this page is one height.
+   ============================================================================ */
+
+.consignment-item-page {
+  --control: 32px;
+  --item-width: 1000px;
+}
+
+/* Keep the page a readable width, centered, instead of stretching across
+   wide screens. The header no longer sticks: it is tall and would slide
+   under the app's tab bar when scrolling. */
+.consignment-item-page .consignment-header {
+  position: static;
+}
+
+.consignment-item-page .consignment-header-row {
+  max-width: var(--item-width);
+  margin: 0 auto;
+}
+
+.consignment-item-page .consignment-body {
+  width: 100%;
+  max-width: calc(var(--item-width) + 48px);
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.consignment-item-page h2 {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* One control height across the page */
+.consignment-item-page .consignment-btn {
+  min-width: 0;
+  height: var(--control);
+  padding: 0 14px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.consignment-item-page .consignment-input,
+.consignment-item-page .consignment-select {
+  height: var(--control);
+  padding-top: 0;
+  padding-bottom: 0;
+  box-sizing: border-box;
+}
+
+.consignment-item-page .consignment-theme-toggle {
+  width: var(--control);
+  height: var(--control);
+  min-width: var(--control);
+  flex-basis: var(--control);
+}
+
+/* ---------- Header ---------- */
+.consignment-item-photo {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-subtle);
+}
+
+.consignment-item-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.consignment-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-top: 6px;
+}
+
+.consignment-item-price {
+  font-size: 18px;
+}
+
+.consignment-item-consignor {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.consignment-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ••• menu */
+.consignment-item-menu {
+  position: relative;
+}
+
+.consignment-item-page .consignment-item-menu-button {
+  width: var(--control);
+  padding: 0;
+}
+
+.consignment-item-menu-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 40;
+  width: 200px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+}
+
+.consignment-item-menu-popover button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: var(--control);
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.consignment-item-menu-popover button:hover {
+  background: var(--surface-subtle);
+}
+
+.consignment-item-menu-popover button.danger {
+  color: var(--danger);
+}
+
+.consignment-item-menu-popover hr {
+  margin: 4px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- Tabs ---------- */
+.consignment-item-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 max(24px, calc((100% - var(--item-width)) / 2));
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.consignment-item-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: -1px;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.consignment-item-tabs button.active {
+  border-bottom-color: var(--green);
+  color: var(--green-dark);
+}
+
+.consignment-item-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.consignment-item-panel[hidden] {
+  display: none;
+}
+
+/* ---------- Details tab ---------- */
+.consignment-item-details-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 16px;
+  align-items: start;
+}
+
+.consignment-item-card {
+  padding: 16px;
+}
+
+.consignment-item-card h2 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.consignment-item-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.consignment-item-card-head h2 {
+  margin: 0;
+}
+
+.consignment-item-edit-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.consignment-item-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 24px;
+  margin: 0;
+}
+
+.consignment-item-facts > div {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.consignment-item-money dl > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.consignment-item-facts > div.wide {
+  grid-column: 1 / -1;
+  border-bottom: 0;
+}
+
+.consignment-item-facts dt,
+.consignment-item-money dt {
+  color: var(--muted);
+}
+
+.consignment-item-facts dd,
+.consignment-item-money dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.consignment-item-money dd {
+  text-align: right;
+}
+
+.consignment-item-facts > div.wide dd {
+  font-weight: 400;
+}
+
+.consignment-item-money dl {
+  margin: 0;
+}
+
+.consignment-item-money dl > div:last-child {
+  border-bottom: 0;
+}
+
+.consignment-item-delete-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.consignment-item-delete-confirm > div {
+  display: flex;
+  gap: 8px;
+}
+
+.consignment-item-locked {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 32px 16px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--muted);
+  text-align: center;
+}
+
+.consignment-item-locked strong {
+  color: var(--ink);
+}
+
+/* Shopify and social panels sit directly in their tabs */
+.consignment-shopify-embedded,
+.social-post-embedded {
+  padding: 0;
+}
+
+.social-post-embedded {
+  display: grid;
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .consignment-item-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .consignment-item-tabs {
+    padding: 0 8px;
+  }
+
+  .consignment-item-tabs button {
+    flex: 1;
+    justify-content: center;
+    padding: 11px 6px;
+  }
+
+  .consignment-item-photo {
+    width: 52px;
+    height: 52px;
+  }
+
+  .consignment-item-actions {
+    width: 100%;
+  }
+
+  .consignment-item-facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   MATCH SHOPIFY ADMIN (Polaris)
+   Same look as Shopify's own product page: 13px text, 32px controls with
+   8px corners, plain labels, white 12px-radius cards, sentence-case badges.
+   Phones keep fields at 16px so iOS doesn't zoom in on tap.
+   ============================================================================ */
+.consignment-item-page {
+  --p-text: var(--ink);
+  --p-text-secondary: var(--muted);
+  --p-border: var(--line);
+  --p-input-border: #8a8a8a;
+  --p-surface: var(--surface);
+  --p-button-edge: #b5b5b5;
+  --p-card-shadow: 0 1px 0 0 rgba(26, 26, 26, 0.07), 0 0 0 1px rgba(26, 26, 26, 0.04);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: var(--p-text);
+}
+
+.consignment-item-page h1,
+.consignment-item-page h2,
+.consignment-item-page h3,
+.consignment-item-page h4,
+.consignment-item-page input,
+.consignment-item-page select,
+.consignment-item-page textarea,
+.consignment-item-page button {
+  font-family: inherit;
+}
+
+html[data-consignment-theme='dark'] .consignment-item-page {
+  --p-input-border: #5f6973;
+  --p-button-edge: #2a3037;
+  --p-card-shadow: 0 0 0 1px var(--line);
+}
+
+/* Page title like Shopify's: 20px bold */
+.consignment-item-page .consignment-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Cards */
+.consignment-item-page .consignment-card,
+.consignment-item-page .consignment-shopify-product-card,
+.consignment-item-page .consignment-shopify-product-side-card,
+.consignment-item-page .consignment-item-locked {
+  border: 0;
+  border-radius: 12px;
+  background: var(--p-surface);
+  box-shadow: var(--p-card-shadow);
+}
+
+.consignment-item-page .consignment-shopify-product-card,
+.consignment-item-page .consignment-shopify-product-side-card,
+.consignment-item-page .consignment-item-card {
+  padding: 16px;
+}
+
+/* Section headings inside cards: 13px semibold */
+.consignment-item-page .consignment-item-card h2,
+.consignment-item-page .consignment-shopify-product-side-heading {
+  margin: 0 0 8px;
+  color: var(--p-text);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* Labels: plain 13px, like Shopify's "Title", "Description" */
+.consignment-item-page .consignment-label,
+.consignment-item-page .consignment-shopify-product-field-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--p-text);
+  font-size: 13px;
+  font-weight: 450;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Fields */
+.consignment-item-page .consignment-input,
+.consignment-item-page .consignment-select,
+.consignment-item-page .consignment-textarea {
+  border: 1px solid var(--p-input-border);
+  border-radius: 8px;
+  background: var(--p-surface);
+  color: var(--p-text);
+  font-size: 13px;
+}
+
+.consignment-item-page .consignment-input,
+.consignment-item-page .consignment-select {
+  height: var(--control);
+  padding: 0 12px;
+}
+
+.consignment-item-page .consignment-textarea {
+  padding: 6px 12px;
+  line-height: 20px;
+}
+
+.consignment-item-page .consignment-input:focus,
+.consignment-item-page .consignment-select:focus,
+.consignment-item-page .consignment-textarea:focus {
+  border-color: #005bd3;
+  box-shadow: 0 0 0 1px #005bd3;
+}
+
+/* Buttons: 32px, 8px corners, 13px semibold */
+.consignment-item-page .consignment-btn {
+  height: var(--control);
+  min-width: 0;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.12);
+}
+
+.consignment-item-page .consignment-btn.secondary {
+  border: 0;
+  background: var(--p-surface);
+  color: var(--p-text);
+  box-shadow: inset 0 -1px 0 0 var(--p-button-edge), inset 0 0 0 1px var(--line);
+}
+
+.consignment-item-page .consignment-btn.secondary:hover {
+  background: var(--surface-subtle);
+}
+
+/* Header controls share the 32px height */
+.consignment-item-page .consignment-theme-toggle,
+.consignment-item-page .consignment-back {
+  width: var(--control);
+  height: var(--control);
+  min-width: var(--control);
+  flex-basis: var(--control);
+  border-radius: 8px;
+}
+
+/* Badges like Shopify's "Active": sentence case, 12px, rounded */
+.consignment-item-page .consignment-header-meta .consignment-badge,
+.consignment-item-page .consignment-header-meta .consignment-product-badge,
+.consignment-item-page .consignment-item-money .consignment-badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.consignment-item-page .consignment-item-price {
+  font-size: 16px;
+}
+
+/* Tabs */
+.consignment-item-page .consignment-item-tabs button {
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+/* Everything else at 13px; small notes at 12px */
+.consignment-item-page .consignment-item-consignor,
+.consignment-item-page .consignment-item-facts > div,
+.consignment-item-page .consignment-item-money dl > div,
+.consignment-item-page .consignment-item-menu-popover button,
+.consignment-item-page .consignment-shopify-product-publish-option strong,
+.consignment-item-page .social-post-channel strong,
+.consignment-item-page .consignment-shopify-fold > summary {
+  font-size: 13px;
+}
+
+.consignment-item-page .consignment-item-facts dt,
+.consignment-item-page .consignment-item-money dt,
+.consignment-item-page .consignment-item-consignor {
+  color: var(--p-text-secondary);
+}
+
+.consignment-item-page .consignment-item-facts dd,
+.consignment-item-page .consignment-item-money dd {
+  font-weight: 550;
+}
+
+.consignment-item-page .consignment-item-facts > div,
+.consignment-item-page .consignment-item-money dl > div {
+  padding: 8px 0;
+  border-color: var(--p-border);
+}
+
+.consignment-item-page .consignment-form-help,
+.consignment-item-page .consignment-shopify-help,
+.consignment-item-page .consignment-shopify-product-publish-option small,
+.consignment-item-page .consignment-shopify-product-linked,
+.consignment-item-page .social-post-channel small,
+.consignment-item-page .social-post-hint,
+.consignment-item-page .social-link-button,
+.consignment-item-page .consignment-shopify-fold > summary small,
+.consignment-item-page .consignment-shopify-product-media-add-actions button,
+.consignment-item-page .consignment-shopify-product-media-add,
+.consignment-item-page .consignment-shopify-product-chip,
+.consignment-item-page .consignment-shopify-product-inline-link,
+.consignment-item-page .consignment-selected-category,
+.consignment-item-page .consignment-category-result {
+  font-size: 12px;
+}
+
+.consignment-item-page .consignment-form-help,
+.consignment-item-page .consignment-shopify-help,
+.consignment-item-page .consignment-shopify-product-publish-option small {
+  color: var(--p-text-secondary);
+}
+
+/* Folded "Search engine listing" row */
+.consignment-item-page .consignment-shopify-fold {
+  border-color: var(--p-border);
+  border-radius: 8px;
+}
+
+/* Checkboxes like Polaris */
+.consignment-item-page input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--green);
+}
+
+@media (max-width: 640px) {
+  .consignment-item-page .consignment-input,
+  .consignment-item-page .consignment-select,
+  .consignment-item-page .consignment-textarea,
+  .consignment-item-page input,
+  .consignment-item-page select,
+  .consignment-item-page textarea {
+    font-size: 16px;
+  }
+
+  .consignment-item-page .consignment-title {
+    font-size: 18px;
+  }
+}
+
+/* Icon-only ••• button: square, no padding, icon never shrinks */
+.consignment-item-page .consignment-btn.consignment-item-menu-button {
+  width: var(--control);
+  padding: 0;
+}
+
+.consignment-item-page .consignment-btn svg {
+  flex: none;
+}
+
+/* Header barcode chip: same 32px height as the other header controls,
+   with a barcode and number large enough to read */
+.consignment-barcode-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.consignment-barcode-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--control);
+  padding: 0 4px 0 10px;
+  border-radius: 8px;
+  background: var(--p-surface, var(--surface));
+  box-shadow: inset 0 -1px 0 0 var(--p-button-edge, #b5b5b5), inset 0 0 0 1px var(--line);
+  box-sizing: border-box;
+}
+
+.consignment-barcode-chip .consignment-item-barcode-graphic {
+  width: 120px;
+  height: 26px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 2px;
+  background: #fff;
+}
+
+/* Show only the bars in the chip; the number sits beside it, larger */
+.consignment-barcode-chip .consignment-item-barcode-graphic svg {
+  width: 100%;
+  height: 34px;
+}
+
+.consignment-barcode-chip-value {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.consignment-barcode-chip-copy {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--green-dark);
+  cursor: pointer;
+}
+
+.consignment-barcode-chip-copy:hover {
+  background: var(--green-soft);
+}
+
+@media (max-width: 640px) {
+  .consignment-barcode-chip-row {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .consignment-barcode-chip-row .consignment-btn {
+    flex: 1;
+    width: auto;
+  }
+
+  .consignment-barcode-chip .consignment-item-barcode-graphic {
+    width: 96px;
+  }
+}
