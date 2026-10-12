@@ -1,12 +1,48 @@
 import { authenticate } from '../shopify.server';
 import { ensureMetaobjectsInstalled } from '../metaobjects.server';
 import { requireTier2 } from '../billing.server';
+import { consignmentLocations, resolveEnabledIds } from '../locations.server';
+import { toCountryCode } from '../lib/addressFormats';
+import { isSold } from '../lib/consignmentHelpers';
+
+const STOCK_LOCATIONS_QUERY = `#graphql
+  query ItemStockLocations($ids: [ID!]!) {
+    nodes(ids: $ids) {
+      ... on Product {
+        id
+        variants(first: 1) {
+          nodes {
+            inventoryItem {
+              inventoryLevels(first: 10) {
+                nodes {
+                  location { id }
+                  quantities(names: ["on_hand"]) { quantity }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 
 const DATA_QUERY = `#graphql
   query ConsignmentData {
     shop {
       name
       currencyCode
+      shopAddress { countryCodeV2 province }
+      locationsSetting: metafield(namespace: "justconsignin", key: "consignment_locations") { value }
+    }
+    locations(first: 100, includeInactive: true, includeLegacy: true, sortKey: NAME) {
+      nodes {
+        id
+        name
+        isActive
+        fulfillmentService { id serviceName }
+        address { formatted city province provinceCode countryCode }
+      }
     }
     consignors: metaobjects(type: "consignor", first: 250) {
       nodes {
@@ -143,6 +179,7 @@ const DELETE_MUTATION = `#graphql
 
 const PRODUCT_LOCATION_QUERY = `#graphql
   query ProductLocation {
+    primaryLocation: location { id isActive }
     locations(first: 50) {
       nodes {
         id
@@ -463,7 +500,7 @@ function references(node) {
 }
 
 function parseConsignorDetails(rawValue) {
-  const fallback = { notes: rawValue || '', address: '', city: '', province: '', postalCode: '', unsoldPreference: 'Please return', importKey: '' };
+  const fallback = { notes: rawValue || '', address: '', city: '', province: '', postalCode: '', country: '', locationId: '', unsoldPreference: 'Please return', importKey: '' };
   if (!rawValue) return fallback;
   try {
     const parsed = JSON.parse(rawValue);
@@ -482,6 +519,8 @@ function consignorDetails(value) {
     city: value.city || '',
     province: value.province || '',
     postalCode: value.postalCode || '',
+    country: value.country || '',
+    locationId: value.locationId || '',
     unsoldPreference: value.unsoldPreference || 'Please return',
     importKey: value.importKey || '',
   });
@@ -505,6 +544,8 @@ function mapConsignor(node) {
     city: details.city,
     province: details.province,
     postalCode: details.postalCode,
+    country: details.country || '',
+    locationId: details.locationId || '',
     unsoldPreference: details.unsoldPreference || 'Please return',
     importKey: details.importKey || '',
   };
@@ -598,6 +639,7 @@ function mapItem(node) {
     payoutTotal: Number(savedDetails.payoutTotal || 0),
     payoutAdjustment: Number(savedDetails.payoutAdjustment || 0),
     saleSource: savedDetails.saleSource || '',
+    locationId: savedDetails.locationId || '',
     salePrice: field.sale_price == null ? null : Number(field.sale_price),
     dateSold: field.date_sold || null,
     orderName: field.order_name || null,
@@ -630,6 +672,7 @@ function parseItemDetails(rawValue) {
     payoutTotal: 0,
     payoutAdjustment: 0,
     saleSource: '',
+    locationId: '',
     importKey: '',
   };
   if (!rawValue) return fallback;
@@ -677,8 +720,20 @@ function itemDetails(value) {
     payoutTotal: Number(value.payoutTotal || 0),
     payoutAdjustment: Number(value.payoutAdjustment || 0),
     saleSource: value.saleSource || '',
+    locationId: value.locationId || '',
     importKey: value.importKey || '',
   });
+}
+
+// Where an item's stock goes in Shopify:
+// the item's own store, then the consignor's, then the Shopify default
+// location. Only used when the product is first created.
+function stockLocation(setup, item, consignor) {
+  const active = (id) => setup.locations.find((entry) => entry.id === id && entry.isActive);
+  if (item.locationId && active(item.locationId)) return active(item.locationId);
+  if (consignor?.locationId && active(consignor.locationId)) return active(consignor.locationId);
+  if (setup.primaryLocation?.isActive) return setup.primaryLocation;
+  return setup.location;
 }
 
 function field(key, value) {
@@ -898,7 +953,14 @@ async function getProductSetup(admin) {
     const name = String(entry.name || '').toLowerCase();
     return name.includes('facebook') || name.includes('instagram') || name.includes('meta');
   });
-  return { location, posPublication, onlineStorePublication, metaPublication };
+  return {
+    location,
+    locations: data.locations.nodes,
+    primaryLocation: data.primaryLocation,
+    posPublication,
+    onlineStorePublication,
+    metaPublication,
+  };
 
 }
 
@@ -1029,12 +1091,9 @@ async function activateForPos(admin, productId) {
 }
 
 async function syncPosProduct(admin, item, consignor, merchantName, { consignment = true } = {}) {
-  const {
-    location,
-    posPublication,
-    onlineStorePublication,
-    metaPublication,
-  } = await getProductSetup(admin);
+  const setup = await getProductSetup(admin);
+  const { posPublication, onlineStorePublication, metaPublication } = setup;
+  const location = stockLocation(setup, item, consignor);
   if (!location) {
     throw new Error(
       'No active Shopify location was found. Check Settings → Locations.',
@@ -1127,11 +1186,15 @@ async function syncPosProduct(admin, item, consignor, merchantName, { consignmen
         tracked: true,
         requiresShipping: true,
       },
-      inventoryQuantities: [{
-        locationId: location.id,
-        name: 'available',
-        quantity: 1,
-      }],
+      // Stock is set once, when the product is created. After that Shopify
+      // owns it: re-syncing never adds stock back or moves it.
+      ...(item.shopifyProductId ? {} : {
+        inventoryQuantities: [{
+          locationId: location.id,
+          name: 'available',
+          quantity: 1,
+        }],
+      }),
     }],
   };
 
@@ -1168,7 +1231,10 @@ async function syncPosProduct(admin, item, consignor, merchantName, { consignmen
     );
   }
   await publishResource(admin, data.productSet.product.id, publications, 'product');
-  return data.productSet.product;
+  return {
+    ...data.productSet.product,
+    locationId: item.shopifyProductId ? item.locationId || location.id : location.id,
+  };
 }
 
 async function loadData(admin) {
@@ -1178,10 +1244,92 @@ async function loadData(admin) {
     throw new Error(payload.errors.map((error) => error.message).join(', '));
   }
 
+  const { shop } = payload.data;
+  const locations = consignmentLocations(payload.data.locations?.nodes);
+  const { enabledIds } = resolveEnabledIds(locations, shop.locationsSetting?.value);
+  const defaultLocationId = singleLocationId(enabledIds);
+  // Consignors saved before a location was picked belong to the store's
+  // only location, when it has just one.
+  const consignors = payload.data.consignors.nodes
+    .map(mapConsignor)
+    .map((entry) => ({ ...entry, locationId: entry.locationId || defaultLocationId }));
+  const items = payload.data.items.nodes.map(mapItem);
+
   return {
-    shop: payload.data.shop,
-    consignors: payload.data.consignors.nodes.map(mapConsignor),
-    items: payload.data.items.nodes.map(mapItem),
+    shop: {
+      name: shop.name,
+      currencyCode: shop.currencyCode,
+      countryCode: shop.shopAddress?.countryCodeV2 || '',
+      province: shop.shopAddress?.province || '',
+    },
+    locations: locations.map(({ id, name, isActive, countryCode, province }) => ({
+      id, name, isActive, countryCode, province,
+    })),
+    enabledLocationIds: enabledIds,
+    consignors,
+    items: await withItemLocations(admin, items, consignors, locations, enabledIds),
+  };
+}
+
+// Each item's store. Items in Shopify follow their stock, so moving stock in
+// Shopify moves the item; other items use their saved store, then their
+// consignor's. Names are only filled in when there's more than one store to
+// tell apart, which keeps single-store screens unchanged.
+async function withItemLocations(admin, items, consignors, locations, enabledIds) {
+  const consignorLocation = new Map(consignors.map((entry) => [entry.id, entry.locationId]));
+  const multiStore = enabledIds.length > 1;
+  const stocked = multiStore ? await stockedLocations(admin, items) : new Map();
+  const nameById = new Map(locations.map((location) => [location.id, location.name]));
+
+  return items.map((item) => {
+    const locationId = stocked.get(item.shopifyProductId)
+      || item.locationId
+      || consignorLocation.get(item.consignorId)
+      || '';
+    const show = multiStore || (locationId && !enabledIds.includes(locationId));
+    return {
+      ...item,
+      locationId,
+      locationName: show ? nameById.get(locationId) || '' : '',
+    };
+  });
+}
+
+// Product id → the location holding its stock, for items not yet sold.
+async function stockedLocations(admin, items) {
+  const ids = [...new Set(
+    items
+      .filter((item) => item.shopifyProductId && !isSold(item))
+      .map((item) => item.shopifyProductId),
+  )];
+  const result = new Map();
+  for (let start = 0; start < ids.length; start += 50) {
+    try {
+      const data = await adminGraphql(admin, STOCK_LOCATIONS_QUERY, {
+        ids: ids.slice(start, start + 50),
+      });
+      for (const product of data.nodes || []) {
+        const levels = product?.variants?.nodes?.[0]?.inventoryItem?.inventoryLevels?.nodes || [];
+        const holding = levels.find((level) => (level.quantities?.[0]?.quantity || 0) > 0);
+        if (product?.id && holding) result.set(product.id, holding.location.id);
+      }
+    } catch (error) {
+      // Stock lookup is a nicety; fall back to saved stores if it fails.
+      console.error('Could not read item stock locations', error);
+    }
+  }
+  return result;
+}
+
+function singleLocationId(enabledIds) {
+  return enabledIds.length === 1 ? enabledIds[0] : '';
+}
+
+// A store with one enabled location uses it for every consignor.
+function withDefaultLocation(input, current) {
+  return {
+    ...input,
+    locationId: input.locationId || singleLocationId(current.enabledLocationIds),
   };
 }
 
@@ -1328,7 +1476,7 @@ export async function action({ request }) {
 
     if (request.method === 'POST' && body.operation === 'createConsignor') {
       const suggestedNumber = Math.max(0, ...current.consignors.map((entry) => entry.number)) + 1;
-      const input = body.consignor;
+      const input = withDefaultLocation(body.consignor, current);
       const requestedNumber = Number(input.number);
       const nextNumber = Number.isInteger(requestedNumber) && requestedNumber > 0
         ? requestedNumber
@@ -1355,7 +1503,7 @@ export async function action({ request }) {
       if (!existing) {
         return Response.json({ error: 'Consignor not found' }, { status: 404 });
       }
-      const input = body.consignor;
+      const input = withDefaultLocation(body.consignor, current);
       const requestedNumber = Number(input.number);
       const nextNumber = Number.isInteger(requestedNumber) && requestedNumber > 0
         ? requestedNumber
@@ -1456,6 +1604,8 @@ export async function action({ request }) {
             city: text(row.city),
             province: text(row.province),
             postalCode: text(row.postal_code || row.postalCode),
+            country: toCountryCode(text(row.country)) || existing?.country || '',
+            locationId: existing?.locationId || singleLocationId(current.enabledLocationIds),
             dateJoined: text(row.date_joined || row.dateJoined) || today(),
             commissionPct: Number(row.commission_pct || row.commissionPct || existing?.commissionPct || 50),
             unsoldPreference: text(row.unsold_preference || row.unsoldPreference) || 'Please return',
@@ -1560,6 +1710,7 @@ export async function action({ request }) {
             const value = {
               itemNumber,
               consignorId: consignor.id,
+              locationId: consignor.locationId || '',
               dateReceived: text(row.date_received || row.dateReceived) || today(),
               consignmentTerm: text(row.consignment_term || row.consignmentTerm) || '',
               expiryDate: calculateExpiryDate(
@@ -1633,6 +1784,7 @@ export async function action({ request }) {
                 itemHandle,
                 itemFields(value, {
                   shopifyProductId: product.id,
+                  locationId: product.locationId,
                   status: 'Available',
                 }),
               );
@@ -1758,7 +1910,7 @@ export async function action({ request }) {
           field('commission_pct', consignor.commissionPct),
           field('status', 'Draft'),
           field('brand', input.brand),
-          field('notes', itemDetails({ ...input, type: '' })),
+          field('notes', itemDetails({ ...input, type: '', locationId: consignor.locationId })),
         ]);
         savedItems.push(mapItem(saved));
       }
@@ -1987,6 +2139,7 @@ export async function action({ request }) {
         itemFields(existing, {
           photoId: productSource.photoId,
           shopifyProductId: product.id,
+          locationId: product.locationId,
           status: 'Available',
           tags: productSource.tags,
           vendor: productSource.vendor,

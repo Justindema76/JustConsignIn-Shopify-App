@@ -383,6 +383,12 @@ export default function EditItemScreen({
                         : '—'}
                     </dd>
                   </div>
+                  {item.locationName && (
+                    <div>
+                      <dt>Location</dt>
+                      <dd>{item.locationName}</dd>
+                    </div>
+                  )}
                   <div>
                     <dt>Consignor gets</dt>
                     <dd>{commissionPct}%</dd>
